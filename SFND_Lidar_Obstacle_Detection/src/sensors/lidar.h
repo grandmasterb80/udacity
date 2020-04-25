@@ -4,6 +4,8 @@
 #include <ctime>
 #include <chrono>
 
+#define USE_FAST_RAYCAST
+
 const double pi = 3.1415;
 
 struct Ray
@@ -29,7 +31,9 @@ struct Ray
 		  castPosition( origin ),
 		  castDistance( 0 )
 	{
+#ifndef USE_FAST_RAYCAST
         direction *= resolution;
+#endif // USE_FAST_RAYCAST
     }
 
 	void rayCast(const std::vector<Car>& cars, double minDistance, double maxDistance, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, double slopeAngle, double sderr)
@@ -61,7 +65,50 @@ struct Ray
 			}
 		}
 
-		if((castDistance >= minDistance)&&(castDistance<=maxDistance))
+		if( ( castDistance >= minDistance ) && ( castDistance <= maxDistance ) )
+		{
+			// add noise based on standard deviation error
+			double rx = ((double) rand() / (RAND_MAX));
+			double ry = ((double) rand() / (RAND_MAX));
+			double rz = ((double) rand() / (RAND_MAX));
+			cloud->points.push_back(pcl::PointXYZ(castPosition.x+rx*sderr, castPosition.y+ry*sderr, castPosition.z+rz*sderr));
+		}
+	}
+
+	void rayCastFast(const std::vector<Car>& cars, const double minDistance, const double maxDistance, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const Vect3 &groundNormal, const double sderr)
+	{
+		// reset ray
+		castPosition = origin;
+		castDistance = maxDistance;
+
+		bool collision = false;
+        int i = 0;
+        for(Car car : cars)
+        {
+            Vect3 hitPoint;
+            bool hit = car.checkRayCollision( origin, direction, castPosition, minDistance, castDistance);
+            collision |= hit;
+            if( hit && i==0 ) std::cout << "I hit myself at " << castDistance << "m,  range=[" << minDistance << ", " << maxDistance << "]" << std::endl;
+            i++;
+        }
+
+        {
+            double groundHitDistance;
+            double s_minus_p_dot_n = -origin.dot( groundNormal );
+            double d_dot_n = direction.dot( groundNormal );
+            if( fabs( d_dot_n ) > 0.01 ) // ==0 means ray is parallel to ground and would not hit unless the sensor lies directly in the ground, which can be neglected for our simulation
+            {
+                groundHitDistance = s_minus_p_dot_n / d_dot_n;
+                if( ( groundHitDistance >= minDistance ) && ( groundHitDistance <=maxDistance ) && ( !collision || collision && groundHitDistance < castDistance ) )
+                {
+                    castDistance = groundHitDistance;
+                    castPosition = origin + castDistance * direction;
+                    collision = true;
+                }
+            }
+        }
+
+		if( collision && ( castDistance >= minDistance ) && ( castDistance <= maxDistance ) )
 		{
 			// add noise based on standard deviation error
 			double rx = ((double) rand() / (RAND_MAX));
@@ -144,9 +191,15 @@ struct Lidar
 		//for(Ray ray : rays)
 		//	ray.rayCast(cars, minDistance, maxDistance, cloud, groundSlope, sderr);
 
+        // running ray casting in parallel makes only sense for the original implementation of the raycast
+        // with the improved computation, overhead already starts with a second thread
 #if defined(_OPENMP)
         {        
+#ifdef USE_FAST_RAYCAST
+            int max_threads = 2;
+#else // USE_FAST_RAYCAST
             int max_threads = omp_get_max_threads();
+#endif // USE_FAST_RAYCAST
             int num_rays = rays.size();
             #pragma omp parallel shared(max_threads, num_rays, cars, minDistance, maxDistance, cloud, groundSlope, sderr)
             {
@@ -157,7 +210,13 @@ struct Lidar
                     int firstElement = num_rays * i / max_threads;
                     int lastElement = num_rays * ( i + 1 ) / max_threads - 1;
                     for(std::vector<Ray>::iterator ray = rays.begin() + firstElement; ray != rays.begin() + lastElement; ray++)
+                    {
+#ifdef USE_FAST_RAYCAST
+                        ray->rayCastFast(cars, minDistance, maxDistance, sub_cloud, groundNormal, sderr);
+#else // USE_FAST_RAYCAST
                         ray->rayCast(cars, minDistance, maxDistance, sub_cloud, groundSlope, sderr);
+#endif // USE_FAST_RAYCAST
+                    }
                     #pragma omp critical
                     cloud->insert( cloud->end(), sub_cloud->begin(), sub_cloud->end() );
                 }
@@ -165,7 +224,13 @@ struct Lidar
         }
 #else
 		for(Ray ray : rays)
-			ray.rayCast(cars, minDistance, maxDistance, cloud, groundSlope, sderr);
+        {
+#ifdef USE_FAST_RAYCAST
+            ray.rayCastFast(cars, minDistance, maxDistance, cloud, groundNormal, sderr);
+#else // USE_FAST_RAYCAST
+            ray.rayCast(cars, minDistance, maxDistance, cloud, groundSlope, sderr);
+#endif // USE_FAST_RAYCAST
+        }
 #endif
 
         cout << "#rays=" << rays.size() << "    #points=" << cloud->size() << endl;

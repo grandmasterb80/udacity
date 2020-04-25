@@ -23,9 +23,14 @@ struct Ray
 	// resolution: the magnitude of the ray's step, used for ray casting, the smaller the more accurate but the more expensive
 
 	Ray(Vect3 setOrigin, double horizontalAngle, double verticalAngle, double setResolution)
-		: origin(setOrigin), resolution(setResolution), direction(resolution*cos(verticalAngle)*cos(horizontalAngle), resolution*cos(verticalAngle)*sin(horizontalAngle),resolution*sin(verticalAngle)),
-		  castPosition(origin), castDistance(0)
-	{}
+		: origin( setOrigin ),
+		  resolution( setResolution ),
+		  direction( cos( verticalAngle ) * cos( horizontalAngle ), cos( verticalAngle ) * sin( horizontalAngle ), sin( verticalAngle ) ),
+		  castPosition( origin ),
+		  castDistance( 0 )
+	{
+        direction *= resolution;
+    }
 
 	void rayCast(const std::vector<Car>& cars, double minDistance, double maxDistance, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, double slopeAngle, double sderr)
 	{

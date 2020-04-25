@@ -123,8 +123,37 @@ struct Lidar
 	{
 		cloud->points.clear();
 		auto startTime = std::chrono::steady_clock::now();
+
+// #pragma omp declare reduction (merge : pcl::PointCloud<pcl::PointXYZ>::Ptr : omp_out->insert(omp_out->end(), omp_in->begin(), omp_in->end()))
+// #pragma omp parallel for reduction(merge: cloud)
+		//for(Ray ray : rays)
+		//	ray.rayCast(cars, minDistance, maxDistance, cloud, groundSlope, sderr);
+
+#if defined(_OPENMP)
+        {        
+            int max_threads = omp_get_max_threads();
+            int num_rays = rays.size();
+            #pragma omp parallel shared(max_threads, num_rays, cars, minDistance, maxDistance, cloud, groundSlope, sderr)
+            {
+                pcl::PointCloud<pcl::PointXYZ>::Ptr sub_cloud ( new pcl::PointCloud<pcl::PointXYZ>() );
+                #pragma omp for
+                for(int i = 0; i < max_threads; ++i)
+                {
+                    int firstElement = num_rays * i / max_threads;
+                    int lastElement = num_rays * ( i + 1 ) / max_threads - 1;
+                    for(std::vector<Ray>::iterator ray = rays.begin() + firstElement; ray != rays.begin() + lastElement; ray++)
+                        ray->rayCast(cars, minDistance, maxDistance, sub_cloud, groundSlope, sderr);
+                    #pragma omp critical
+                    cloud->insert( cloud->end(), sub_cloud->begin(), sub_cloud->end() );
+                }
+            }
+        }
+#else
 		for(Ray ray : rays)
 			ray.rayCast(cars, minDistance, maxDistance, cloud, groundSlope, sderr);
+#endif
+
+        cout << "#rays=" << rays.size() << "    #points=" << cloud->size() << endl;
 		auto endTime = std::chrono::steady_clock::now();
 		auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
 		cout << "ray casting took " << elapsedTime.count() << " milliseconds" << endl;

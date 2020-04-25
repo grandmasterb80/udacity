@@ -90,8 +90,8 @@ struct Car
 	{
 		return (inbetween(point.x,position.x,dimensions.x/2)&&inbetween(point.y,position.y,dimensions.y/2)&&inbetween(point.z,position.z+dimensions.z/3,dimensions.z/3))||
 			   (inbetween(point.x,position.x,dimensions.x/4)&&inbetween(point.y,position.y,dimensions.y/2)&&inbetween(point.z,position.z+dimensions.z*5/6,dimensions.z/6));
-
 	}
+
 	// from chaosTechnician: https://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
     // Helper function for Line/AABB test.  Tests collision on a single dimension
     // Param:    Start of line, Direction/length of line,

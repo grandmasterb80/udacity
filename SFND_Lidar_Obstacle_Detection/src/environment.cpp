@@ -55,7 +55,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     
     // TODO:: Create lidar sensor
     // struct Lidar::Lidar(std::vector<Car> setCars, double setGroundSlope)
-    myLidar = new Lidar(cars, 0.0);
+    myLidar = new Lidar(cars, 0.0 /*5.0 * pi / 180.0*/);
     PointCloudPtr lidarScan = myLidar->scan();
     //renderRays( viewer, cars[0].position + myLidar->position, lidarScan );
     //void clearRays(pcl::visualization::PCLVisualizer::Ptr& viewer)

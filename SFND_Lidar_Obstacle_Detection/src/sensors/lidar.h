@@ -88,6 +88,10 @@ struct Lidar
 	double resolution;
 	double sderr;
 
+    /// Value that can be used to compute #points in specific applications (e.g. expected #points in a cluster of an object).
+    /// think of #points / square meter @ 1m distance
+    float density;
+
 	Lidar(std::vector<Car> setCars, double setGroundSlope)
 		: cloud(new pcl::PointCloud<pcl::PointXYZ>()), position(0,0,2.6), groundNormal( sin ( setGroundSlope ), 0.0, cos( setGroundSlope ) )
 	{
@@ -118,12 +122,17 @@ struct Lidar
 				rays.push_back(ray);
 			}
 		}
+
+        density = rays.size() / ( 2.0 * pi ) / fabs( sin( steepestAngle ) - sin( steepestAngle + angleRange ) );
+        cout << "Lidar has about a density of " << density << " points per square meter at 1m distance" << endl;
 	}
 
 	~Lidar()
 	{
 		// pcl uses boost smart pointers for cloud pointer so we don't have to worry about manually freeing the memory
 	}
+
+	inline float PointDensity() { return density; }
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr scan()
 	{

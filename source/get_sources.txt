@@ -8,11 +8,16 @@ SFND_Lidar_Obstacle_Detection:
 
 git clone https://github.com/udacity/SFND_Lidar_Obstacle_Detection.git
 
-Copy PCD files into own copy of the repo
-Source: SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+Copy Media and PCD files into own copy of the repo
+    Source: SFND_Lidar_Obstacle_Detection/media
+    Source: SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
 
 Instructions:
-mkdir -p ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
-cp -r SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
-echo "pcd" >> ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd/.gitignore
+    mkdir -p ../SFND_Lidar_Obstacle_Detection/media
+    cp -r SFND_Lidar_Obstacle_Detection/media ../SFND_Lidar_Obstacle_Detection/media
+    echo "media" >> ../SFND_Lidar_Obstacle_Detection/.gitignore
+
+    mkdir -p ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+    cp -r SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+    echo "pcd" >> ../SFND_Lidar_Obstacle_Detection/src/sensors/data/.gitignore
 

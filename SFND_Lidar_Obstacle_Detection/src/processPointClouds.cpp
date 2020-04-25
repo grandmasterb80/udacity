@@ -100,6 +100,8 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     std::cout << "plane segmentation took " << elapsedTime.count() << " milliseconds" << std::endl;
 
     std::pair<typename pcl::PointCloud< PointT >::Ptr, typename pcl::PointCloud< PointT >::Ptr> segResult = SeparateClouds( inliers, cloud );
+    // segResult.first contains the plane
+    // segResult.second contains the outliers, which are expected to be the (yet unclustered) objects
 
     return segResult;
 }

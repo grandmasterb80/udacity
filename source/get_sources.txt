@@ -1,0 +1,18 @@
+How to get the data for the tutorials
+
+
+Udacity: sensor fusion course
+-----------------------------
+
+SFND_Lidar_Obstacle_Detection:
+
+git clone https://github.com/udacity/SFND_Lidar_Obstacle_Detection.git
+
+Copy PCD files into own copy of the repo
+Source: SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+
+Instructions:
+mkdir -p ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+cp -r SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+echo "pcd" >> ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd/.gitignore
+

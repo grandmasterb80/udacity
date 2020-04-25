@@ -1,6 +1,8 @@
 /* \author Aaron Brown */
 // Quiz on implementing simple RANSAC line fitting
 
+#include <cstdlib>
+
 #include "../../render/render.h"
 #include <unordered_set>
 #include "../../processPointClouds.h"
@@ -66,19 +68,70 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 	std::unordered_set<int> inliersResult;
 	srand(time(NULL));
 	
-	// TODO: Fill in this function
+    uint32_t numPoints = cloud->size();
+    if( numPoints <= 2 )
+    {
+        cout << "Data set has only " << numPoints << " points ==> All points are considered as inliers" << endl;
+        for( int i = 0; i < numPoints; i++ )
+        {
+            inliersResult.insert( i );
+        }
+    }
+    else
+    {
+        float distanceTol2 = distanceTol * distanceTol;
+        // TODO: Fill in this function
+        for( int i = 0; i < maxIterations; i++ )
+        {
+            std::unordered_set<int> intermediateInliersResult;
+            uint32_t p1 = 0;
+            uint32_t p2 = 0;
+            do {
+                p1 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
+                p2 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
+            } while( p1 == p2 );
+            pcl::PointXYZ delta;
+            pcl::PointXYZ normal;
 
-	// For max iterations 
-
-	// Randomly sample subset and fit line
-
-	// Measure distance between every point and fitted line
-	// If distance is smaller than threshold count it as inlier
-
-	// Return indicies of inliers from fitted line with most inliers
-	
+            delta.getArray3fMap() = cloud->at( p1 ).getArray3fMap() + cloud->at( p2 ).getArray3fMap();
+            float dlength = sqrt( delta.x * delta.x + delta.y * delta.y + delta.z * delta.z );
+            normal.x = -delta.y / dlength;
+            normal.y = delta.x / dlength;
+            normal.z = delta.z / dlength;
+            //normal
+            
+            uint32_t numOutliersBest = numPoints - inliersResult.size();
+            uint32_t numOutliers = 0;
+            for( uint32_t j = 0; j < numPoints && numOutliers < numOutliersBest; j++ )
+            {
+                if( j == p1 || j == p2 )
+                {
+                    intermediateInliersResult.insert( j );
+                }
+                else
+                {
+                    pcl::PointXYZ p;
+                    p.getArray3fMap() = cloud->at( j ).getArray3fMap() - cloud->at( p1 ).getArray3fMap();
+                    p.getArray3fMap() *= normal.getArray3fMap();
+                    if( fabs( p.x + p.y + p.z ) < distanceTol2 )
+                    {
+                        intermediateInliersResult.insert( j );
+                    }
+                    else
+                    {
+                        numOutliers++;
+                    }
+                }
+            }
+            if( intermediateInliersResult.size() > inliersResult.size() )
+            {
+                cout << "New inlier data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << endl;
+                inliersResult = intermediateInliersResult;
+            }
+        }
+    }
+    cout << "Data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << endl;
 	return inliersResult;
-
 }
 
 int main ()
@@ -92,7 +145,7 @@ int main ()
 	
 
 	// TODO: Change the max iteration and distance tolerance arguments for Ransac function
-	std::unordered_set<int> inliers = Ransac(cloud, 0, 0);
+	std::unordered_set<int> inliers = Ransac(cloud, 10, 0.8);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr  cloudInliers(new pcl::PointCloud<pcl::PointXYZ>());
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOutliers(new pcl::PointCloud<pcl::PointXYZ>());

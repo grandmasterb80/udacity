@@ -8,6 +8,8 @@
 // using templates for processPointClouds so also include .cpp to help linker
 #include "processPointClouds.cpp"
 
+typedef typename pcl::PointCloud< pcl::PointXYZ >::Ptr PointCloudPtr;
+
 Lidar* myLidar;
 ProcessPointClouds < pcl::PointXYZ > *myPPC;
 
@@ -43,15 +45,29 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     // ----------------------------------------------------
     // -----Open 3D viewer and display simple highway -----
     // ----------------------------------------------------
+    Color cloudColor         ( 0.0, 0.0, 1.0);
+    Color cloudColorPlane    ( 0.0, 1.0, 0.0);
+    Color cloudColorObstacles( 1.0, 0.0, 0.0);
     
     // RENDER OPTIONS
-    bool renderScene = true;
+    bool renderScene = false;
     std::vector<Car> cars = initHighway(renderScene, viewer);
     
-    // TODO:: Create lidar sensor 
+    // TODO:: Create lidar sensor
+    // struct Lidar::Lidar(std::vector<Car> setCars, double setGroundSlope)
+    myLidar = new Lidar(cars, 0.0);
+    PointCloudPtr lidarScan = myLidar->scan();
+    //renderRays( viewer, cars[0].position + myLidar->position, lidarScan );
+    //void clearRays(pcl::visualization::PCLVisualizer::Ptr& viewer)
+    //renderPointCloud( viewer, lidarScan, "Lidar Scan", cloudColor);
 
     // TODO:: Create point processor
-  
+    myPPC = new ProcessPointClouds< pcl::PointXYZ >(); //::ProcessPointClouds() {}
+    std::pair< PointCloudPtr, PointCloudPtr > scanSegments = myPPC->SegmentPlane(lidarScan, 1000, 0.3);
+
+    renderPointCloud( viewer, scanSegments.first, "Plane Segment", cloudColorPlane);
+    renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles);
+
 }
 
 

@@ -201,7 +201,8 @@ struct Lidar
             int max_threads = omp_get_max_threads();
 #endif // USE_FAST_RAYCAST
             int num_rays = rays.size();
-            #pragma omp parallel shared(max_threads, num_rays, cars, minDistance, maxDistance, cloud, groundSlope, sderr)
+            //#pragma omp parallel shared(max_threads, num_rays, rays, cars, minDistance, maxDistance, cloud, groundSlope, sderr)
+            #pragma omp parallel
             {
                 pcl::PointCloud<pcl::PointXYZ>::Ptr sub_cloud ( new pcl::PointCloud<pcl::PointXYZ>() );
                 #pragma omp for

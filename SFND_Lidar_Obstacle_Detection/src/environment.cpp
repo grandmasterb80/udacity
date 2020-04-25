@@ -86,6 +86,7 @@ int main (int argc, char** argv)
     myPPC = nullptr;
 
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+    // valid values: CameraAngle setAngle = {XY, TopDown, Side, FPS}
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
     simpleHighway(viewer);

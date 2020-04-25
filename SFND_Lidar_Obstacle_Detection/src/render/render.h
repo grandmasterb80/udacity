@@ -88,7 +88,7 @@ struct Car
 		return (center-range <= point) && (center+range >= point);
 	}
 
-	bool checkCollision(Vect3 point)
+	bool checkCollision(const Vect3 &point)
 	{
 		return (inbetween(point.x,position.x,dimensions.x/2)&&inbetween(point.y,position.y,dimensions.y/2)&&inbetween(point.z,position.z+dimensions.z/3,dimensions.z/3))||
 			   (inbetween(point.x,position.x,dimensions.x/4)&&inbetween(point.y,position.y,dimensions.y/2)&&inbetween(point.z,position.z+dimensions.z*5/6,dimensions.z/6));

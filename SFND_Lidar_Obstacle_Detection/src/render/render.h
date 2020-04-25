@@ -7,8 +7,8 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include "box.h"
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 struct Color
 {

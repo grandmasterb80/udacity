@@ -209,6 +209,7 @@ struct Lidar
 #else // USE_FAST_RAYCAST
             int max_threads = omp_get_max_threads();
 #endif // USE_FAST_RAYCAST
+
             int num_rays = rays.size();
             //#pragma omp parallel shared(max_threads, num_rays, rays, cars, minDistance, maxDistance, cloud, groundSlope, sderr)
             #pragma omp parallel

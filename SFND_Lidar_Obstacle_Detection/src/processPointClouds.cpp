@@ -67,6 +67,8 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 template<typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SegmentPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceThreshold)
 {
+    std::cout << "Clustering pointcloud to plane with " << cloud->size() << " points using max " << maxIterations << " iterations and a threshold of " << distanceThreshold << std::endl;
+
     // Time segmentation process
     auto startTime = std::chrono::steady_clock::now();
     

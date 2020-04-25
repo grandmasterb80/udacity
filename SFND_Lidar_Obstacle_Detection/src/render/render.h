@@ -29,8 +29,25 @@ struct Vect3
 		: x(setX), y(setY), z(setZ)
 	{}
 
+	Vect3(const Vect3& p)
+		: x( p.x ), y( p.y ), z( p.z )
+    {}
+
+	Vect3()
+		: x( 0.0 ), y( 0.0 ), z( 0.0 )
+    {}
+
 	Vect3 operator+(const Vect3& vec);
+	Vect3 operator-(const Vect3& vec);
+	Vect3 operator*(const Vect3& vec);
+	double dot(const Vect3& vec);
+	Vect3 operator*(const double a);
 };
+
+Vect3 operator*(const double a, const Vect3& vec);
+Vect3 operator+(const Vect3& vec1, const Vect3& vec2);
+Vect3 operator-(const Vect3& vec1, const Vect3& vec2);
+Vect3 operator*(const Vect3& vec1, const Vect3& vec2);
 
 enum CameraAngle
 {
@@ -63,6 +80,7 @@ struct Car
     viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, color.r, color.g, color.b, name+"Top");
     viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1.0, name+"Top");
 	}
+  	void render(pcl::visualization::PCLVisualizer::Ptr& viewer);
 
 	// collision helper function
 	bool inbetween(double point, double center, double range)

@@ -29,11 +29,7 @@ struct Vect3
 		: x(setX), y(setY), z(setZ)
 	{}
 
-	Vect3 operator+(const Vect3& vec)
-	{
-		Vect3 result(x+vec.x,y+vec.y,z+vec.z);
-		return result;
-	}
+	Vect3 operator+(const Vect3& vec);
 };
 
 enum CameraAngle

@@ -45,9 +45,19 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     // ----------------------------------------------------
     // -----Open 3D viewer and display simple highway -----
     // ----------------------------------------------------
-    Color cloudColor         ( 0.0, 0.0, 1.0);
-    Color cloudColorPlane    ( 0.0, 1.0, 0.0);
-    Color cloudColorObstacles( 1.0, 0.0, 0.0);
+    static const Color cloudColor         ( 0.0, 0.0, 1.0);
+    static const Color cloudColorPlane    ( 0.0, 1.0, 0.0);
+    static const std::vector< Color > cloudColorObstacles (
+    {   
+        Color( 1.0, 0.0, 0.0),
+        Color( 1.0, 1.0, 0.0),
+        Color( 1.0, 0.0, 1.0),
+        Color( 0.0, 1.0, 1.0),
+        Color( 0.6, 0.0, 0.0),
+        Color( 0.6, 0.6, 0.0),
+        Color( 0.6, 0.0, 0.6),
+        Color( 0.0, 0.6, 0.6),
+    } );
     
     // RENDER OPTIONS
     bool renderScene = false;
@@ -66,7 +76,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     std::pair< PointCloudPtr, PointCloudPtr > scanSegments = myPPC->SegmentPlane(lidarScan, 3 + log( myLidar->PointDensity() ), 0.22);
 
     renderPointCloud( viewer, scanSegments.first, "Plane Segment", cloudColorPlane);
-    renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles);
+    //renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles[0] );
 
 }
 

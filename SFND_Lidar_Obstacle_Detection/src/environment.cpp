@@ -8,6 +8,9 @@
 // using templates for processPointClouds so also include .cpp to help linker
 #include "processPointClouds.cpp"
 
+Lidar* myLidar;
+ProcessPointClouds < pcl::PointXYZ > *myPPC;
+
 std::vector<Car> initHighway(bool renderScene, pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
 
@@ -79,6 +82,8 @@ void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr& vi
 int main (int argc, char** argv)
 {
     std::cout << "starting enviroment" << std::endl;
+    myLidar = nullptr;
+    myPPC = nullptr;
 
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     CameraAngle setAngle = XY;
@@ -89,4 +94,7 @@ int main (int argc, char** argv)
     {
         viewer->spinOnce ();
     } 
+
+    if( myLidar != nullptr ) { delete myLidar; myLidar = nullptr; }
+    if( myPPC != nullptr ) { delete myPPC; myPPC = nullptr; }
 }

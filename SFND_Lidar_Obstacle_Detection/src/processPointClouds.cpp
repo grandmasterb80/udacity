@@ -71,7 +71,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     // Time segmentation process
     auto startTime = std::chrono::steady_clock::now();
-    
+
     // TODO:: Fill in this function to find inliers for the cloud.
 // --------------------- DANIEL SOLUTION START ---------------------
     pcl::PointIndices::Ptr inliers ( new pcl::PointIndices () );
@@ -94,7 +94,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
         std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
     }
 // --------------------- DANIEL SOLUTION END ---------------------
-    
+
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "plane segmentation took " << elapsedTime.count() << " milliseconds" << std::endl;
@@ -118,6 +118,40 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
     std::vector<typename pcl::PointCloud< PointT >::Ptr> clusters;
 
     // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
+// --------------------- DANIEL SOLUTION START ---------------------
+    // Creating the KdTree object for the search method of the extraction
+    typename pcl::search::KdTree< PointT >::Ptr tree ( new pcl::search::KdTree< PointT > );
+    tree->setInputCloud ( cloud );
+
+    pcl::EuclideanClusterExtraction< PointT > ec;
+    ec.setClusterTolerance ( clusterTolerance ); // kind of the size
+    ec.setMinClusterSize ( minSize ); // minimal number of points for considering any cluster an object cluster
+    ec.setMaxClusterSize ( maxSize ); // maximal number of points for considering any cluster an object cluster (to consider to separate big clusters into multiple objects)
+    ec.setSearchMethod ( tree );      // KD tree created above
+    ec.setInputCloud ( cloud );
+
+    // now the actual clustering
+    std::vector< pcl::PointIndices > cluster_indices;
+    ec.extract ( cluster_indices );
+
+    // extract the points into dedicated sets of points (instead of using the set of point indicies)
+    int j = 0;
+    for ( std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it )
+    {
+        typename pcl::PointCloud< PointT >::Ptr cloud_cluster ( new pcl::PointCloud< PointT > );
+        for ( std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit )
+        {
+            cloud_cluster->points.push_back ( cloud->points[ *pit ] ); //*
+        }
+        cloud_cluster->width = cloud_cluster->points.size ();
+        cloud_cluster->height = 1;
+        cloud_cluster->is_dense = true;
+
+        std::cout << "PointCloud representing the Cluster " << j << ": " << cloud_cluster->points.size () << " data points." << std::endl;
+        clusters.push_back( cloud_cluster );
+        j++;
+    }
+// --------------------- DANIEL SOLUTION END ---------------------
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);

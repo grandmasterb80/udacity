@@ -78,6 +78,18 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     renderPointCloud( viewer, scanSegments.first, "Plane Segment", cloudColorPlane);
     //renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles[0] );
 
+    std::vector< PointCloudPtr > objectClusters ( myPPC->Clustering( scanSegments.second, 1.5, myLidar->PointDensity() / 120, myLidar->PointDensity() / 10 ) );
+    uint32_t j = 0;
+    for( PointCloudPtr obj : objectClusters )
+    {
+        // generate name for the cluster
+        std::stringstream objName;
+        objName << "Object Cluster " << j;
+        j++;
+
+        // render object
+        renderPointCloud( viewer, obj, objName.str(), cloudColorObstacles[ j % cloudColorObstacles.size() ] );
+    }
 }
 
 

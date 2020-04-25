@@ -110,6 +110,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 template<typename PointT>
 std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT >::Clustering(typename pcl::PointCloud< PointT >::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
 {
+    std::cout << "Clustering pointcloud to objects with " << cloud->size() << " points into clusters of size " << clusterTolerance << ", min #points " << minSize <<  " max #points " << maxSize << std::endl;
 
     // Time clustering process
     auto startTime = std::chrono::steady_clock::now();

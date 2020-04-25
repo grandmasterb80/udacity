@@ -152,13 +152,22 @@ struct Lidar
 		groundSlope = setGroundSlope;
 
 		// TODO:: increase number of layers to 8 to get higher resolution pcd
-		int numLayers = 64; //8;
+        // set for HDL64E
+		int numLayers = 64;
 		// the steepest vertical angle
-		double steepestAngle = -24.9*pi/180; // 30.0*(-pi/180);
-		double angleRange = 26.9*pi/180; //26.0*(pi/180);
+		double steepestAngle = -24.9*pi/180;
+		double angleRange = 26.9*(pi/180);
 		// TODO:: set to pi/64 to get higher resolution pcd
-		double horizontalAngleInc = 0.08*pi/180;  // pi/64
-
+		double horizontalAngleInc = 0.08*pi/180;
+/*
+        // training set
+        int numLayers = 8;
+		// the steepest vertical angle
+		double steepestAngle = -30.0*pi/180;
+		double angleRange = 26.0*pi/180;
+		// TODO:: set to pi/64 to get higher resolution pcd
+		double horizontalAngleInc = pi/64;
+*/
 		double angleIncrement = angleRange/numLayers;
 
 		for(double angleVertical = steepestAngle; angleVertical < steepestAngle+angleRange; angleVertical+=angleIncrement)

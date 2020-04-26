@@ -31,8 +31,11 @@ std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vecto
             pointsToCheck.insert( pointsToCheck.end(), pointsToCheckNew.begin(), pointsToCheckNew.end() );
         } while( !pointsToCheck.empty() );
 
-        std::vector < int > newCluster( newClusterSet.begin(), newClusterSet.end() );
-        clusters.push_back( newCluster );
+        if( newClusterSet.size() >= minSize && newClusterSet.size() <= maxSize )
+        {
+            std::vector < int > newCluster( newClusterSet.begin(), newClusterSet.end() );
+            clusters.push_back( newCluster );
+        }
     }
     std::cout << "euclideanCluster: found " << clusters.size() << " clusters with size {";
     for( std::vector<int> c : clusters )

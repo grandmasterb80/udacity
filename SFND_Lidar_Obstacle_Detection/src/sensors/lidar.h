@@ -116,7 +116,6 @@ struct Ray
 			double rz = ((double) rand() / (RAND_MAX));
 			cloud->points.push_back(pcl::PointXYZ(castPosition.x+rx*sderr, castPosition.y+ry*sderr, castPosition.z+rz*sderr));
 		}
-			
 	}
 
 };

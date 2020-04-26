@@ -127,7 +127,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     typename pcl::PointCloud< PointT >::Ptr obstacles ( new pcl::PointCloud < PointT > );
 
     // Create the filtering object
-    pcl::ExtractIndices<pcl::PointXYZ> extract;
+    pcl::ExtractIndices< PointT > extract;
     // Extract the inliers
     extract.setInputCloud ( cloud );
     extract.setIndices ( inliers );
@@ -300,7 +300,7 @@ BoxQ ProcessPointClouds<PointT>::BoundingQBox(typename pcl::PointCloud<PointT>::
     Eigen::Matrix4f projectionTransform( Eigen::Matrix4f::Identity() );
     projectionTransform.block<3,3>(0,0) = eigenVectorsPCA.transpose();
     projectionTransform.block<3,1>(0,3) = -1.0f * ( projectionTransform.block<3,3> ( 0, 0 ) * pcaCentroid.head<3> () );
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPointsProjected ( new pcl::PointCloud< pcl::PointXYZ > );
+    typename pcl::PointCloud< PointT >::Ptr cloudPointsProjected ( new pcl::PointCloud< PointT > );
     pcl::transformPointCloud( *cluster, *cloudPointsProjected, projectionTransform );
     // Get the minimum and maximum points of the transformed cloud.
     pcl::getMinMax3D( *cloudPointsProjected, minPoint, maxPoint );

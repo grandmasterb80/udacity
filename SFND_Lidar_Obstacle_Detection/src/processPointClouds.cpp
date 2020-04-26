@@ -72,6 +72,26 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     //range_filt.setInputCloud( cloud );
     range_filt.setCondition ( ROI_cond_and_EGO );
     range_filt.filter( *filteredCloud );
+
+/*
+    // variant: remove ego roof points
+    CropBox cropBox( false );
+    cropBox.setMin( minEgo );
+    cropBox.setMax( maxEgo );
+    cropBox.filter( cloud );
+*/
+/*
+    // variant: filter out points outside of ROI
+    pcl::PassThrough< pcl::PointT > filter;
+    filter.setInputCloud( cloud );
+    filter.setFilterFieldName ( "x" );
+    filter.setFilterLimits ( minX, maxX);
+    filter.setFilterFieldName ( "y" );
+    filter.setFilterLimits ( minY, maxY);
+    filter.setFilterFieldName ( "z" );
+    filter.setFilterLimits ( minZ, maxZ );
+    filter.filter ( *filteredCloud );
+*/
 // --------------------- DANIEL SOLUTION END ---------------------
 
     auto endTime = std::chrono::steady_clock::now();

@@ -11,6 +11,7 @@
 #define USE_CITY_SCENARIO
 
 typedef typename pcl::PointCloud< pcl::PointXYZ >::Ptr PointCloudPtr;
+typedef typename pcl::PointCloud< pcl::PointXYZI >::Ptr PointICloudPtr;
 
 Lidar* myLidar;
 ProcessPointClouds < pcl::PointXYZ > *myPPC;
@@ -102,6 +103,23 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 
 void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
+    // ----------------------------------------------------
+    // -----Open 3D viewer and display simple highway -----
+    // ----------------------------------------------------
+    static const Color cloudColor         ( 0.0, 0.0, 1.0);
+    static const Color cloudColorPlane    ( 0.0, 1.0, 0.0);
+    static const std::vector< Color > cloudColorObstacles (
+    {   
+        Color( 1.0, 0.0, 0.0),
+        Color( 1.0, 1.0, 0.0),
+        Color( 1.0, 0.0, 1.0),
+        Color( 0.0, 1.0, 1.0),
+        Color( 0.6, 0.0, 0.0),
+        Color( 0.6, 0.6, 0.0),
+        Color( 0.6, 0.0, 0.6),
+        Color( 0.0, 0.6, 0.6),
+    } );
+
     myPPCI = new ProcessPointClouds< pcl::PointXYZI >();
     pcl::PointCloud< pcl::PointXYZI >::Ptr inputCloud ( myPPCI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd") );
     //renderPointCloud( viewer, inputCloud, "inputCloud" );
@@ -128,7 +146,30 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
     Eigen::Vector4f minROI( -10.0, -8.0, -3.0, 1 );
     Eigen::Vector4f maxROI(  50.0,  8.0,  2.0, 1 );
     pcl::PointCloud< pcl::PointXYZI >::Ptr filterCloud ( myPPCI->FilterCloud( inputCloud, 0.2 , minROI, maxROI ) );
-    renderPointCloud( viewer, filterCloud, "filterCloud" );
+    //renderPointCloud( viewer, filterCloud, "filterCloud" );
+
+    // split data into plane and objects
+    std::pair< PointICloudPtr, PointICloudPtr > scanSegments = myPPCI->SegmentPlane( filterCloud, 100, 0.22);
+
+    renderPointCloud( viewer, scanSegments.first, "Plane Segment", cloudColorPlane);
+    //renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles[0] );
+
+    std::vector< PointICloudPtr > objectClusters ( myPPCI->Clustering( scanSegments.second, 0.5, filterCloud->size() / 400, filterCloud->size() / 10 ) );
+    uint32_t j = 0;
+    for( PointICloudPtr obj : objectClusters )
+    {
+        // generate name for the cluster
+        std::stringstream objName;
+        objName << "Object Cluster " << j;
+        j++;
+
+        // render object
+        renderPointCloud( viewer, obj, objName.str(), cloudColorObstacles[ j % cloudColorObstacles.size() ] );
+
+        //Box box = myPPCI->BoundingBox( obj );
+        BoxQ box = myPPCI->BoundingQBox( obj );
+        renderBox( viewer, box, j  );
+    }
 }
 
 

@@ -219,7 +219,7 @@ int main (int argc, char** argv)
 
     //cityBlock( viewer, myPPCI, inputCloud );
 #else // USE_CITY_SCENARIO
-    simpleHighway(viewer);
+    simpleHighway( viewer);
 #endif // USE_CITY_SCENARIO
 
     while (!viewer->wasStopped ())

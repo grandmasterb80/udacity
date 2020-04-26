@@ -99,10 +99,10 @@ struct KdTree
 
 	void recSearch( Node *node,
                     std::vector<int> &ids,
-                    std::vector<float> &target,
+                    const std::vector<float> &target,
                     double distanceTol,
-                    std::vector<float> &box_top_left,
-                    std::vector<float> &box_bottom_right,
+                    const std::vector<float> &box_top_left,
+                    const std::vector<float> &box_bottom_right,
                     std::vector<float> &window_top_left,
                     std::vector<float> &window_bottom_right,
                     int axis,
@@ -184,7 +184,7 @@ struct KdTree
     }
 
     /*
-    void recSearch2( Node *node, std::vector<int> &ids, int axis, std::vector<float> &target, double distanceTol )
+    void recSearch2( Node *node, std::vector<int> &ids, int axis, const std::vector<float> &target, double distanceTol )
     {
         if( node == nullptr ) return;
         assert( node->point.size() == target.size() );
@@ -210,7 +210,7 @@ struct KdTree
 
 	
 	// return a list of point ids in the tree that are within distance of target
-	std::vector<int> search(std::vector<float> target, float distanceTol)
+	std::vector<int> search(const std::vector<float> &target, float distanceTol)
 	{
 		std::vector<int> ids;
 //        recSearch2( root, ids, 0, target, distanceTol );

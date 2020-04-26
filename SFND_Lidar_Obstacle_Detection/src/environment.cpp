@@ -8,10 +8,13 @@
 // using templates for processPointClouds so also include .cpp to help linker
 #include "processPointClouds.cpp"
 
+#define USE_CITY_SCENARIO
+
 typedef typename pcl::PointCloud< pcl::PointXYZ >::Ptr PointCloudPtr;
 
 Lidar* myLidar;
 ProcessPointClouds < pcl::PointXYZ > *myPPC;
+ProcessPointClouds < pcl::PointXYZI > *myPPCI;
 
 std::vector<Car> initHighway(bool renderScene, pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
@@ -97,6 +100,14 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 }
 
 
+void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
+{
+    myPPCI = new ProcessPointClouds< pcl::PointXYZI >();
+    pcl::PointCloud< pcl::PointXYZI >::Ptr inputCloud ( myPPCI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd") );
+    //renderPointCloud( viewer, inputCloud, "inputCloud" );
+}
+
+
 //setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}
 void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
@@ -126,12 +137,17 @@ int main (int argc, char** argv)
     std::cout << "starting enviroment" << std::endl;
     myLidar = nullptr;
     myPPC = nullptr;
+    myPPCI = nullptr;
 
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     // valid values: CameraAngle setAngle = {XY, TopDown, Side, FPS}
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
+#ifdef USE_CITY_SCENARIO
+    cityBlock(viewer);
+#else // USE_CITY_SCENARIO
     simpleHighway(viewer);
+#endif // USE_CITY_SCENARIO
 
     while (!viewer->wasStopped ())
     {
@@ -140,4 +156,5 @@ int main (int argc, char** argv)
 
     if( myLidar != nullptr ) { delete myLidar; myLidar = nullptr; }
     if( myPPC != nullptr ) { delete myPPC; myPPC = nullptr; }
+    if( myPPCI != nullptr ) { delete myPPCI; myPPCI = nullptr; }
 }

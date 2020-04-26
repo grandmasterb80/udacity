@@ -5,6 +5,7 @@
 #include <chrono>
 
 #define USE_FAST_RAYCAST
+//#define LIDAR_HDL64E
 
 const double pi = 3.1415;
 
@@ -142,7 +143,7 @@ struct Lidar
 		: cloud(new pcl::PointCloud<pcl::PointXYZ>()), position(0,0,2.6), groundNormal( sin ( setGroundSlope ), 0.0, cos( setGroundSlope ) )
 	{
 		// TODO:: set minDistance to 5 to remove points from roof of ego car
-		minDistance = 2;
+		minDistance = 3;
 		maxDistance = 120;
 		resolution = 0.2;
 		// TODO:: set sderr to 0.2 to get more interesting pcd files
@@ -150,6 +151,7 @@ struct Lidar
 		cars = setCars;
 		groundSlope = setGroundSlope;
 
+#ifdef LIDAR_HDL64E
 		// TODO:: increase number of layers to 8 to get higher resolution pcd
         // set for HDL64E
 		int numLayers = 64;
@@ -158,7 +160,7 @@ struct Lidar
 		double angleRange = 26.9*(pi/180);
 		// TODO:: set to pi/64 to get higher resolution pcd
 		double horizontalAngleInc = 0.08*pi/180;
-/*
+#else // LIDAR_HDL64E
         // training set
         int numLayers = 8;
 		// the steepest vertical angle
@@ -166,7 +168,8 @@ struct Lidar
 		double angleRange = 26.0*pi/180;
 		// TODO:: set to pi/64 to get higher resolution pcd
 		double horizontalAngleInc = pi/64;
-*/
+#endif // LIDAR_HDL64E
+        
 		double angleIncrement = angleRange/numLayers;
 
 		for(double angleVertical = steepestAngle; angleVertical < steepestAngle+angleRange; angleVertical+=angleIncrement)

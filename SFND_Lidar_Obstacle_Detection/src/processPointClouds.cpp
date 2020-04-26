@@ -3,7 +3,7 @@
 #include "processPointClouds.h"
 #include "render/box.h"
 #include <Eigen/Geometry> 
-
+#include <pcl/common/pca.h>
 
 //constructor:
 template<typename PointT>
@@ -186,15 +186,52 @@ Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Pt
 template<typename PointT>
 BoxQ ProcessPointClouds<PointT>::BoundingQBox(typename pcl::PointCloud<PointT>::Ptr cluster)
 {
-
     // Find bounding box for one of the clusters
     PointT minPoint, maxPoint;
     pcl::getMinMax3D(*cluster, minPoint, maxPoint);
 
-    BoxQ box;
-    box.bboxTransform = Eigen::Vector3f( ( minPoint.x + maxPoint.x ) / 2.0, ( minPoint.y + maxPoint.y ) / 2.0, ( minPoint.z + maxPoint.z ) / 2.0 );  // Eigen::Vector3f
+    typename pcl::PointCloud< PointT >::Ptr cloudPCAprojection ( new pcl::PointCloud< PointT > );
+    typename pcl::PCA< PointT > pca;
+    typename pcl::PointCloud< PointT >::Ptr cluster2D ( new pcl::PointCloud< PointT > ); // clone the cluster and make Z=0 for all points
+    {
+        // copy all elements into the cluster2D array and set Z=0 to move all points into the X-Y-Plane
+        for( PointT &p : *cluster )
+        {
+            PointT p2d ( p );
+            p2d.z = 0.0;
+            cluster2D->push_back( p2d );
+        }
+    }
+    pca.setInputCloud( cluster2D );
+    pca.project( *cluster2D, *cloudPCAprojection );
 
-    box.bboxQuaternion = Eigen::AngleAxisf( 0.0*M_PI, Eigen::Vector3f::UnitZ() ); // Eigen::Quaternionf
+    // Compute principal directions
+    Eigen::Vector4f pcaCentroid;
+    pcl::compute3DCentroid( *cluster2D, pcaCentroid );
+    Eigen::Matrix3f covariance;
+    computeCovarianceMatrixNormalized( *cluster2D, pcaCentroid, covariance );
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> eigen_solver( covariance, Eigen::ComputeEigenvectors );
+    //Eigen::Matrix3f eigenVectorsPCA = eigen_solver.eigenvectors();
+    Eigen::Matrix3f eigenVectorsPCA = pca.getEigenVectors();
+    // ensure to have perpendicular axes in right-handed system ==> we can assume that Z is already on the z-axis but the sign might change
+    eigenVectorsPCA.col(2) = eigenVectorsPCA.col(0).cross( eigenVectorsPCA.col(1) );
+    std::cerr << std::endl << "EigenVectors: " << eigenVectorsPCA << std::endl;
+    std::cerr << std::endl << "EigenValues: " << pca.getEigenValues() << std::endl;
+
+    // Transform the original cloud to the origin where the principal components correspond to the axes.
+    Eigen::Matrix4f projectionTransform( Eigen::Matrix4f::Identity() );
+    projectionTransform.block<3,3>(0,0) = eigenVectorsPCA.transpose();
+    projectionTransform.block<3,1>(0,3) = -1.0f * ( projectionTransform.block<3,3> ( 0, 0 ) * pcaCentroid.head<3> () );
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPointsProjected ( new pcl::PointCloud< pcl::PointXYZ > );
+    pcl::transformPointCloud( *cluster, *cloudPointsProjected, projectionTransform );
+    // Get the minimum and maximum points of the transformed cloud.
+    pcl::getMinMax3D( *cloudPointsProjected, minPoint, maxPoint );
+    const Eigen::Vector3f meanDiagonal = 0.5f * ( maxPoint.getVector3fMap() + minPoint.getVector3fMap() );
+
+
+    BoxQ box;
+    box.bboxTransform = eigenVectorsPCA * meanDiagonal + pcaCentroid.head<3>();
+    box.bboxQuaternion = eigenVectorsPCA;
     box.cube_length = maxPoint.x - minPoint.x;
     box.cube_width = maxPoint.y - minPoint.y;
     box.cube_height = maxPoint.z - minPoint.z;

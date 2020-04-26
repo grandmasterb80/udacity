@@ -4,6 +4,21 @@
 #include "render/box.h"
 #include <Eigen/Geometry> 
 #include <pcl/common/pca.h>
+#include <pcl/filters/conditional_removal.h>
+
+/*
+#include <pcl/impl/point_types.hpp>
+
+// should be actually defined in pcl/impl/point_types.hpp according to http://docs.pointclouds.org/trunk/structpcl_1_1_point_x_y_z_i.html
+inline pcl::PointXYZI PointXYZI_(float _x, float _y, float _z, float i = 0.0) {
+    pcl::PointXYZI p;
+    p.x = _x;
+    p.y = _y;
+    p.z = _z;
+    p.intensity = i;
+    return p;
+}
+*/
 
 //constructor:
 template<typename PointT>

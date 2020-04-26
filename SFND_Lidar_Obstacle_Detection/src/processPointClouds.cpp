@@ -1,6 +1,8 @@
 // PCL lib Functions for processing point clouds 
 
 #include "processPointClouds.h"
+#include "render/box.h"
+#include <Eigen/Geometry> 
 
 
 //constructor:
@@ -176,6 +178,26 @@ Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Pt
     box.x_max = maxPoint.x;
     box.y_max = maxPoint.y;
     box.z_max = maxPoint.z;
+
+    return box;
+}
+
+
+template<typename PointT>
+BoxQ ProcessPointClouds<PointT>::BoundingQBox(typename pcl::PointCloud<PointT>::Ptr cluster)
+{
+
+    // Find bounding box for one of the clusters
+    PointT minPoint, maxPoint;
+    pcl::getMinMax3D(*cluster, minPoint, maxPoint);
+
+    BoxQ box;
+    box.bboxTransform = Eigen::Vector3f( ( minPoint.x + maxPoint.x ) / 2.0, ( minPoint.y + maxPoint.y ) / 2.0, ( minPoint.z + maxPoint.z ) / 2.0 );  // Eigen::Vector3f
+
+    box.bboxQuaternion = Eigen::AngleAxisf( 0.0*M_PI, Eigen::Vector3f::UnitZ() ); // Eigen::Quaternionf
+    box.cube_length = maxPoint.x - minPoint.x;
+    box.cube_width = maxPoint.y - minPoint.y;
+    box.cube_height = maxPoint.z - minPoint.z;
 
     return box;
 }

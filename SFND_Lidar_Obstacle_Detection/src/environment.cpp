@@ -90,7 +90,8 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
         // render object
         renderPointCloud( viewer, obj, objName.str(), cloudColorObstacles[ j % cloudColorObstacles.size() ] );
 
-        Box box = myPPC->BoundingBox( obj );
+        //Box box = myPPC->BoundingBox( obj );
+        BoxQ box = myPPC->BoundingQBox( obj );
         renderBox( viewer, box, j /*objName.str()*/ );
     }
 }

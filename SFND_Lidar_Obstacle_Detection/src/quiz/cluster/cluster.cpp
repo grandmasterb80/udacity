@@ -77,6 +77,7 @@ std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vecto
 {
 	// TODO: Fill out this function to return list of indices for each cluster
     std::vector< std::vector < int > > clusters;
+// --------------------- DANIEL SOLUTION START ---------------------
     std::set< int > visitedPoints;
     for( int currentPoint = 0; currentPoint != points.size(); currentPoint++ )
     {
@@ -104,6 +105,7 @@ std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vecto
         std::cout << c.size() << ", ";
     }
     std::cout << "}" << std::endl;
+// --------------------- DANIEL SOLUTION END ---------------------
 
 	return clusters;
 }

@@ -7,6 +7,8 @@
 #include <pcl/filters/conditional_removal.h>
 #include <unordered_set>
 #include "quiz/ransac/ransac_lib.h"
+#include "quiz/cluster/kdtree.h"
+#include "quiz/cluster/cluster_lib.h"
 
 /*
 #include <pcl/impl/point_types.hpp>
@@ -225,6 +227,8 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
 
     // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
 // --------------------- DANIEL SOLUTION START ---------------------
+/*
+    // PCL solution for reference
     // Creating the KdTree object for the search method of the extraction
     typename pcl::search::KdTree< PointT >::Ptr tree ( new pcl::search::KdTree< PointT > );
     tree->setInputCloud ( cloud );
@@ -239,13 +243,26 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
     // now the actual clustering
     std::vector< pcl::PointIndices > cluster_indices;
     ec.extract ( cluster_indices );
+*/
+    // convert points in cloud to vectors & add them to the tree
+	std::vector< std::vector < float > > cloudP;
+	KdTree tree;
+    for (int i=0; i < cloud->size(); i++) 
+    {
+        std::vector < float > p( { (*cloud)[i].x, (*cloud)[i].y, (*cloud)[i].z } );
+        cloudP.push_back( p );
+    	tree.insert( p, i );
+    }
+
+    std::vector< std::vector < int > > cluster_indices ( euclideanCluster( cloudP, &tree, clusterTolerance, minSize, maxSize ) );
 
     // extract the points into dedicated sets of points (instead of using the set of point indicies)
     int j = 0;
-    for ( std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it )
+    for ( std::vector< std::vector < int > >::iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it )
+    //for ( std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it )
     {
         typename pcl::PointCloud< PointT >::Ptr cloud_cluster ( new pcl::PointCloud< PointT > );
-        for ( std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit )
+        for ( std::vector<int>::const_iterator pit = it->begin (); pit != it->end (); ++pit )
         {
             cloud_cluster->points.push_back ( cloud->points[ *pit ] ); //*
         }

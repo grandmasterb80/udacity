@@ -5,6 +5,8 @@
 #include <Eigen/Geometry> 
 #include <pcl/common/pca.h>
 #include <pcl/filters/conditional_removal.h>
+#include <unordered_set>
+#include "quiz/ransac/ransac_lib.h"
 
 /*
 #include <pcl/impl/point_types.hpp>
@@ -119,13 +121,16 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 
 
 template<typename PointT>
-std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
+std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(const std::unordered_set<int> &inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
+//std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
 {
   // TODO: Create two new point clouds, one cloud with obstacles and other with segmented plane
 // --------------------- DANIEL SOLUTION START ---------------------
     typename pcl::PointCloud< PointT >::Ptr plane ( new pcl::PointCloud < PointT > );
     typename pcl::PointCloud< PointT >::Ptr obstacles ( new pcl::PointCloud < PointT > );
 
+    /*
+    // PCL solution for reference
     // Create the filtering object
     pcl::ExtractIndices< PointT > extract;
     // Extract the inliers
@@ -137,6 +142,19 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 // Create the filtering object
     extract.setNegative ( true );
     extract.filter ( *obstacles );
+    */
+
+	for(int index = 0; index < cloud->points.size(); index++)
+	{
+		if(inliers.count(index))
+        {
+			plane->points.push_back( cloud->points[index] );
+        }
+		else
+        {
+			obstacles->points.push_back( cloud->points[index] );
+        }
+	}
 // --------------------- DANIEL SOLUTION END ---------------------
 
     std::pair< typename pcl::PointCloud < PointT >::Ptr, typename pcl::PointCloud< PointT >::Ptr > segResult ( plane, obstacles );
@@ -154,6 +172,8 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     // TODO:: Fill in this function to find inliers for the cloud.
 // --------------------- DANIEL SOLUTION START ---------------------
+/*
+    // PCL solution for reference
     pcl::PointIndices::Ptr inliers ( new pcl::PointIndices () );
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
     // Create the segmentation object
@@ -170,6 +190,12 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     seg.setInputCloud ( cloud );
     seg.segment ( *inliers, *coefficients );
     if ( inliers->indices.size () == 0 )
+    {
+        std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+    }
+*/
+    std::unordered_set<int> inliers = RansacPlane<PointT>( cloud, maxIterations, distanceThreshold );
+    if ( inliers.size () == 0 )
     {
         std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
     }

@@ -50,7 +50,7 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
             {
                 i = maxIterations - 1;
             }
-            bool checkResult = false;
+            // bool checkResult = false;
             if( i == ( maxIterations - 1 ) && inliersResult.size() > 1000 )
             {
                 // create point cloud with detected set
@@ -84,10 +84,10 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
                 Eigen::Matrix3f eigenVectorsPCA = pca.getEigenVectors();
                 // ensure to have perpendicular axes in right-handed system ==> we can assume that Z is already on the z-axis but the sign might change
                 //eigenVectorsPCA.col(2) = eigenVectorsPCA.col(0).cross( eigenVectorsPCA.col(1) );
-                normal = eigenVectorsPCA.col(0).cross( eigenVectorsPCA.col(1) );
+                normal = eigenVectorsPCA.col(2).normalized(); //eigenVectorsPCA.col(0).cross( eigenVectorsPCA.col(1) ).normalized();
                 planepoint = center;
 
-                checkResult = true;
+                //checkResult = true;
             }
             else
             {
@@ -123,6 +123,7 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
                     numOutliers++;
                 }
             }
+/*
             if( checkResult )
             {
                 if( intermediateInliersResult.size() > inliersResult.size() )
@@ -134,6 +135,7 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
                     std::cout << "------------------ BAD -------------------------" << std::endl;
                 }
             }
+*/
 
             if( intermediateInliersResult.size() > inliersResult.size() )
             {

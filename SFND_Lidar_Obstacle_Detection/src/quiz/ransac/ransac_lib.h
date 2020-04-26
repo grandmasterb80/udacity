@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <unordered_set>
 
+#include <Eigen/Dense>
 // #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
 // #include <pcl/filters/extract_indices.h>
@@ -15,7 +16,6 @@
 // #include <pcl/common/transforms.h>
 // #include <iostream> 
 // #include <vector>
-#include <pcl/common/common.h>
 
 template<typename PointT>
 std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &cloud, int maxIterations, float distanceTol)
@@ -46,17 +46,13 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
                 p2 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
                 p3 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
             } while( p1 == p2 || p1 == p3 || p2 == p3 );
-            PointT delta1;
-            PointT delta2;
-            PointT normal;
+            Eigen::Vector3f point1( cloud->at( p1 ).getArray3fMap() );
+            Eigen::Vector3f point2( cloud->at( p2 ).getArray3fMap() );
+            Eigen::Vector3f point3( cloud->at( p3 ).getArray3fMap() );
+            Eigen::Vector3f normal;
 
-            delta1.getArray3fMap() = cloud->at( p1 ).getArray3fMap() - cloud->at( p2 ).getArray3fMap();
-            delta2.getArray3fMap() = cloud->at( p1 ).getArray3fMap() - cloud->at( p3 ).getArray3fMap();
-            normal.x = delta1.y * delta2.z - delta1.z * delta2.y;
-            normal.y = delta1.z * delta2.x - delta1.x * delta2.z;
-            normal.z = delta1.x * delta2.y - delta1.y * delta2.x;
-            float nlength = sqrt( normal.x * normal.x + normal.y * normal.y + normal.z * normal.z );
-            normal.getArray3fMap() /= nlength;
+            normal = ( point1 - point2 ).cross( point1 - point3 ).normalized();
+            float distanceOffset = point1.dot( normal );
             
             uint32_t numOutliersBest = numPoints - inliersResult.size();
             uint32_t numOutliers = 0;
@@ -68,10 +64,8 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
                 }
                 else
                 {
-                    PointT p;
-                    p.getArray3fMap() = cloud->at( j ).getArray3fMap() - cloud->at( p1 ).getArray3fMap();
-                    p.getArray3fMap() *= normal.getArray3fMap();
-                    if( fabs( p.x + p.y + p.z ) < distanceTol )
+                    Eigen::Vector3f p( cloud->at( j ).getArray3fMap() );
+                    if( fabs( p.dot( normal ) - distanceOffset ) < distanceTol )
                     {
                         intermediateInliersResult.insert( j );
                     }

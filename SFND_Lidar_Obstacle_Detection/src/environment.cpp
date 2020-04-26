@@ -101,7 +101,8 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 }
 
 
-void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
+//void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
+void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointClouds<pcl::PointXYZI>* myPPCI, const pcl::PointCloud<pcl::PointXYZI>::Ptr& inputCloud)
 {
     // ----------------------------------------------------
     // -----Open 3D viewer and display simple highway -----
@@ -120,8 +121,11 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
         Color( 0.0, 0.6, 0.6),
     } );
 
+    /*
     myPPCI = new ProcessPointClouds< pcl::PointXYZI >();
     pcl::PointCloud< pcl::PointXYZI >::Ptr inputCloud ( myPPCI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd") );
+    */
+
     //renderPointCloud( viewer, inputCloud, "inputCloud" );
 
     // cloud filtering
@@ -202,20 +206,39 @@ int main (int argc, char** argv)
     std::cout << "starting enviroment" << std::endl;
     myLidar = nullptr;
     myPPC = nullptr;
-    myPPCI = nullptr;
+    myPPCI = new ProcessPointClouds< pcl::PointXYZI >();
 
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     // valid values: CameraAngle setAngle = {XY, TopDown, Side, FPS}
-    CameraAngle setAngle = XY;
+    CameraAngle setAngle = FPS;
     initCamera(setAngle, viewer);
 #ifdef USE_CITY_SCENARIO
-    cityBlock(viewer);
+    std::vector<boost::filesystem::path> stream = myPPCI->streamPcd("../src/sensors/data/pcd/data_2");
+    auto streamIterator = stream.begin();
+    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI;
+
+    //cityBlock( viewer, myPPCI, inputCloud );
 #else // USE_CITY_SCENARIO
     simpleHighway(viewer);
 #endif // USE_CITY_SCENARIO
 
     while (!viewer->wasStopped ())
     {
+#ifdef USE_CITY_SCENARIO
+        // Clear viewer
+        viewer->removeAllPointClouds();
+        viewer->removeAllShapes();
+
+        // Load pcd and run obstacle detection process
+        inputCloudI = myPPCI->loadPcd( streamIterator->string() );
+        cityBlock( viewer, myPPCI, inputCloudI );
+
+        streamIterator++;
+        if(streamIterator == stream.end()) // restart when end is reached
+        {
+            streamIterator = stream.begin();
+        }
+#endif // USE_CITY_SCENARIO
         viewer->spinOnce ();
     } 
 

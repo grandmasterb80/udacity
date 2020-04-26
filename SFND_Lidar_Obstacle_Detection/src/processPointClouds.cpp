@@ -55,12 +55,12 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     // Step 1: downsample the data
     // code based on example taken from: http://pointclouds.org/documentation/tutorials/voxel_grid.php
     // Create the filtering object
-    std::cerr << "PointCloud before filtering: " << filteredCloud->width * filteredCloud->height << " data points (" << pcl::getFieldsList ( *filteredCloud ) << ")." << std::endl;
+    //std::cout << "PointCloud before filtering: " << filteredCloud->width * filteredCloud->height << " data points (" << pcl::getFieldsList ( *filteredCloud ) << ")." << std::endl;
     pcl::VoxelGrid < PointT > sor;
     sor.setInputCloud ( cloud );
     sor.setLeafSize ( filterRes, filterRes, filterRes );
     sor.filter ( *filteredCloud );
-    std::cerr << "PointCloud after filtering: " << filteredCloud->width * filteredCloud->height << " data points (" << pcl::getFieldsList ( *filteredCloud ) << ")." << std::endl;
+    //std::cout << "PointCloud after filtering: " << filteredCloud->width * filteredCloud->height << " data points (" << pcl::getFieldsList ( *filteredCloud ) << ")." << std::endl;
 
     // Step 2: remove non-ROI data
     // setup filter for ego roof
@@ -253,7 +253,7 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
         cloud_cluster->height = 1;
         cloud_cluster->is_dense = true;
 
-        std::cout << "PointCloud representing the Cluster " << j << ": " << cloud_cluster->points.size () << " data points." << std::endl;
+        //std::cout << "PointCloud representing the Cluster " << j << ": " << cloud_cluster->points.size () << " data points." << std::endl;
         clusters.push_back( cloud_cluster );
         j++;
     }
@@ -319,8 +319,8 @@ BoxQ ProcessPointClouds<PointT>::BoundingQBox(typename pcl::PointCloud<PointT>::
     Eigen::Matrix3f eigenVectorsPCA = pca.getEigenVectors();
     // ensure to have perpendicular axes in right-handed system ==> we can assume that Z is already on the z-axis but the sign might change
     eigenVectorsPCA.col(2) = eigenVectorsPCA.col(0).cross( eigenVectorsPCA.col(1) );
-    std::cerr << std::endl << "EigenVectors: " << eigenVectorsPCA << std::endl;
-    std::cerr << std::endl << "EigenValues: " << pca.getEigenValues() << std::endl;
+    //std::cerr << std::endl << "EigenVectors: " << eigenVectorsPCA << std::endl;
+    //std::cerr << std::endl << "EigenValues: " << pca.getEigenValues() << std::endl;
 
     // Transform the original cloud to the origin where the principal components correspond to the axes.
     Eigen::Matrix4f projectionTransform( Eigen::Matrix4f::Identity() );

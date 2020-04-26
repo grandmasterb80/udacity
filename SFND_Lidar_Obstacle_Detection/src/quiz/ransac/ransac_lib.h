@@ -20,6 +20,10 @@
 template<typename PointT>
 std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &cloud, int maxIterations, float distanceTol)
 {
+    static Eigen::Vector3f planepoint;
+    static Eigen::Vector3f normal;
+    static bool firstRun = true; // used to reuse planepoint and normal from last execution
+   
 	std::unordered_set<int> inliersResult;
 	srand(time(NULL));
 	
@@ -41,40 +45,96 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
             uint32_t p1 = 0;
             uint32_t p2 = 0;
             uint32_t p3 = 0;
-            do {
-                p1 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
-                p2 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
-                p3 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
-            } while( p1 == p2 || p1 == p3 || p2 == p3 );
-            Eigen::Vector3f point1( cloud->at( p1 ).getArray3fMap() );
-            Eigen::Vector3f point2( cloud->at( p2 ).getArray3fMap() );
-            Eigen::Vector3f point3( cloud->at( p3 ).getArray3fMap() );
-            Eigen::Vector3f normal;
+            // go to last iteration approach if we already have 60% of all points
+            if( inliersResult.size() > cloud->size() / 10 * 6 )
+            {
+                i = maxIterations - 1;
+            }
+            bool checkResult = false;
+            if( i == ( maxIterations - 1 ) && inliersResult.size() > 1000 )
+            {
+                // create point cloud with detected set
+                typename pcl::PointCloud< PointT >::Ptr subset ( new pcl::PointCloud< PointT > );
+                Eigen::Vector3f center( 0.0, 0.0, 0.0 );
+                int numPoints = 0;
+                int ii = 0;
+                for( int p_index : inliersResult )
+                {
+                    ii++;
+                    if( ( ii & 15 ) != 0 ) continue;
+                    numPoints++;
+                    Eigen::Vector3f p = (*cloud)[ p_index ].getArray3fMap();
+                    center += p;
+                    subset->push_back( (*cloud)[ p_index ] );
+                }
+                center *= 1.0 / numPoints;
 
-            normal = ( point1 - point2 ).cross( point1 - point3 ).normalized();
-            float distanceOffset = point1.dot( normal );
-            
+                // check number of points in percent: if > 30%, let's try to guess a new plane based on eigenvectors
+                typename pcl::PointCloud< PointT > cloudPCAprojection;
+                typename pcl::PCA< PointT > pca;
+                pca.setInputCloud( subset );
+                pca.project( *subset, cloudPCAprojection );
+
+                // Compute principal directions
+                Eigen::Vector4f pcaCentroid;
+                pcl::compute3DCentroid( *subset, pcaCentroid );
+                Eigen::Matrix3f covariance;
+                computeCovarianceMatrixNormalized( *subset, pcaCentroid, covariance );
+                Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> eigen_solver( covariance, Eigen::ComputeEigenvectors );
+                Eigen::Matrix3f eigenVectorsPCA = pca.getEigenVectors();
+                // ensure to have perpendicular axes in right-handed system ==> we can assume that Z is already on the z-axis but the sign might change
+                //eigenVectorsPCA.col(2) = eigenVectorsPCA.col(0).cross( eigenVectorsPCA.col(1) );
+                normal = eigenVectorsPCA.col(0).cross( eigenVectorsPCA.col(1) );
+                planepoint = center;
+
+                checkResult = true;
+            }
+            else
+            {
+                if( firstRun || i > 0 )
+                {
+                    do {
+                        p1 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
+                        p2 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
+                        p3 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
+                    } while( p1 == p2 || p1 == p3 || p2 == p3 );
+
+                    Eigen::Vector3f point2( cloud->at( p2 ).getArray3fMap() );
+                    Eigen::Vector3f point3( cloud->at( p3 ).getArray3fMap() );
+
+                    planepoint = cloud->at( p1 ).getArray3fMap();
+                    normal = ( planepoint - point2 ).cross( planepoint - point3 ).normalized();
+                }
+            }
+
+            float distanceOffset = planepoint.dot( normal );
+
             uint32_t numOutliersBest = numPoints - inliersResult.size();
             uint32_t numOutliers = 0;
             for( uint32_t j = 0; j < numPoints && numOutliers < numOutliersBest; j++ )
             {
-                if( j == p1 || j == p2  || j == p3)
+                Eigen::Vector3f p( cloud->at( j ).getArray3fMap() );
+                if( fabs( p.dot( normal ) - distanceOffset ) < distanceTol )
                 {
                     intermediateInliersResult.insert( j );
                 }
                 else
                 {
-                    Eigen::Vector3f p( cloud->at( j ).getArray3fMap() );
-                    if( fabs( p.dot( normal ) - distanceOffset ) < distanceTol )
-                    {
-                        intermediateInliersResult.insert( j );
-                    }
-                    else
-                    {
-                        numOutliers++;
-                    }
+                    numOutliers++;
                 }
             }
+            if( checkResult )
+            {
+                if( intermediateInliersResult.size() > inliersResult.size() )
+                {
+                    std::cout << "***************** GOOD ************************" << std::endl;
+                }
+                else
+                {
+                    std::cout << "------------------ BAD -------------------------" << std::endl;
+                }
+            }
+
             if( intermediateInliersResult.size() > inliersResult.size() )
             {
                 //std::cout << "New inlier data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << std::endl;
@@ -82,6 +142,8 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
             }
         }
     }
+    firstRun = false;
+
     //std::cout << "Data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << std::endl;
 	return inliersResult;
 }

@@ -107,7 +107,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     // ----------------------------------------------------
     // -----Open 3D viewer and display simple highway -----
     // ----------------------------------------------------
-    static const Color cloudColor         ( 0.0, 0.0, 1.0);
+    static const Color cloudColor         ( 0.0, 1.0, 1.0);
     static const Color cloudColorPlane    ( 0.0, 1.0, 0.0);
     static const std::vector< Color > cloudColorObstacles (
     {   
@@ -150,7 +150,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     Eigen::Vector4f minROI( -10.0, -8.0, -3.0, 1 );
     Eigen::Vector4f maxROI(  50.0,  8.0,  2.0, 1 );
     pcl::PointCloud< pcl::PointXYZI >::Ptr filterCloud ( myPPCI->FilterCloud( inputCloud, 0.2 , minROI, maxROI ) );
-    //renderPointCloud( viewer, filterCloud, "filterCloud" );
+    renderPointCloud( viewer, filterCloud, "filterCloud", cloudColor );
 
     // split data into plane and objects
     std::pair< PointICloudPtr, PointICloudPtr > scanSegments = myPPCI->SegmentPlane( filterCloud, 100, 0.22);

@@ -82,7 +82,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     ROI_cond_and_EGO->addComparison ( typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "z", pcl::ComparisonOps::LT, maxPoint[ 2 ] ) ) );
     ROI_cond_and_EGO->addCondition ( EGO_remove_roof );
 
-    pcl::ConditionalRemoval< PointT > range_filt;
+    typename pcl::ConditionalRemoval< PointT > range_filt;
     range_filt.setInputCloud( filteredCloud );
     //range_filt.setInputCloud( cloud );
     range_filt.setCondition ( ROI_cond_and_EGO );
@@ -157,7 +157,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     pcl::PointIndices::Ptr inliers ( new pcl::PointIndices () );
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
     // Create the segmentation object
-    pcl::SACSegmentation< PointT > seg;
+    typename pcl::SACSegmentation< PointT > seg;
     // Optional
     seg.setOptimizeCoefficients ( true );
     // Mandatory
@@ -203,7 +203,7 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
     typename pcl::search::KdTree< PointT >::Ptr tree ( new pcl::search::KdTree< PointT > );
     tree->setInputCloud ( cloud );
 
-    pcl::EuclideanClusterExtraction< PointT > ec;
+    typename pcl::EuclideanClusterExtraction< PointT > ec;
     ec.setClusterTolerance ( clusterTolerance ); // kind of the size
     ec.setMinClusterSize ( minSize ); // minimal number of points for considering any cluster an object cluster
     ec.setMaxClusterSize ( maxSize ); // maximal number of points for considering any cluster an object cluster (to consider to separate big clusters into multiple objects)

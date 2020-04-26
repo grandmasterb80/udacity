@@ -13,7 +13,7 @@ struct Node
 	Node* left;
 	Node* right;
 
-	Node(std::vector<float> arr, int setId)
+	Node(const std::vector<float> &arr, int setId)
 	:	point(arr), id(setId), left(NULL), right(NULL)
 	{}
 

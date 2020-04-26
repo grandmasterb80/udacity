@@ -156,8 +156,8 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     std::pair< PointICloudPtr, PointICloudPtr > scanSegments = myPPCI->SegmentPlane( filterCloud, 10, 0.25);
 
     renderPointCloud( viewer, scanSegments.first, "Plane Segment", cloudColorPlane);
-    //renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles[0] );
-
+    renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles[0] );
+/*
     std::vector< PointICloudPtr > objectClusters ( myPPCI->Clustering( scanSegments.second, 0.5, filterCloud->size() / 400, filterCloud->size() / 10 ) );
     uint32_t j = 0;
     for( PointICloudPtr obj : objectClusters )
@@ -173,7 +173,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
         //Box box = myPPCI->BoundingBox( obj );
         BoxQ box = myPPCI->BoundingQBox( obj );
         renderBox( viewer, box, j  );
-    }
+    }*/
 }
 
 

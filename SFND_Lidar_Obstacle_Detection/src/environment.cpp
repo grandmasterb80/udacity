@@ -153,7 +153,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     renderPointCloud( viewer, filterCloud, "filterCloud", cloudColor );
 
     // split data into plane and objects
-    std::pair< PointICloudPtr, PointICloudPtr > scanSegments = myPPCI->SegmentPlane( filterCloud, 100, 0.22);
+    std::pair< PointICloudPtr, PointICloudPtr > scanSegments = myPPCI->SegmentPlane( filterCloud, 10, 0.25);
 
     renderPointCloud( viewer, scanSegments.first, "Plane Segment", cloudColorPlane);
     //renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles[0] );

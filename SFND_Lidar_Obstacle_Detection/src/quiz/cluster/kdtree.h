@@ -124,6 +124,7 @@ struct KdTree
             return;
         }
 
+/*
         double dd = 0.0;
         for( int i = 0; i < node->point.size(); i++ )
         {
@@ -131,6 +132,16 @@ struct KdTree
             dd += d * d;
         } 
         if( dd <= distanceTol * distanceTol )
+        {
+            ids.push_back( node->id );
+        }
+*/
+        bool isIn = true;
+        for( int i = 0; isIn && i < node->point.size(); i++ )
+        {
+            isIn &= ( ( node->point[ i ] >= target[ i ] - distanceTol ) && ( node->point[ i ] <= target[ i ] + distanceTol ) );
+        } 
+        if( isIn )
         {
             ids.push_back( node->id );
         }
@@ -188,13 +199,12 @@ struct KdTree
         if( node == nullptr ) return;
         assert( node->point.size() == target.size() );
 
-        double dd = 0.0;
-        for( int i = 0; i < node->point.size(); i++ )
+        bool isIn = true;
+        for( int i = 0; isIn && i < node->point.size(); i++ )
         {
-            double d = node->point[ i ] - target[ i ];
-            dd += d * d;
+            isIn &= ( ( node->point[ i ] >= target[ i ] - distanceTol ) && ( node->point[ i ] <= target[ i ] + distanceTol ) );
         } 
-        if( dd <= distanceTol * distanceTol )
+        if( isIn )
         {
             ids.push_back( node->id );
         }

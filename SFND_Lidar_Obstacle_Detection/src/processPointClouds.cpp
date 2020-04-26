@@ -46,6 +46,17 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     std::cerr << "PointCloud after filtering: " << filteredCloud->width * filteredCloud->height << " data points (" << pcl::getFieldsList ( *filteredCloud ) << ")." << std::endl;
 
     // Step 2: remove non-ROI data
+    // setup filter for ego roof
+    Eigen::Vector3f minEgo( -3.0f, -1.5f, -1.5f );
+    Eigen::Vector3f maxEgo(  3.0f,  1.5f, 0.0f );
+    typename pcl::ConditionOr< PointT >::Ptr  EGO_remove_roof  ( new pcl::ConditionOr< PointT > () ); 
+    EGO_remove_roof->addComparison (typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "x", pcl::ComparisonOps::LT, minEgo[ 0 ] ) ) );
+    EGO_remove_roof->addComparison (typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "x", pcl::ComparisonOps::GT, maxEgo[ 0 ] ) ) );
+    EGO_remove_roof->addComparison (typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "y", pcl::ComparisonOps::LT, minEgo[ 1 ] ) ) );
+    EGO_remove_roof->addComparison (typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "y", pcl::ComparisonOps::GT, maxEgo[ 1 ] ) ) );
+    EGO_remove_roof->addComparison (typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "z", pcl::ComparisonOps::LT, minEgo[ 2 ] ) ) );
+    EGO_remove_roof->addComparison (typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "z", pcl::ComparisonOps::GT, maxEgo[ 2 ] ) ) );
+
     // setup filter for ROI (includes also the "outside of ego box filter defined above)
     typename pcl::ConditionAnd< PointT >::Ptr ROI_cond_and_EGO ( new pcl::ConditionAnd< PointT > () );
     ROI_cond_and_EGO->addComparison ( typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "x", pcl::ComparisonOps::GT, minPoint[ 0 ] ) ) );
@@ -54,6 +65,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     ROI_cond_and_EGO->addComparison ( typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "y", pcl::ComparisonOps::LT, maxPoint[ 1 ] ) ) );
     ROI_cond_and_EGO->addComparison ( typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "z", pcl::ComparisonOps::GT, minPoint[ 2 ] ) ) );
     ROI_cond_and_EGO->addComparison ( typename pcl::FieldComparison<PointT>::Ptr ( new pcl::FieldComparison< PointT > ( "z", pcl::ComparisonOps::LT, maxPoint[ 2 ] ) ) );
+    ROI_cond_and_EGO->addCondition ( EGO_remove_roof );
 
     pcl::ConditionalRemoval< PointT > range_filt;
     range_filt.setInputCloud( filteredCloud );

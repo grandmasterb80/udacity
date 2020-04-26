@@ -34,13 +34,24 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     // Step 2: remove non-ROI data
     // This order is faster than the other way around (5millisec vs. 8millisec)
 
+    typename pcl::PointCloud< PointT >::Ptr filteredCloud ( new pcl::PointCloud< PointT > );
+    // Step 1: downsample the data
+    // code based on example taken from: http://pointclouds.org/documentation/tutorials/voxel_grid.php
+    // Create the filtering object
+    std::cerr << "PointCloud before filtering: " << filteredCloud->width * filteredCloud->height << " data points (" << pcl::getFieldsList ( *filteredCloud ) << ")." << std::endl;
+    pcl::VoxelGrid < PointT > sor;
+    sor.setInputCloud ( cloud );
+    sor.setLeafSize ( filterRes, filterRes, filterRes );
+    sor.filter ( *filteredCloud );
+    std::cerr << "PointCloud after filtering: " << filteredCloud->width * filteredCloud->height << " data points (" << pcl::getFieldsList ( *filteredCloud ) << ")." << std::endl;
+
 // --------------------- DANIEL SOLUTION END ---------------------
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "filtering took " << elapsedTime.count() << " milliseconds" << std::endl;
 
-    return cloud;
+    return filteredCloud;
 
 }
 

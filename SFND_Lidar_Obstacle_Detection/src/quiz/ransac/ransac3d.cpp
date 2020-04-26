@@ -57,8 +57,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData()
 pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData3D()
 {
 	ProcessPointClouds<pcl::PointXYZ> pointProcessor;
-	return pointProcessor.loadPcd("../../sensors/data/pcd/simpleHighway.pcd");
-// 	return pointProcessor.loadPcd("../../../sensors/data/pcd/simpleHighway.pcd");
+ 	return pointProcessor.loadPcd("../../../sensors/data/pcd/simpleHighway.pcd");
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------

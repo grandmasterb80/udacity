@@ -10,6 +10,6 @@
 #include <string>
 #include "kdtree.h"
 
-std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol);
+std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol, int minSize = 1, int maxSize = INT_MAX);
 
 #endif // CLUSTER_LIB_H

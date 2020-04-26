@@ -105,6 +105,30 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
     myPPCI = new ProcessPointClouds< pcl::PointXYZI >();
     pcl::PointCloud< pcl::PointXYZI >::Ptr inputCloud ( myPPCI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd") );
     //renderPointCloud( viewer, inputCloud, "inputCloud" );
+
+    // cloud filtering
+    // X range for ROI:
+    //    - 500m viewing distance (whatever we can get) ==> could be made dynamic on speed / scenario
+    //    -  41m backwards (allows to detect vehicles on highway approaching for overtaking 3second at 50kph delta speed to ego)
+    // 
+    // Y range for ROI:
+    //    - lane width for highways: 1.5 * 3.7 ==> +/- 6m
+    //    - max curvature: 1/250m (ramp-on / ramp-off):   1 / 250m * (viewing distance)^2 = 10m
+    //    ==> Y range = +/- 16m
+    //
+    // Z range for ROI:
+    //    - 2% slope change ==> 10m @ 500m
+    //    - truck height ==> 4m
+    //    ==> Z range +/-15m
+    // resolution
+    // ( 100 - (-41) ) * 16 * 2 * 15 * 2 ==> (about) 110000m³ (with 100m actual viewing distance)
+    //Eigen::Vector4f minROI( -41.0, -16.0, -15.0, 1 );
+    //Eigen::Vector4f maxROI( 500.0,  16.0,  15.0, 1 );
+    
+    Eigen::Vector4f minROI( -10.0, -8.0, -3.0, 1 );
+    Eigen::Vector4f maxROI(  50.0,  8.0,  2.0, 1 );
+    pcl::PointCloud< pcl::PointXYZI >::Ptr filterCloud ( myPPCI->FilterCloud( inputCloud, 0.2 , minROI, maxROI ) );
+    renderPointCloud( viewer, filterCloud, "filterCloud" );
 }
 
 

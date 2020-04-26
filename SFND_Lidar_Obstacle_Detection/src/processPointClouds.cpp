@@ -123,23 +123,23 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 {
   // TODO: Create two new point clouds, one cloud with obstacles and other with segmented plane
 // --------------------- DANIEL SOLUTION START ---------------------
-    typename pcl::PointCloud<PointT>::Ptr plane ( new pcl::PointCloud<PointT> );
-    typename pcl::PointCloud<PointT>::Ptr obstacles ( new pcl::PointCloud<PointT> );
+    typename pcl::PointCloud< PointT >::Ptr plane ( new pcl::PointCloud < PointT > );
+    typename pcl::PointCloud< PointT >::Ptr obstacles ( new pcl::PointCloud < PointT > );
 
     // Create the filtering object
     pcl::ExtractIndices<pcl::PointXYZ> extract;
     // Extract the inliers
-    extract.setInputCloud (cloud);
-    extract.setIndices (inliers);
-    extract.setNegative (false);
-    extract.filter (*plane);
+    extract.setInputCloud ( cloud );
+    extract.setIndices ( inliers );
+    extract.setNegative ( false );
+    extract.filter ( *plane );
     std::cerr << "PointCloud representing the planar component: " << plane->width * plane->height << " data points." << std::endl;
 // Create the filtering object
-    extract.setNegative (true);
-    extract.filter (*obstacles);
+    extract.setNegative ( true );
+    extract.filter ( *obstacles );
 // --------------------- DANIEL SOLUTION END ---------------------
 
-    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult(plane, obstacles);
+    std::pair< typename pcl::PointCloud < PointT >::Ptr, typename pcl::PointCloud< PointT >::Ptr > segResult ( plane, obstacles );
     return segResult;
 }
 
@@ -159,7 +159,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     // Create the segmentation object
     pcl::SACSegmentation< PointT > seg;
     // Optional
-    seg.setOptimizeCoefficients (true);
+    seg.setOptimizeCoefficients ( true );
     // Mandatory
     seg.setModelType (pcl::SACMODEL_PLANE);
     seg.setMethodType (pcl::SAC_RANSAC);

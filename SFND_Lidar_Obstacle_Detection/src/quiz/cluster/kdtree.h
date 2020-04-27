@@ -14,11 +14,12 @@ struct Node
 {
 	std::vector<float> point;
 	int id;
+    int axis;
 	Node* left;
 	Node* right;
 
 	Node(const std::vector<float> &arr, int setId)
-	:	point(arr), id(setId), left(NULL), right(NULL)
+	:	point(arr), id(setId), axis( 0 ), left(NULL), right(NULL)
 	{}
 
 	~Node()
@@ -82,11 +83,13 @@ struct KdTree
             bool inserted = false;
             do {
                 assert( currentNode->point.size() == numAxes );
+                int nextAxis = ( axis + 1 ) % numAxes;
 
                 if( point[ axis ] < currentNode->point[ axis ] )
                 {
                     if( currentNode->left == nullptr )
                     {
+                        newNode->axis = nextAxis;
                         currentNode->left = newNode;
                         inserted = true;
                     }
@@ -99,6 +102,7 @@ struct KdTree
                 {
                     if( currentNode->right == nullptr )
                     {
+                        newNode->axis = nextAxis;
                         currentNode->right = newNode;
                         inserted = true;
                     }
@@ -108,7 +112,7 @@ struct KdTree
                     }
                 }
 
-                axis = ( axis + 1 ) % numAxes;
+                axis = nextAxis;
             } while( !inserted );
         }
 	}

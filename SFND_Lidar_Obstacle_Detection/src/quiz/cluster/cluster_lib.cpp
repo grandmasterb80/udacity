@@ -5,6 +5,7 @@
 #include "../../render/box.h"
 #include <chrono>
 #include <string>
+#include <unordered_set>
 #include "kdtree.h"
 #include "cluster_lib.h"
 
@@ -13,10 +14,10 @@ std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vecto
 	// TODO: Fill out this function to return list of indices for each cluster
     std::vector< std::vector < int > > clusters;
 // --------------------- DANIEL SOLUTION START ---------------------
-    std::set< int > visitedPoints;
+    std::unordered_set< int > visitedPoints;
     for( int currentPoint = 0; currentPoint != points.size(); currentPoint++ )
     {
-        std::set < int > newClusterSet;
+        std::unordered_set < int > newClusterSet;
         std::vector< int > pointsToCheck;
         if( visitedPoints.count( currentPoint ) > 0 ) continue;
         pointsToCheck.push_back( currentPoint );

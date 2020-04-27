@@ -77,7 +77,7 @@ struct KdTree
         else
         {
             Node* currentNode = root;
-            bool axis = 0;  // 0 = X, 1 = Y, 2 = ...
+            int axis = 0;  // 0 = X, 1 = Y, 2 = ...
             bool inserted = false;
             do {
                 assert( currentNode->point.size() == numAxes );

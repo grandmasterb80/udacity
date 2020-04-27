@@ -15,12 +15,11 @@ struct Node
 {
 	std::vector<float> point;
 	int id;
-    int axis;
 	Node* left;
 	Node* right;
 
 	Node(const std::vector<float> &arr, int setId)
-	:	point(arr), id(setId), axis( 0 ), left(NULL), right(NULL)
+	:	point(arr), id(setId), left(NULL), right(NULL)
 	{}
 
 	~Node()
@@ -40,7 +39,7 @@ struct Node
     std::string toStr()
     {
         std::stringstream ss;
-        ss << "<id=" << id << ", ( ";
+        ss << "< id=" << id << ", ( ";
         bool x = false;
         for ( float pc : point )
         {
@@ -48,7 +47,7 @@ struct Node
             ss << pc;
             x = true;
         }
-        ss << "), axis=" << axis << ">";
+        ss << ") >";
         return ss.str();
     }
 };
@@ -83,34 +82,14 @@ struct KdTree
             int axis = 0;  // 0 = X, 1 = Y, 2 = ...
             bool inserted = false;
 
-#ifdef DO_SANITY_CHECKS
-            float min_val[3] = {-100, -100, -100};
-            float max_val[3] = { 100,  100,  100};
-#endif // DO_SANITY_CHECKS
             do {
                 assert( currentNode->point.size() == numAxes );
-                int nextAxis = ( axis + 1 ) % numAxes;
-
-#ifdef DO_SANITY_CHECKS
-                // check if current node is in window
-                for( int a = 0; a < numAxes; a++ )
-                {
-                    assert( min_val[a] <= currentNode->point[a] );
-                    assert( currentNode->point[a] <= max_val[a] );
-                    assert( min_val[a] <= point[a] );
-                    assert( point[a] <= max_val[a] );
-                }
-#endif // DO_SANITY_CHECKS
 
                 if( point[ axis ] < currentNode->point[ axis ] )
                 {
                     if( currentNode->left == nullptr )
                     {
-                        newNode->axis = nextAxis;
                         currentNode->left = newNode;
-#ifdef DO_SANITY_CHECKS
-                        max_val[ axis ] = currentNode->point[ axis ];
-#endif // DO_SANITY_CHECKS
                         inserted = true;
                     }
                     else
@@ -122,11 +101,7 @@ struct KdTree
                 {
                     if( currentNode->right == nullptr )
                     {
-                        newNode->axis = nextAxis;
                         currentNode->right = newNode;
-#ifdef DO_SANITY_CHECKS
-                        min_val[ axis ] = currentNode->point[ axis ];
-#endif // DO_SANITY_CHECKS
                         inserted = true;
                     }
                     else
@@ -135,109 +110,12 @@ struct KdTree
                     }
                 }
 
-                axis = nextAxis;
+                axis = ( axis + 1 ) % numAxes;
             } while( !inserted );
         }
 	}
 
-	void recSearch( Node *node,
-                    std::vector<int> &ids,
-                    const std::vector<float> &target,
-                    double distanceTol,
-                    const std::vector<float> &box_top_left,
-                    const std::vector<float> &box_bottom_right,
-                    std::vector<float> &window_top_left,
-                    std::vector<float> &window_bottom_right,
-                    int axis,
-                    int numMatches )
-    {
-        // step recursion with end reached
-        if( node == nullptr ) return;
-
-        assert( node->point.size() == box_top_left.size() );
-        assert( node->point.size() == box_bottom_right.size() );
-        assert( node->point.size() == window_top_left.size() );
-        assert( node->point.size() == window_bottom_right.size() );
-
-        // stop recursion when search window is completely in the box
-        if( numMatches == node->point.size() )
-        {
-            // will add id of this node and all children to the ids
-            node->addIndiciesOfTree( ids );
-            return;
-        }
-
-/*
-        double dd = 0.0;
-        for( int i = 0; i < node->point.size(); i++ )
-        {
-            double d = node->point[ i ] - target[ i ];
-            dd += d * d;
-        } 
-        if( dd <= distanceTol * distanceTol )
-        {
-            ids.push_back( node->id );
-        }
-*/
-        bool isIn = true;
-        for( int i = 0; isIn && i < node->point.size(); i++ )
-        {
-            isIn &= ( ( node->point[ i ] >= target[ i ] - distanceTol ) && ( node->point[ i ] <= target[ i ] + distanceTol ) );
-        } 
-        if( isIn )
-        {
-            ids.push_back( node->id );
-        }
-
-        int nextAxis = ( axis + 1 ) % node->point.size();
-        { // scope for left side
-            int numMatchesLeft = numMatches;
-            bool newMatch = ( window_top_left[ axis ] >= box_top_left[ axis ] &&
-                              !(window_bottom_right[ axis ] <= box_bottom_right[ axis ]) &&
-                              node->point[ axis ] <= box_bottom_right[ axis ] );
-            float oldBoundRight = window_bottom_right[ axis ];
-            window_bottom_right[ axis ] = node->point[ axis ];
-
-            recSearch( node->left,
-                       ids,
-                       target,
-                       distanceTol,
-                       box_top_left,
-                       box_bottom_right,
-                       window_top_left,
-                       window_bottom_right,
-                       nextAxis,
-                       newMatch ? ( numMatches + 1 ) : numMatches );
-
-            // reset window to old value
-            window_bottom_right[ axis ] = oldBoundRight;
-        }
-
-        { // scope for left side
-            int numMatchesRight = numMatches;
-            bool newMatch = ( !(window_top_left[ axis ] >= box_top_left[ axis ]) &&
-                              node->point[ axis ] >= box_top_left[ axis ] &&
-                              window_bottom_right[ axis ] <= box_bottom_right[ axis ] );
-            float oldBoundLeft = window_top_left[ axis ];
-            window_top_left[ axis ] = node->point[ axis ];
-
-            recSearch( node->right,
-                       ids,
-                       target,
-                       distanceTol,
-                       box_top_left,
-                       box_bottom_right,
-                       window_top_left,
-                       window_bottom_right,
-                       nextAxis,
-                       newMatch ? ( numMatches + 1 ) : numMatches );
-
-            // reset window to old value
-            window_top_left[ axis ] = oldBoundLeft;
-        }
-    }
-
-    void recSearch2( Node *node, std::vector<int> &ids, int axis, const std::vector<float> &target, double distanceTol, std::vector< std::pair< Node*, std::pair< bool, bool > > > &nodepath, bool shouldStop = false )
+    void recSearch( Node *node, std::vector<int> &ids, int axis, const std::vector<float> &target, double distanceTol )
     {
         if( node == nullptr ) return;
         assert( node->point.size() == target.size() );
@@ -251,49 +129,15 @@ struct KdTree
 
         if( dd <= distanceTol * distanceTol )
         {
-            if( shouldStop  )
-            {
-                std::vector< std::pair< Node*, std::pair< bool, bool > > > l;
-                std::cout << "Found node that was supposed to be out. Path:" << endl;
-                for( std::pair< Node*, std::pair< bool, bool > > n : nodepath )
-                {
-                    std::cout << "    " << n.first->toStr() << ", next " << (n.second.first ? "right" : "left") << " continue=" << n.second.second << endl;
-                }
-                std::cout << "    " << node->toStr() << endl;
-            }
             ids.push_back( node->id );
         }
-/*
-        bool isIn = true;
-        for( int i = 0; isIn && i < node->point.size(); i++ )
-        {
-            isIn &= ( ( node->point[ i ] >= target[ i ] - distanceTol ) && ( node->point[ i ] <= target[ i ] + distanceTol ) );
-        } 
-        if( isIn )
-        {
-            ids.push_back( node->id );
-        }
-*/
 
         int nextAxis = ( axis + 1 ) % node->point.size();
 
         if( target[ axis ] - distanceTol <= node->point[ axis ]  )
-        {
-            bool s = target[ axis ] - distanceTol <= node->point[ axis ];
-            std::vector< std::pair< Node*, std::pair< bool, bool > > > nodepathLeft( nodepath );
-            std::pair< Node*, std::pair< bool, bool > > nn( node, std::pair< bool, bool >( false, s ) );
-            nodepathLeft.push_back( nn );
-            recSearch2( node->left, ids, nextAxis, target, distanceTol, nodepathLeft, !s || shouldStop );
-        }
-
+            recSearch( node->left, ids, nextAxis, target, distanceTol );
         if( target[ axis ] + distanceTol >= node->point[ axis ]  )
-        {
-            bool s = target[ axis ] + distanceTol >= node->point[ axis ];
-            std::vector< std::pair< Node*, std::pair< bool, bool > > > nodepathRight( nodepath );
-            std::pair< Node*, std::pair< bool, bool > > nn( node, std::pair< bool, bool >( true, s ) );
-            nodepathRight.push_back( nn );
-            recSearch2( node->right, ids, nextAxis, target, distanceTol, nodepathRight, !s || shouldStop );
-        }
+            recSearch( node->right, ids, nextAxis, target, distanceTol );
     }
 
 
@@ -301,34 +145,7 @@ struct KdTree
 	std::vector<int> search(const std::vector<float> &target, float distanceTol)
 	{
 		std::vector<int> ids;
-        std::cout << "Finding points around {";
-        bool x = false;
-        for ( float pc : target )
-        {
-            if ( x ) std::cout << ",";
-            std::cout << pc;
-            x = true;
-        }
-        std::cout << "} distanceTol = " << distanceTol << endl;
-        std::vector< std::pair< Node*, std::pair< bool, bool > > > path;
-        recSearch2( root, ids, 0, target, distanceTol, path );
-/*
-        int numMatches = 0;
-        std::vector<float> box_top_left, box_bottom_right;
-        std::vector<float> window_top_left, window_bottom_right;
-        int i = 0;
-        for( std::vector<float>::iterator t = target.begin(); t != target.end(); t++ )
-        {
-            box_top_left.push_back( (*t) - distanceTol );
-            box_bottom_right.push_back( (*t) + distanceTol );
-            window_top_left.push_back( -100.0 );
-            window_bottom_right.push_back( 100.0 );
-            if( window_top_left[ i ] >= box_top_left[ i ] && window_bottom_right[ i ] <= box_bottom_right[ i ] ) numMatches++;
-            i++;
-        }
-
-        recSearch( root, ids, target, distanceTol, box_top_left, box_bottom_right, window_top_left, window_bottom_right, 0, numMatches );
-*/
+        recSearch( root, ids, 0, target, distanceTol );
 		return ids;
 	}
 	

@@ -9,6 +9,8 @@
 #include "kdtree.h"
 #include "cluster_lib.h"
 
+//#define PRINT_DEBUG
+
 std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol, int minSize, int maxSize)
 {
 	// TODO: Fill out this function to return list of indices for each cluster
@@ -34,21 +36,27 @@ std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vecto
 
         if( newClusterSet.size() >= minSize && newClusterSet.size() <= maxSize )
         {
+#ifdef PRINT_DEBUG
             std::cout << "   * euclideanCluster: found new cluster with size " << newClusterSet.size() << std::endl;
+#endif // PRINT_DEBUG
             std::vector < int > newCluster( newClusterSet.begin(), newClusterSet.end() );
             clusters.push_back( newCluster );
         }
+#ifdef PRINT_DEBUG
         else
         {
             std::cout << "   * euclideanCluster: neglecting new cluster with size " << newClusterSet.size() << std::endl;
         }
+#endif // PRINT_DEBUG
     }
+#ifdef PRINT_DEBUG
     std::cout << "euclideanCluster: found " << clusters.size() << " clusters with size {";
     for( std::vector<int> c : clusters )
     {
         std::cout << c.size() << ", ";
     }
     std::cout << "}" << std::endl;
+#endif // PRINT_DEBUG
 // --------------------- DANIEL SOLUTION END ---------------------
 
 	return clusters;

@@ -4,8 +4,8 @@
 #include <ctime>
 #include <chrono>
 
-#define USE_FAST_RAYCAST
-//#define LIDAR_HDL64E
+// #define USE_FAST_RAYCAST
+// #define LIDAR_HDL64E
 
 const double pi = 3.1415;
 
@@ -33,7 +33,7 @@ struct Ray
 		  castDistance( 0 )
 	{
 #ifndef USE_FAST_RAYCAST
-        direction *= resolution;
+        direction = direction * resolution;
 #endif // USE_FAST_RAYCAST
     }
 

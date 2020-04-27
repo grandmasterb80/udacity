@@ -33,6 +33,21 @@ struct Node
         if( left != nullptr ) left->addIndiciesOfTree( ids );
         if( right != nullptr ) right->addIndiciesOfTree( ids );
     }
+
+    std::string toStr()
+    {
+        std::stringstream ss;
+        ss << "<id=" << id << ", ( ";
+        bool x = false;
+        for ( float pc : point )
+        {
+            if ( x ) ss << ",";
+            ss << pc;
+            x = true;
+        }
+        ss << "), axis=" << axis << ">";
+        return ss.str();
+    }
 };
 
 struct KdTree

@@ -10,6 +10,7 @@
 #include "quiz/cluster/kdtree.h"
 #include "quiz/cluster/cluster_lib.h"
 
+
 /*
 #include <pcl/impl/point_types.hpp>
 
@@ -325,6 +326,8 @@ Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Pt
 template<typename PointT>
 BoxQ ProcessPointClouds<PointT>::BoundingQBox(typename pcl::PointCloud<PointT>::Ptr cluster)
 {
+    assert( cluster->size() >= 3 );
+
     // Find bounding box for one of the clusters
     PointT minPoint, maxPoint;
     pcl::getMinMax3D(*cluster, minPoint, maxPoint);

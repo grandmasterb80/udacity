@@ -8,6 +8,7 @@
 #include <sstream>
 #include "../../render/render.h"
 
+#define DO_SANITY_CHECKS
 
 // Structure to represent node of kd tree
 struct Node
@@ -71,7 +72,7 @@ struct KdTree
 		// the function should create a new node and place correctly within the root 
         uint32_t numAxes = point.size();
         Node* newNode = new Node( point, id );
-        
+
         if( root == nullptr )
         {
             root = newNode;
@@ -81,9 +82,25 @@ struct KdTree
             Node* currentNode = root;
             int axis = 0;  // 0 = X, 1 = Y, 2 = ...
             bool inserted = false;
+
+#ifdef DO_SANITY_CHECKS
+            float min_val[3] = {-100, -100, -100};
+            float max_val[3] = { 100,  100,  100};
+#endif // DO_SANITY_CHECKS
             do {
                 assert( currentNode->point.size() == numAxes );
                 int nextAxis = ( axis + 1 ) % numAxes;
+
+#ifdef DO_SANITY_CHECKS
+                // check if current node is in window
+                for( int a = 0; a < numAxes; a++ )
+                {
+                    assert( min_val[a] <= currentNode->point[a] );
+                    assert( currentNode->point[a] <= max_val[a] );
+                    assert( min_val[a] <= point[a] );
+                    assert( point[a] <= max_val[a] );
+                }
+#endif // DO_SANITY_CHECKS
 
                 if( point[ axis ] < currentNode->point[ axis ] )
                 {
@@ -91,6 +108,9 @@ struct KdTree
                     {
                         newNode->axis = nextAxis;
                         currentNode->left = newNode;
+#ifdef DO_SANITY_CHECKS
+                        max_val[ axis ] = currentNode->point[ axis ];
+#endif // DO_SANITY_CHECKS
                         inserted = true;
                     }
                     else
@@ -104,6 +124,9 @@ struct KdTree
                     {
                         newNode->axis = nextAxis;
                         currentNode->right = newNode;
+#ifdef DO_SANITY_CHECKS
+                        min_val[ axis ] = currentNode->point[ axis ];
+#endif // DO_SANITY_CHECKS
                         inserted = true;
                     }
                     else
@@ -214,11 +237,33 @@ struct KdTree
         }
     }
 
-    void recSearch2( Node *node, std::vector<int> &ids, int axis, const std::vector<float> &target, double distanceTol )
+    void recSearch2( Node *node, std::vector<int> &ids, int axis, const std::vector<float> &target, double distanceTol, std::vector< std::pair< Node*, std::pair< bool, bool > > > &nodepath, bool shouldStop = false )
     {
         if( node == nullptr ) return;
         assert( node->point.size() == target.size() );
 
+        double dd = 0.0;
+        for( int i = 0; i < node->point.size(); i++ )
+        {
+            double d = node->point[ i ] - target[ i ];
+            dd += d * d;
+        }
+
+        if( dd <= distanceTol * distanceTol )
+        {
+            if( shouldStop  )
+            {
+                std::vector< std::pair< Node*, std::pair< bool, bool > > > l;
+                std::cout << "Found node that was supposed to be out. Path:" << endl;
+                for( std::pair< Node*, std::pair< bool, bool > > n : nodepath )
+                {
+                    std::cout << "    " << n.first->toStr() << ", next " << (n.second.first ? "right" : "left") << " continue=" << n.second.second << endl;
+                }
+                std::cout << "    " << node->toStr() << endl;
+            }
+            ids.push_back( node->id );
+        }
+/*
         bool isIn = true;
         for( int i = 0; isIn && i < node->point.size(); i++ )
         {
@@ -228,12 +273,27 @@ struct KdTree
         {
             ids.push_back( node->id );
         }
+*/
 
         int nextAxis = ( axis + 1 ) % node->point.size();
-        if( node->point[ axis ] >= target[ axis ] - distanceTol )
-            recSearch2( node->left, ids, nextAxis, target, distanceTol );
-        if( node->point[ axis ] <= target[ axis ] + distanceTol )
-            recSearch2( node->right, ids, nextAxis, target, distanceTol );
+
+        if( target[ axis ] - distanceTol <= node->point[ axis ]  )
+        {
+            bool s = target[ axis ] - distanceTol <= node->point[ axis ];
+            std::vector< std::pair< Node*, std::pair< bool, bool > > > nodepathLeft( nodepath );
+            std::pair< Node*, std::pair< bool, bool > > nn( node, std::pair< bool, bool >( false, s ) );
+            nodepathLeft.push_back( nn );
+            recSearch2( node->left, ids, nextAxis, target, distanceTol, nodepathLeft, !s || shouldStop );
+        }
+
+        if( target[ axis ] + distanceTol >= node->point[ axis ]  )
+        {
+            bool s = target[ axis ] + distanceTol >= node->point[ axis ];
+            std::vector< std::pair< Node*, std::pair< bool, bool > > > nodepathRight( nodepath );
+            std::pair< Node*, std::pair< bool, bool > > nn( node, std::pair< bool, bool >( true, s ) );
+            nodepathRight.push_back( nn );
+            recSearch2( node->right, ids, nextAxis, target, distanceTol, nodepathRight, !s || shouldStop );
+        }
     }
 
 
@@ -241,7 +301,17 @@ struct KdTree
 	std::vector<int> search(const std::vector<float> &target, float distanceTol)
 	{
 		std::vector<int> ids;
-        recSearch2( root, ids, 0, target, distanceTol );
+        std::cout << "Finding points around {";
+        bool x = false;
+        for ( float pc : target )
+        {
+            if ( x ) std::cout << ",";
+            std::cout << pc;
+            x = true;
+        }
+        std::cout << "} distanceTol = " << distanceTol << endl;
+        std::vector< std::pair< Node*, std::pair< bool, bool > > > path;
+        recSearch2( root, ids, 0, target, distanceTol, path );
 /*
         int numMatches = 0;
         std::vector<float> box_top_left, box_bottom_right;

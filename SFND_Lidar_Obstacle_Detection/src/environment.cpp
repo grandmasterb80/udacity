@@ -106,6 +106,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
         BoxQ box = myPPC->BoundingQBox( obj );
         renderBox( viewer, box, j /*objName.str()*/ );
     }
+*/
 }
 
 
@@ -154,8 +155,8 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     //Eigen::Vector4f minROI( -41.0, -16.0, -15.0, 1 );
     //Eigen::Vector4f maxROI( 500.0,  16.0,  15.0, 1 );
     
-    Eigen::Vector4f minROI( -10.0, -8.0, -3.0, 1 );
-    Eigen::Vector4f maxROI(  50.0,  8.0,  2.0, 1 );
+    Eigen::Vector4f minROI( -10.0, -6.0, -3.0, 1 ); // -10, 6
+    Eigen::Vector4f maxROI(  30.0,  6.0,  2.0, 1 ); //  30, 6
     pcl::PointCloud< pcl::PointXYZI >::Ptr filterCloud ( myPPCI->FilterCloud( inputCloud, 0.2 , minROI, maxROI ) );
     renderPointCloud( viewer, filterCloud, "filterCloud", cloudColor );
 

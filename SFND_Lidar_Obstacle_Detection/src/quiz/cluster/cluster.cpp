@@ -135,8 +135,8 @@ int main ()
   	{
   		pcl::PointCloud<pcl::PointXYZ>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZ>());
   		for(int indice: cluster)
-  			clusterCloud->points.push_back(pcl::PointXYZ(points[indice][0],points[indice][1],0));
-  		renderPointCloud(viewer, clusterCloud,"cluster"+std::to_string(clusterId),colors[clusterId%3]);
+  			clusterCloud->points.push_back( pcl::PointXYZ( points[indice][0], points[indice][1], ( points[indice].size() >= 3 ) ? points[indice][2] : 0.0f ) );
+  		renderPointCloud(viewer, clusterCloud,"cluster"+std::to_string(clusterId),colors[clusterId % colors.size()]);
   		++clusterId;
   	}
   	if(clusters.size()==0)

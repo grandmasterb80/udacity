@@ -123,15 +123,14 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 
 
 template<typename PointT>
-std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(const std::unordered_set<int> &inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
-//std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
+std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(const InliersDataType &inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
 {
   // TODO: Create two new point clouds, one cloud with obstacles and other with segmented plane
 // --------------------- DANIEL SOLUTION START ---------------------
     typename pcl::PointCloud< PointT >::Ptr plane ( new pcl::PointCloud < PointT > );
     typename pcl::PointCloud< PointT >::Ptr obstacles ( new pcl::PointCloud < PointT > );
 
-    /*
+#ifdef USE_PCL   // PCL ------------------------------------
     // PCL solution for reference
     // Create the filtering object
     pcl::ExtractIndices< PointT > extract;
@@ -144,8 +143,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 // Create the filtering object
     extract.setNegative ( true );
     extract.filter ( *obstacles );
-    */
-
+#else // PCL ------------------------------------
 	for(int index = 0; index < cloud->points.size(); index++)
 	{
 		if(inliers.count(index))
@@ -157,6 +155,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 			obstacles->points.push_back( cloud->points[index] );
         }
 	}
+#endif // PCL ------------------------------------
 // --------------------- DANIEL SOLUTION END ---------------------
 
     std::pair< typename pcl::PointCloud < PointT >::Ptr, typename pcl::PointCloud< PointT >::Ptr > segResult ( plane, obstacles );
@@ -174,9 +173,9 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     // TODO:: Fill in this function to find inliers for the cloud.
 // --------------------- DANIEL SOLUTION START ---------------------
-/*
+#ifdef USE_PCL
     // PCL solution for reference
-    pcl::PointIndices::Ptr inliers ( new pcl::PointIndices () );
+    InliersDataType inliers ( new pcl::PointIndices () );
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
     // Create the segmentation object
     typename pcl::SACSegmentation< PointT > seg;
@@ -195,12 +194,13 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     {
         std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
     }
-*/
-    std::unordered_set<int> inliers = RansacPlane<PointT>( cloud, maxIterations, distanceThreshold );
+#else // USE_PCL
+    InliersDataType inliers = RansacPlane<PointT>( cloud, maxIterations, distanceThreshold );
     if ( inliers.size () == 0 )
     {
         std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
     }
+#endif // USE_PCL
 // --------------------- DANIEL SOLUTION END ---------------------
 
     auto endTime = std::chrono::steady_clock::now();
@@ -227,8 +227,8 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
 
     // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
 // --------------------- DANIEL SOLUTION START ---------------------
-/*
     // PCL solution for reference
+#ifdef USE_PCL // PCL ----------------------------------------------------------------------------------------
     // Creating the KdTree object for the search method of the extraction
     typename pcl::search::KdTree< PointT >::Ptr tree ( new pcl::search::KdTree< PointT > );
     tree->setInputCloud ( cloud );
@@ -243,7 +243,25 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
     // now the actual clustering
     std::vector< pcl::PointIndices > cluster_indices;
     ec.extract ( cluster_indices );
-*/
+    
+    // extract the points into dedicated sets of points (instead of using the set of point indicies)
+    int j = 0;
+    for ( std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it )
+    {
+        typename pcl::PointCloud< PointT >::Ptr cloud_cluster ( new pcl::PointCloud< PointT > );
+        for ( std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit )
+        {
+            cloud_cluster->points.push_back ( cloud->points[ *pit ] ); //*
+        }
+        cloud_cluster->width = cloud_cluster->points.size ();
+        cloud_cluster->height = 1;
+        cloud_cluster->is_dense = true;
+
+        std::cout << "PointCloud representing the Cluster " << j << ": " << cloud_cluster->points.size () << " data points." << std::endl;
+        clusters.push_back( cloud_cluster );
+        j++;
+    }
+#else // PCL ----------------------------------------------------------------------------------------
     // convert points in cloud to vectors & add them to the tree
 	std::vector< std::vector < float > > cloudP;
 	KdTree tree;
@@ -259,7 +277,6 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
     // extract the points into dedicated sets of points (instead of using the set of point indicies)
     int j = 0;
     for ( std::vector< std::vector < int > >::iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it )
-    //for ( std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it )
     {
         typename pcl::PointCloud< PointT >::Ptr cloud_cluster ( new pcl::PointCloud< PointT > );
         for ( std::vector<int>::const_iterator pit = it->begin (); pit != it->end (); ++pit )
@@ -270,10 +287,11 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
         cloud_cluster->height = 1;
         cloud_cluster->is_dense = true;
 
-        //std::cout << "PointCloud representing the Cluster " << j << ": " << cloud_cluster->points.size () << " data points." << std::endl;
+        std::cout << "PointCloud representing the Cluster " << j << ": " << cloud_cluster->points.size () << " data points." << std::endl;
         clusters.push_back( cloud_cluster );
         j++;
     }
+#endif // PCL ----------------------------------------------------------------------------------------
 // --------------------- DANIEL SOLUTION END ---------------------
 
     auto endTime = std::chrono::steady_clock::now();

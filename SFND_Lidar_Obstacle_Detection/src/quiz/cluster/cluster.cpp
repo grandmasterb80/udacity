@@ -104,10 +104,10 @@ int main ()
 	//std::vector<std::vector<float>> points = { {-6.2,7}, {-6.3,8.4}, {-5.2,7.1}, {-5.7,6.3}, {7.2,6.1}, {8.0,5.3}, {7.2,7.1}, {0.2,-7.1}, {1.7,-6.9}, {-1.2,-7.2}, {2.2,-8.9} };
 	//std::vector<std::vector<float>> points = { {-6.2,7}, {-6.3,8.4}, {-5.2,7.1}, {-5.7,6.3} };
     std::vector<std::vector<float>> points;
-    for(int cluster = 0; cluster < 10; cluster++ )
+    for(int cluster = 0; cluster < 100; cluster++ )
     {
-        int numpoints = 8 + ( rand() % 4 );
-        float cloudsize = 1.0f + 1.5f * rand() / INT_MAX;
+        int numpoints = 50 + ( rand() % 30 );
+        float cloudsize = 1.0f + 2.0f * rand() / INT_MAX;
         float cx = window.x_min + ( window.x_max - window.x_min ) * rand() / INT_MAX;
         float cy = window.y_min + ( window.y_max - window.y_min ) * rand() / INT_MAX;
         float cz = window.z_min + ( window.z_max - window.z_min ) * rand() / INT_MAX;
@@ -133,13 +133,13 @@ int main ()
   
   	std::cout << "Test Search" << std::endl;
   	//std::vector<int> nearby = tree->search({ -6, 7, 3}, 3.0);
-  	std::vector<int> nearby = tree->search({ 8.98997,8.00823,-0.795715}, 3.0);
+  	std::vector<int> nearby = tree->search({ 8.98997,8.00823,-0.795715}, 2.0);
     
   	//std::vector<int> nearby = tree->search({-6,7},3.0);
   	for(int index : nearby)
       std::cout << index << ",";
   	std::cout << std::endl;
-/*
+
   	// Time segmentation process
   	auto startTime = std::chrono::steady_clock::now();
   	//
@@ -171,5 +171,4 @@ int main ()
   	{
   	  viewer->spinOnce ();
   	}
-*/
 }

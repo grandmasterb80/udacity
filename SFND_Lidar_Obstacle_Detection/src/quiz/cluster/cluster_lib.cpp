@@ -27,8 +27,8 @@ std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vecto
             pointsToCheck.pop_back();
             if( visitedPoints.count( pIndex ) > 0 ) continue;
             visitedPoints.insert ( pIndex );
-            newClusterSet.insert( pIndex );
-            std::vector< int > pointsToCheckNew = tree->search( points[ pIndex ], distanceTol );
+            newClusterSet.insert ( pIndex );
+            std::vector< int > pointsToCheckNew ( tree->search( points[ pIndex ], distanceTol ) );
             pointsToCheck.insert( pointsToCheck.end(), pointsToCheckNew.begin(), pointsToCheckNew.end() );
         } while( !pointsToCheck.empty() );
 

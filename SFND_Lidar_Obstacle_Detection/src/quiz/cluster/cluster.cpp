@@ -32,7 +32,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData(std::vector<std::vector<float>> p
   		pcl::PointXYZ point;
   		point.x = points[i][0];
   		point.y = points[i][1];
-  		point.z = 0;
+  		point.z = ( points[i].size() >= 3 ) ? points[i][2] : 0.0f;
 
   		cloud->points.push_back(point);
 
@@ -45,27 +45,40 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData(std::vector<std::vector<float>> p
 }
 
 
-void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Box window, int& iteration, uint depth=0)
+void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Box window, int& iteration, uint depth=0, uint maxDepth=3)
 {
 
 	if(node!=NULL)
 	{
 		Box upperWindow = window;
 		Box lowerWindow = window;
+        
+        float px = node->point[0];
+        float py = node->point[1];
+        float pz = (maxDepth >= 2) ? node->point[2] : 0.0f;
 		// split on x axis
-		if(depth%2==0)
+		if( depth % maxDepth == 0 )
 		{
-			viewer->addLine(pcl::PointXYZ(node->point[0], window.y_min, 0),pcl::PointXYZ(node->point[0], window.y_max, 0),0,0,1,"line"+std::to_string(iteration));
-			lowerWindow.x_max = node->point[0];
-			upperWindow.x_min = node->point[0];
+            viewer->addLine(pcl::PointXYZ(px, window.y_min, pz),pcl::PointXYZ(px, window.y_max, pz),0,0,1,"line"+std::to_string(iteration*2));
+            viewer->addLine(pcl::PointXYZ(px, py, window.z_min),pcl::PointXYZ(px, py, window.z_max),0,0,1,"line"+std::to_string(iteration*2+1));
+			lowerWindow.x_max = px;
+			upperWindow.x_min = px;
 		}
 		// split on y axis
-		else
+		else if( depth % maxDepth == 1 )
 		{
-			viewer->addLine(pcl::PointXYZ(window.x_min, node->point[1], 0),pcl::PointXYZ(window.x_max, node->point[1], 0),1,0,0,"line"+std::to_string(iteration));
-			lowerWindow.y_max = node->point[1];
-			upperWindow.y_min = node->point[1];
+            viewer->addLine(pcl::PointXYZ(window.x_min, py, pz),pcl::PointXYZ(window.x_max, py, pz),1,0,0,"line"+std::to_string(iteration*2));
+            viewer->addLine(pcl::PointXYZ(px, py, window.z_min),pcl::PointXYZ(px, py, window.z_max),1,0,0,"line"+std::to_string(iteration*2+1));
+			lowerWindow.y_max = py;
+			upperWindow.y_min = py;
 		}
+		else if( depth % maxDepth == 2 )
+        {
+			viewer->addLine(pcl::PointXYZ(window.x_min, py, pz),pcl::PointXYZ(window.x_max, py, pz),1,0,0,"line"+std::to_string(iteration*2));
+			viewer->addLine(pcl::PointXYZ(px, window.y_min, pz),pcl::PointXYZ(px, window.z_max, pz),1,0,0,"line"+std::to_string(iteration*2+1));
+			lowerWindow.z_max = pz;
+			upperWindow.z_min = pz;
+        }
 		iteration++;
 
 		render2DTree(node->left,viewer, lowerWindow, iteration, depth+1);
@@ -83,8 +96,8 @@ int main ()
   	window.x_max =  10;
   	window.y_min = -10;
   	window.y_max =  10;
-  	window.z_min =   0;
-  	window.z_max =   0;
+  	window.z_min = -10;
+  	window.z_max =  10;
 	pcl::visualization::PCLVisualizer::Ptr viewer = initScene(window, 25);
 
 	// Create data

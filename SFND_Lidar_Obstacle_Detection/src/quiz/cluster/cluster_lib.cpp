@@ -34,8 +34,13 @@ std::vector< std::vector < int > > euclideanCluster(const std::vector<std::vecto
 
         if( newClusterSet.size() >= minSize && newClusterSet.size() <= maxSize )
         {
+            std::cout << "   * euclideanCluster: found new cluster with size " << newClusterSet.size() << std::endl;
             std::vector < int > newCluster( newClusterSet.begin(), newClusterSet.end() );
             clusters.push_back( newCluster );
+        }
+        else
+        {
+            std::cout << "   * euclideanCluster: neglecting new cluster with size " << newClusterSet.size() << std::endl;
         }
     }
     std::cout << "euclideanCluster: found " << clusters.size() << " clusters with size {";

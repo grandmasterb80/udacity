@@ -18,13 +18,29 @@
 // #include <vector>
 
 template<typename PointT>
+float LowestZ(typename pcl::PointCloud< PointT >::Ptr &cloud)
+{
+    float lowestZ = 9999999.0f;
+    for( PointT p : *cloud )
+    {
+        if( p.z < lowestZ ) lowestZ = p.z;
+    }
+    return lowestZ;
+}
+
+
+template<typename PointT>
 std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &cloud, int maxIterations, float distanceTol)
 {
-    static Eigen::Vector3f planepoint;
-    static Eigen::Vector3f normal;
-    static bool firstRun = true; // used to reuse planepoint and normal from last execution
+    // First call: we do static initialization to memorize the last plane that had a good match. We always
+    // try this first, since we are slightly moving through the scene.
+    // Attention: initialization is application specific: we assume that
+    // ground is a X-Y-plane, which includes the lowest points in the cloud
+    static Eigen::Vector3f planepoint( 0.0, 0.0, LowestZ<PointT>( cloud ) + distanceTol );
+    static Eigen::Vector3f normal( 0.0, 0.0, 1.0 );  // assume that ground is flat
    
 	std::unordered_set<int> inliersResult;
+    double bestStdDev = 100.0;
 	srand(time(NULL));
 	
     uint32_t numPoints = cloud->size();
@@ -39,19 +55,19 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
     else
     {
         // TODO: Fill in this function
-        for( int i = 0; i < maxIterations; i++ )
+        int i;
+        bool lastIteration = false;
+        for( i = 0; i < maxIterations && !lastIteration; i++ )
         {
             std::unordered_set<int> intermediateInliersResult;
             uint32_t p1 = 0;
             uint32_t p2 = 0;
             uint32_t p3 = 0;
-            // go to last iteration approach if we already have 60% of all points
-            if( inliersResult.size() > cloud->size() / 10 * 6 )
-            {
-                i = maxIterations - 1;
-            }
+            // go to last iteration approach if we already have a specific percentage of the input cloud in the determined plane
+            lastIteration = ( i == ( maxIterations - 1 ) ) ||
+                            ( inliersResult.size() > cloud->size() / 10 * 5 );
             // bool checkResult = false;
-            if( i == ( maxIterations - 1 ) && inliersResult.size() > 1000 )
+            if( lastIteration && inliersResult.size() > 1000 )
             {
                 // create point cloud with detected set
                 typename pcl::PointCloud< PointT >::Ptr subset ( new pcl::PointCloud< PointT > );
@@ -91,7 +107,7 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
             }
             else
             {
-                if( firstRun || i > 0 )
+                if( i > 0 )
                 {
                     do {
                         p1 = std::rand() / ( ( RAND_MAX + 1u ) / numPoints );
@@ -111,11 +127,14 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
 
             uint32_t numOutliersBest = numPoints - inliersResult.size();
             uint32_t numOutliers = 0;
+            double stdDev = 0.0;
             for( uint32_t j = 0; j < numPoints && numOutliers < numOutliersBest; j++ )
             {
                 Eigen::Vector3f p( cloud->at( j ).getArray3fMap() );
-                if( fabs( p.dot( normal ) - distanceOffset ) < distanceTol )
+                double dist = fabs( p.dot( normal ) - distanceOffset );
+                if( dist < distanceTol )
                 {
+                    stdDev += dist*dist;
                     intermediateInliersResult.insert( j );
                 }
                 else
@@ -123,28 +142,20 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
                     numOutliers++;
                 }
             }
-/*
-            if( checkResult )
-            {
-                if( intermediateInliersResult.size() > inliersResult.size() )
-                {
-                    std::cout << "***************** GOOD ************************" << std::endl;
-                }
-                else
-                {
-                    std::cout << "------------------ BAD -------------------------" << std::endl;
-                }
-            }
-*/
+            stdDev /= intermediateInliersResult.size();
+            stdDev = sqrt( stdDev );
 
-            if( intermediateInliersResult.size() > inliersResult.size() )
+            if( intermediateInliersResult.size() > inliersResult.size() || 
+                ( intermediateInliersResult.size() == inliersResult.size() &&
+                stdDev < bestStdDev ) )
             {
-                //std::cout << "New inlier data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << std::endl;
+                std::cout << "New inlier data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << (lastIteration ? " in last iteration" : "" ) << std::endl;
                 inliersResult = intermediateInliersResult;
+                bestStdDev = stdDev;
             }
         }
+        std::cout << "Plane was computed in " << i << " iterations" << std::endl;
     }
-    firstRun = false;
 
     //std::cout << "Data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << std::endl;
 	return inliersResult;

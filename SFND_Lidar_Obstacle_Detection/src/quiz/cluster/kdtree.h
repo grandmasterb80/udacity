@@ -5,6 +5,7 @@
 #define KDTREE_H
 
 #include <cassert>
+#include <sstream>
 #include "../../render/render.h"
 
 

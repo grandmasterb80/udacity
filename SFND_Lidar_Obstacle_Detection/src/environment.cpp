@@ -78,8 +78,6 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 
     // TODO:: Create point processor
     myPPC = new ProcessPointClouds< pcl::PointXYZ >(); //::ProcessPointClouds() {}
-    renderPointCloud( viewer, scanSegments.first, "Plane Segment", cloudColorPlane);
-    //renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles[0] );
 #ifdef USE_PCL
     static const int maxIterations = 3 + 2 * log( myLidar->PointDensity() );
 #else
@@ -102,9 +100,9 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
         // render object
         renderPointCloud( viewer, obj, objName.str(), cloudColorObstacles[ j % cloudColorObstacles.size() ] );
 
-        //Box box = myPPC->BoundingBox( obj );
+        // Box box = myPPC->BoundingBox( obj );
         BoxQ box = myPPC->BoundingQBox( obj );
-        renderBox( viewer, box, j /*objName.str()*/ );
+        renderBox( viewer, box, j );
     }
 */
 }
@@ -186,7 +184,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
         j++;
 
         // render object
-        renderPointCloud( viewer, obj, objName.str(), cloudColorObstacles[ j % cloudColorObstacles.size() ] );
+        // renderPointCloud( viewer, obj, objName.str(), cloudColorObstacles[ j % cloudColorObstacles.size() ] );
 
         //Box box = myPPCI->BoundingBox( obj );
         BoxQ box = myPPCI->BoundingQBox( obj );

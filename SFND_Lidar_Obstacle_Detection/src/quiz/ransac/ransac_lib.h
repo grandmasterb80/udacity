@@ -5,17 +5,10 @@
 #include <unordered_set>
 
 #include <Eigen/Dense>
-// #include <pcl/io/pcd_io.h>
+#include <pcl/common/pca.h>
 #include <pcl/common/common.h>
-// #include <pcl/filters/extract_indices.h>
-// #include <pcl/filters/voxel_grid.h>
-// #include <pcl/filters/crop_box.h>
-// #include <pcl/kdtree/kdtree.h>
-// #include <pcl/segmentation/sac_segmentation.h>
-// #include <pcl/segmentation/extract_clusters.h>
-// #include <pcl/common/transforms.h>
-// #include <iostream> 
-// #include <vector>
+
+//#define PRINT_DEBUG
 
 template<typename PointT>
 float LowestZ(typename pcl::PointCloud< PointT >::Ptr &cloud)
@@ -85,7 +78,7 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
                 }
                 center *= 1.0 / numPoints;
 
-                // check number of points in percent: if > 30%, let's try to guess a new plane based on eigenvectors
+                // Eigenvector computation is based on http://codextechnicanum.blogspot.com/2015/04/find-minimum-oriented-bounding-box-of.html
                 typename pcl::PointCloud< PointT > cloudPCAprojection;
                 typename pcl::PCA< PointT > pca;
                 pca.setInputCloud( subset );
@@ -149,12 +142,16 @@ std::unordered_set<int> RansacPlane(typename pcl::PointCloud< PointT >::Ptr &clo
                 ( intermediateInliersResult.size() == inliersResult.size() &&
                 stdDev < bestStdDev ) )
             {
+#ifdef PRINT_DEBUG
                 std::cout << "New inlier data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << (lastIteration ? " in last iteration" : "" ) << std::endl;
+#endif
                 inliersResult = intermediateInliersResult;
                 bestStdDev = stdDev;
             }
         }
+#ifdef PRINT_DEBUG
         std::cout << "Plane was computed in " << i << " iterations" << std::endl;
+#endif
     }
 
     //std::cout << "Data set has " << numPoints << "points - found " << inliersResult.size() << " inliers" << std::endl;

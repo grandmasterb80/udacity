@@ -10,6 +10,7 @@
 #include "quiz/cluster/kdtree.h"
 #include "quiz/cluster/cluster_lib.h"
 
+//#define PRINT_DEBUG
 
 /*
 #include <pcl/impl/point_types.hpp>
@@ -116,7 +117,9 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+#ifdef PRINT_DEBUG
     std::cout << "filtering took " << elapsedTime.count() << " milliseconds" << std::endl;
+#endif
 
     return filteredCloud;
 
@@ -167,7 +170,9 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 template<typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SegmentPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceThreshold)
 {
+#ifdef PRINT_DEBUG
     std::cout << "Clustering pointcloud to plane with " << cloud->size() << " points using max " << maxIterations << " iterations and a threshold of " << distanceThreshold << std::endl;
+#endif
 
     // Time segmentation process
     auto startTime = std::chrono::steady_clock::now();
@@ -206,7 +211,9 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+#ifdef PRINT_DEBUG
     std::cout << "plane segmentation took " << elapsedTime.count() << " milliseconds" << std::endl;
+#endif
 
     std::pair<typename pcl::PointCloud< PointT >::Ptr, typename pcl::PointCloud< PointT >::Ptr> segResult = SeparateClouds( inliers, cloud );
     // segResult.first contains the plane
@@ -219,7 +226,9 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 template<typename PointT>
 std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT >::Clustering(typename pcl::PointCloud< PointT >::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
 {
+#ifdef PRINT_DEBUG
     std::cout << "Clustering pointcloud to objects with " << cloud->size() << " points into clusters of size " << clusterTolerance << ", min #points " << minSize <<  " max #points " << maxSize << std::endl;
+#endif
 
     // Time clustering process
     auto startTime = std::chrono::steady_clock::now();
@@ -288,7 +297,9 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
         cloud_cluster->height = 1;
         cloud_cluster->is_dense = true;
 
+#ifdef PRINT_DEBUG
         std::cout << "PointCloud representing the Cluster " << j << ": " << cloud_cluster->points.size () << " data points." << std::endl;
+#endif
         clusters.push_back( cloud_cluster );
         j++;
     }
@@ -297,7 +308,9 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds< PointT 
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+#ifdef PRINT_DEBUG
     std::cout << "clustering took " << elapsedTime.count() << " milliseconds and found " << clusters.size() << " clusters" << std::endl;
+#endif
 
     return clusters;
 }
@@ -347,6 +360,7 @@ BoxQ ProcessPointClouds<PointT>::BoundingQBox(typename pcl::PointCloud<PointT>::
     pca.setInputCloud( cluster2D );
     pca.project( *cluster2D, *cloudPCAprojection );
 
+    // Eigenvector computation is based on http://codextechnicanum.blogspot.com/2015/04/find-minimum-oriented-bounding-box-of.html
     // Compute principal directions
     Eigen::Vector4f pcaCentroid;
     pcl::compute3DCentroid( *cluster2D, pcaCentroid );
@@ -400,7 +414,9 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::loadPcd(std::s
     {
         PCL_ERROR ("Couldn't read file \n");
     }
+#ifdef PRINT_DEBUG
     std::cerr << "Loaded " << cloud->points.size () << " data points from "+file << std::endl;
+#endif
 
     return cloud;
 }

@@ -157,6 +157,7 @@ struct Car
     }
 
     /**
+	 * from chaosTechnician: https://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
      * bCheck if ray from origin + a*direction hits the car.
      * @params origin      Starting point of the ray
      *         direction   Direction of the ray - maximal distance * direction must correspond to the actual final distance

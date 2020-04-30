@@ -8,8 +8,6 @@
 #include <sstream>
 #include "../../render/render.h"
 
-#define DO_SANITY_CHECKS
-
 // Structure to represent node of kd tree
 struct Node
 {

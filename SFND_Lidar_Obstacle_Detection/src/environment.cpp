@@ -9,7 +9,7 @@
 #include "processPointClouds.cpp"
 
 #define USE_CITY_SCENARIO
-// #define USE_CITY_ANIMATION
+#define USE_CITY_ANIMATION
 
 typedef typename pcl::PointCloud< pcl::PointXYZ >::Ptr PointCloudPtr;
 typedef typename pcl::PointCloud< pcl::PointXYZI >::Ptr PointICloudPtr;
@@ -169,12 +169,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     renderPointCloud( viewer, scanSegments.first, "Plane Segment", cloudColorPlane);
     //renderPointCloud( viewer, scanSegments.second, "Obstacles", cloudColorObstacles[0] );
 
-#ifdef USE_PCL
-    static const double clusterTolerance = 0.5;
-#else
-    static const double clusterTolerance = 5;
-#endif
-    std::vector< PointICloudPtr > objectClusters ( myPPCI->Clustering( scanSegments.second, clusterTolerance, filterCloud->size() / 400, filterCloud->size() / 10 ) );
+    std::vector< PointICloudPtr > objectClusters ( myPPCI->Clustering( scanSegments.second, 0.45 /* 0.5 */, filterCloud->size() / 1100, filterCloud->size() / 5 ) );
     uint32_t j = 0;
     for( PointICloudPtr obj : objectClusters )
     {
@@ -184,7 +179,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
         j++;
 
         // render object
-        // renderPointCloud( viewer, obj, objName.str(), cloudColorObstacles[ j % cloudColorObstacles.size() ] );
+        renderPointCloud( viewer, obj, objName.str(), cloudColorObstacles[ j % cloudColorObstacles.size() ] );
 
         //Box box = myPPCI->BoundingBox( obj );
         BoxQ box = myPPCI->BoundingQBox( obj );
@@ -217,12 +212,34 @@ void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr& vi
 }
 
 
+void printHelp(int argc, char** argv)
+{
+    std::cout << "" << std::endl;
+    std::cout << argv[0] << " [file [path]]" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Use the scenario path/file for cityBlock instead of default, which is" << std::endl;
+    std::cout << "path=\"../src/sensors/data/pcd/\"" << std::endl;
+    std::cout << "file=\"data_1\"" << std::endl;
+}
+
+
 int main (int argc, char** argv)
 {
     std::cout << "starting enviroment" << std::endl;
     myLidar = nullptr;
     myPPC = nullptr;
     myPPCI = new ProcessPointClouds< pcl::PointXYZI >();
+
+    printHelp(argc, argv);
+    std::string scenarioPath = "../src/sensors/data/pcd/";
+    std::string scenarioFile = "data_1";
+    if( argc >= 2)
+        scenarioFile = argv[1];
+    if( argc >= 3)
+        scenarioPath = argv[2];
+    if( scenarioPath.back() != '/' ) scenarioPath = scenarioPath + "/";
+    std::string path2Scenario = scenarioPath + scenarioFile;
+
 
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     // valid values: CameraAngle setAngle = {XY, TopDown, Side, FPS}
@@ -231,7 +248,7 @@ int main (int argc, char** argv)
 #ifdef USE_CITY_SCENARIO
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI;
 #ifdef USE_CITY_ANIMATION
-    std::vector<boost::filesystem::path> stream = myPPCI->streamPcd("../src/sensors/data/pcd/data_2");
+    std::vector<boost::filesystem::path> stream = myPPCI->streamPcd( path2Scenario );
     auto streamIterator = stream.begin();
 #else // USE_CITY_ANIMATION
     cityBlock( viewer, myPPCI, inputCloudI );

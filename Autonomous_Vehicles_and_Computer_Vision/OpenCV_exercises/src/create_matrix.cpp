@@ -18,7 +18,7 @@ void createMatrix1()
     // depth of 8bit per channel. Then, set the first channel to 255 and display the result.
     cv::Mat m3_8u;
     m3_8u.create(nrows, ncols, CV_8UC3); // two-channel matrix with 8bit unsigned elements
-    m3_8u.setTo(cv::Scalar(255));        // blue
+    m3_8u.setTo(cv::Scalar(255, 255, 0));        // blue
 
 
     // show result
@@ -31,8 +31,6 @@ void createMatrix1()
     string windowName2 = "My task in OpenCV (m3_8u)";
     cv::namedWindow(windowName2, 1); // create window
     cv::imshow(windowName2, m3_8u);
-
-
 
     cv::waitKey(0); // wait for keyboard input before continuing
 }

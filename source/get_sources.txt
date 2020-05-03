@@ -5,6 +5,7 @@ Udacity: sensor fusion course
 -----------------------------
 
 SFND_Lidar_Obstacle_Detection:
+------------------------------
 
 git clone https://github.com/udacity/SFND_Lidar_Obstacle_Detection.git
 
@@ -15,9 +16,32 @@ Copy Media and PCD files into own copy of the repo
 Instructions:
     mkdir -p ../SFND_Lidar_Obstacle_Detection/media
     cp -r SFND_Lidar_Obstacle_Detection/media ../SFND_Lidar_Obstacle_Detection/media
-    echo "media" >> ../SFND_Lidar_Obstacle_Detection/.gitignore
 
     mkdir -p ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
     cp -r SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+
+    # only for the very initial check-out; afterwards .gitignore will be checked in
+    echo "media" >> ../SFND_Lidar_Obstacle_Detection/.gitignore
     echo "pcd" >> ../SFND_Lidar_Obstacle_Detection/src/sensors/data/.gitignore
 
+
+
+OpenCV:
+-------
+
+git clone https://github.com/udacity/SFND_2D_Feature_Tracking.git
+
+Copy Media and PCD files into own copy of the repo
+    Source: SFND_2D_Feature_Tracking/LICENSE
+    Source: SFND_2D_Feature_Tracking/README.md
+    Source: SFND_2D_Feature_Tracking/images
+
+Instructions:
+    cp SFND_2D_Feature_Tracking/LICENSE ../SFND_2D_Feature_Tracking/
+    cp SFND_2D_Feature_Tracking/README.md ../SFND_2D_Feature_Tracking/
+    cp -r SFND_2D_Feature_Tracking/images ../SFND_2D_Feature_Tracking/
+
+    # only for the very initial check-out; afterwards .gitignore will be checked in
+    echo "images" >> ../SFND_2D_Feature_Tracking/.gitignore
+    echo "LICENSE" >> ../SFND_2D_Feature_Tracking/.gitignore
+    echo "README.md" >> ../SFND_2D_Feature_Tracking/.gitignore

@@ -20,3 +20,19 @@ target_link_libraries (cornerness_harris ${OpenCV_LIBRARIES})
 # Executables for exercise
 add_executable (detect_keypoints src/detect_keypoints.cpp)
 target_link_libraries (detect_keypoints ${OpenCV_LIBRARIES})
+
+# Executables for exercise
+add_executable (describe_keypoints src/describe_keypoints.cpp)
+target_link_libraries (describe_keypoints ${OpenCV_LIBRARIES})
+
+# Executables for exercise
+#add_executable (SF_Camera_Examples src/SF_Camera_Examples.cpp)
+#target_link_libraries (SF_Camera_Examples ${OpenCV_LIBRARIES})
+
+# Executables for exercise
+add_executable (descriptor_matching src/descriptor_matching.cpp src/structIO.cpp)
+target_link_libraries (descriptor_matching ${OpenCV_LIBRARIES})
+
+# Executables for exercise / solution
+add_executable (descriptor_matching_solution src/descriptor_matching_solution.cpp src/structIO.cpp)
+target_link_libraries (descriptor_matching_solution ${OpenCV_LIBRARIES})

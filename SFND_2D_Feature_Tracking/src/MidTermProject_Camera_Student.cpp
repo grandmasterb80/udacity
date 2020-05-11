@@ -107,14 +107,13 @@ int main(int argc, const char *argv[])
             while( kp != keypoints.end() )
             {
                 // virtual rectangle: vehicleRect enlarged by 
-                if( kp->pt.x < vehicleRect.x || kp->pt.x > vehicleRect.x + vehicleRect.width ||
-                    kp->pt.y < vehicleRect.y || kp->pt.y > vehicleRect.y + vehicleRect.height)
+                if( vehicleRect.contains( kp->pt ) )
                 {
-                    keypoints.erase( kp );
+                    kp++;
                 }
                 else
                 {
-                    kp++;
+                    keypoints.erase( kp );
                 }
             }
         }

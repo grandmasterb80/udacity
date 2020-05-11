@@ -87,19 +87,25 @@ int main(int argc, const char *argv[])
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "SHITOMASI";
+        string detectorType = "SIFT"; // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
         //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-
-        if (detectorType.compare("SHITOMASI") == 0)
+        auto detectorFn = KeypointFnMap.find( detectorType );   // look up function based on a string->fn mapping declared in matching*
+        if( detectorFn != KeypointFnMap.end() )
         {
-            detKeypointsShiTomasi(keypoints, imgGray, false);
+            detectorFn->second( keypoints, imgGray, false );
         }
         else
         {
-            //...
+            cerr << "ERROR: Detector \"" << detectorType << "\" not found. Available types: ";
+            for( auto key = KeypointFnMap.begin(); key != KeypointFnMap.end(); key++ )
+            {
+                cerr << key->first;
+                cerr << ", ";
+            }
+            cerr << endl;
         }
         //// EOF STUDENT ASSIGNMENT
 

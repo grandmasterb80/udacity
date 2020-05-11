@@ -117,7 +117,20 @@ int main(int argc, const char *argv[])
         cv::Rect vehicleRect(535, 180, 180, 150);
         if (bFocusOnVehicle)
         {
-            // ...
+            auto kp = keypoints.begin();
+            while( kp != keypoints.end() )
+            {
+                // virtual rectangle: vehicleRect enlarged by 
+                if( kp->pt.x < vehicleRect.x || kp->pt.x > vehicleRect.x + vehicleRect.width ||
+                    kp->pt.y < vehicleRect.y || kp->pt.y > vehicleRect.y + vehicleRect.height)
+                {
+                    keypoints.erase( kp );
+                }
+                else
+                {
+                    kp++;
+                }
+            }
         }
 
         //// EOF STUDENT ASSIGNMENT

@@ -11,9 +11,11 @@ No issues; oldest elements (located at the beginning of the databuffer) have to 
 Task 2: Keypoint Detection
 --------------------------
 
-- I use a mapping of string to functions to avoid an extensive if-then-else construct. It can be also extended in the matching* code itself, i.e. I can simply use the new name in MidTermProjectStudent.cpp without the need to add another "else if".
+  * I use a mapping of string to functions to avoid an extensive if-then-else construct. It can be also extended in the matching* code itself, i.e. I can simply use the new name in MidTermProjectStudent.cpp without the need to add another "else if".
+  * Add function by function. Some of the code was already implemented during the preceding lessons and I just reused it. Others were quite straight forward: instantiate the right detector, call the detect function and call it done.
+  * At a fist glance, the ORB seems to provide good results, since the tracking of the truck look continuous (even if the truck is not the object of interest).
 
-- Add function by function. Some of the code was already implemented during the preceding lessons and I just reused it. Others were quite straight forward: instantiate the right detector, call the detect function and call it done.
+
 
 
 Task 3: Evaluation of Detectors and Descriptors
@@ -24,10 +26,34 @@ Remark: Since, each point has a size, we could also check if the circle has over
 
 
 
+Task 4: Implement a variety of keypoint descriptors
+---------------------------------------------------
+
+The function descKeypoints in matching2D_Student.cpp was extended by adding more if-then-else to instantiate the correct extractor. The instantiation is straight-forward. Running different extractors resulted in some crashes - not each extractor can be run for each keypoint detector.
 
 
 
+Task 5: Keypoint Matching
+-------------------------
 
+I took the code developed during the lesson to implement the descripter_matching.cpp. Beside adding the missing parts, I had to update the computation of "int normType" to allow usage of NORM_L2, which is required for some of the combinations to avoid following exception:
+
+terminate called after throwing an instance of 'cv::Exception'
+  what():  OpenCV(4.3.0) /home/baudisch/Downloads/opencv/opencv/modules/core/src/batch_distance.cpp:282: error: (-215:Assertion failed) (type == CV_8U && dtype == CV_32S) || dtype == CV_32F in function 'batchDistance'
+
+
+
+Task 6: Implement the descriptor distance ratio test
+----------------------------------------------------
+
+Is already included in the work of Task 5, i.e. the functionality was already implemented and reused.
+
+
+
+Task 7,8,9: Implement the descriptor distance ratio test
+----------------------------------------------------
+
+Instead of executing all the different combinations manually, I added a loop to iterate through all the iterations. For each iterations, 
 
 
 

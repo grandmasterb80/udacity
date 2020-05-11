@@ -156,7 +156,6 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
     // add corners to result vector
     for (auto it = corners.begin(); it != corners.end(); ++it)
     {
-
         cv::KeyPoint newKeyPoint;
         newKeyPoint.pt = cv::Point2f((*it).x, (*it).y);
         newKeyPoint.size = blockSize;
@@ -353,4 +352,27 @@ void detKeypointsSift(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
     //----------------------------
     // visualize results
     vis( "SIFT Corner Detector Results", keypoints, img, bVis );
+}
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+
+void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis)
+{
+    auto detectorFn = KeypointFnMap.find( detectorType );   // look up function based on a string->fn mapping declared in matching*
+    if( detectorFn != KeypointFnMap.end() )
+    {
+        detectorFn->second( keypoints, img, bVis );
+    }
+    else
+    {
+        cerr << "ERROR: Detector \"" << detectorType << "\" not found. Available types: ";
+        for( auto key = KeypointFnMap.begin(); key != KeypointFnMap.end(); key++ )
+        {
+            cerr << key->first;
+            cerr << ", ";
+        }
+        cerr << endl;
+    }
 }

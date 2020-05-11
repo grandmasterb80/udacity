@@ -92,21 +92,7 @@ int main(int argc, const char *argv[])
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
         //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-        auto detectorFn = KeypointFnMap.find( detectorType );   // look up function based on a string->fn mapping declared in matching*
-        if( detectorFn != KeypointFnMap.end() )
-        {
-            detectorFn->second( keypoints, imgGray, false );
-        }
-        else
-        {
-            cerr << "ERROR: Detector \"" << detectorType << "\" not found. Available types: ";
-            for( auto key = KeypointFnMap.begin(); key != KeypointFnMap.end(); key++ )
-            {
-                cerr << key->first;
-                cerr << ", ";
-            }
-            cerr << endl;
-        }
+        detKeypointsModern( keypoints, imgGray, detectorType, false ); // covers also the "old" / heritage types
         //// EOF STUDENT ASSIGNMENT
 
         //// STUDENT ASSIGNMENT

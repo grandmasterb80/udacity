@@ -235,7 +235,7 @@ Calling "matchDescriptors" with small data set and matcherType = "MAT_FLANN", de
 Calling "matchDescriptors" with large data set and matcherType = "MAT_BF", descriptorType = "DES_BINARY", selectorType = "SEL_NN"     BF    matching cross-check=0,  (NN) with n=2896 matches in 15.4574 ms
 Calling "matchDescriptors" with large data set and matcherType = "MAT_BF", descriptorType = "DES_BINARY", selectorType = "SEL_KNN"    BF    matching cross-check=0,  (NN) with n=1 matches    in 16.6797 ms
 Calling "matchDescriptors" with large data set and matcherType = "MAT_BF", descriptorType = "", selectorType = "SEL_NN"               BF    matching cross-check=0,  (NN) with n=2896 matches in 29.5635 ms
-Calling "matchDescriptors" with large data set and matcherType = "MAT_BF", descriptorType = "", selectorType = "SEL_KNN"              BF ma   tching cross-check=0,  (NN) with n=1 matches    in 28.979 ms
+Calling "matchDescriptors" with large data set and matcherType = "MAT_BF", descriptorType = "", selectorType = "SEL_KNN"              BF    matching cross-check=0,  (NN) with n=1 matches    in 28.979 ms
 Calling "matchDescriptors" with large data set and matcherType = "MAT_FLANN", descriptorType = "DES_BINARY", selectorType = "SEL_NN"  FLANN matching (NN)                 with n=2896 matches in 27.2596 ms
 Calling "matchDescriptors" with large data set and matcherType = "MAT_FLANN", descriptorType = "DES_BINARY", selectorType = "SEL_KNN" FLANN matching (NN)                 with n=1186 matches in 27.9829 ms
 Calling "matchDescriptors" with large data set and matcherType = "MAT_FLANN", descriptorType = "", selectorType = "SEL_NN"            FLANN matching (NN)                 with n=2896 matches in 27.493 ms
@@ -250,14 +250,16 @@ Calling "matchDescriptors" with data set: 0 and matcherType = "MAT_BF", descript
 Calling "matchDescriptors" with data set: 0 and matcherType = "MAT_BF", descriptorType = "DES_HOG", selectorType = "SEL_KNN"        BF matching cross-check=0,  (NN) with n=1 matches in 13.6261 ms
 Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_BF", descriptorType = "DES_HOG", selectorType = "SEL_NN"         BF matching cross-check=0,  (NN) with n=100 matches in 1.21725 ms
 Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_BF", descriptorType = "DES_HOG", selectorType = "SEL_KNN"        BF matching cross-check=0,  (NN) with n=1 matches in 0.158452 ms
-Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_BF", descriptorType = "DES_HOG", selectorType = "SEL_NN"         BF matching cross-check=0,  (NN) with n=100 matches in 0.11219 ms
-Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_FLANN", descriptorType = "DES_HOG", selectorType = "SEL_NN"      FLANN matching (NN) with n=100 matches in 0.84425 ms
-Calling "matchDescriptors" with data set: 2 and matcherType = "MAT_BF", descriptorType = "DES_HOG", selectorType = "SEL_NN"         BF matching cross-check=0,  (NN) with n=1890 matches in 11.0526 ms
-Calling "matchDescriptors" with data set: 2 and matcherType = "MAT_FLANN", descriptorType = "DES_HOG", selectorType = "SEL_NN"      FLANN matching (NN) with n=1890 matches in 21.1011 ms
-Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_BF", descriptorType = "DES_HOG", selectorType = "SEL_KNN"        BF matching cross-check=0,  (NN) with n=0 matches in 0.121924 ms
-Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_FLANN", descriptorType = "DES_HOG", selectorType = "SEL_KNN"     FLANN matching (NN) with n=45 matches in 1.33006 ms
-Calling "matchDescriptors" with data set: 2 and matcherType = "MAT_BF", descriptorType = "DES_HOG", selectorType = "SEL_KNN"        BF matching cross-check=0,  (NN) with n=0 matches in 10.3127 ms
-Calling "matchDescriptors" with data set: 2 and matcherType = "MAT_FLANN", descriptorType = "DES_HOG", selectorType = "SEL_KNN"     FLANN matching (NN) with n=1036 matches in 21.5971 ms
+
+Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_BF",    descriptorType = "DES_HOG", selectorType = "SEL_NN"      BF matching cross-check=0,  (NN) with n=100 matches in 0.11219 ms
+Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_FLANN", descriptorType = "DES_HOG", selectorType = "SEL_NN"      FLANN matching              (NN) with n=100 matches in 0.84425 ms
+Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_BF",    descriptorType = "DES_HOG", selectorType = "SEL_KNN"     BF matching cross-check=0,  (NN) with n=0 matches in 0.121924 ms
+Calling "matchDescriptors" with data set: 1 and matcherType = "MAT_FLANN", descriptorType = "DES_HOG", selectorType = "SEL_KNN"     FLANN matching              (NN) with n=45 matches in 1.33006 ms
+
+Calling "matchDescriptors" with data set: 2 and matcherType = "MAT_BF",    descriptorType = "DES_HOG", selectorType = "SEL_NN"      BF matching cross-check=0,  (NN) with n=1890 matches in 11.0526 ms
+Calling "matchDescriptors" with data set: 2 and matcherType = "MAT_FLANN", descriptorType = "DES_HOG", selectorType = "SEL_NN"      FLANN matching              (NN) with n=1890 matches in 21.1011 ms
+Calling "matchDescriptors" with data set: 2 and matcherType = "MAT_BF",    descriptorType = "DES_HOG", selectorType = "SEL_KNN"     BF matching cross-check=0,  (NN) with n=0 matches in 10.3127 ms
+Calling "matchDescriptors" with data set: 2 and matcherType = "MAT_FLANN", descriptorType = "DES_HOG", selectorType = "SEL_KNN"     FLANN matching              (NN) with n=1036 matches in 21.5971 ms
 
 */
 }

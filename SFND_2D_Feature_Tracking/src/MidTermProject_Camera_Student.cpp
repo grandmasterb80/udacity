@@ -58,6 +58,22 @@ int main(int argc, const char *argv[])
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.1 -> replace the following code with ring buffer of size dataBufferSize
+        // remove front elements until only one element is left in the databuffer
+        if( dataBuffer.size() == 2 )
+        {
+            dataBuffer.erase( dataBuffer.begin() );
+        }
+        else if ( dataBuffer.size() > 2 )
+        {
+            dataBuffer.erase( dataBuffer.begin(), dataBuffer.end() - 2 );
+        }
+        /*
+        while( dataBuffer.size() >= 2 )
+        {
+            // dataBuffer.pop_front(); // only for std::list
+        }
+        */
+        cout << "-------------------- #images in buffer: " << dataBuffer.size() << " --------------------- " << endl;
 
         // push image into data frame buffer
         DataFrame frame;

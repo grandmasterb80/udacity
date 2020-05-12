@@ -25,26 +25,86 @@ int main(int argc, const char *argv[])
 {
     std::vector<std::string> detectorTypeList = { "SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT" };
     std::vector<std::string> descriptorTypeList = { "BRISK", "BRIEF", "ORB", "FREAK", "AKAZE", "SIFT" };
-    std::map< std::string, int > numKeypointsMap;                                      // task #7
-    std::map< std::string, std::map < std::string, int > > numMatchedKeypointsMap;     // task #8
-    std::map< std::string, double > timeMap;                                           // task #9
-
+    std::map< std::string, std::map < std::string, int    > > numKeypointsMap;            // task #7
+    std::map< std::string, std::map < std::string, int    > > numMatchedKeypointsMap;     // task #8
+    std::map< std::string, std::map < std::string, double > > timeMap;                    // task #9
+    
     for( string detectorType : detectorTypeList )
     {
         for( string descriptorType : descriptorTypeList )
         {
             int     numKeypoints = 0;
             int     numMatchedKeypoints = 0;
-            double  time;
-            runBenchmark( detectorType, descriptorType, numKeypoints, numMatchedKeypoints, time );
+            double  time = 0.0;
 
-            numKeypointsMap[ detectorType ] += numKeypoints;
-            numMatchedKeypointsMap[ detectorType ][ descriptorType ] += numMatchedKeypoints;
-            timeMap[ detectorType ] += time;
+            cout << "--------------------------------------------------------------------------------" << endl;
+            cout << "Running " << __FUNCTION__ << " with detectorType=\"" << detectorType << "\", descriptorType=\"" << descriptorType << "\"" << endl;
+
+            try {
+            runBenchmark( detectorType, descriptorType, numKeypoints, numMatchedKeypoints, time );
+            } catch(const cv::Exception& e)
+            {
+                cout << endl << "***************************************************************************** detectorType=\"" << detectorType << "\", descriptorType=\"" << descriptorType << "\"" << endl;
+                cout << e.msg << endl;
+            }
+
+            numKeypointsMap[ detectorType ][ descriptorType ]        = numKeypoints;
+            numMatchedKeypointsMap[ detectorType ][ descriptorType ] = numMatchedKeypoints;
+            timeMap[ detectorType ][ descriptorType ]                = time;
         }
+        /*
         numKeypointsMap[ detectorType ] /= descriptorTypeList.size();
         timeMap[ detectorType ] /= descriptorTypeList.size();
+        */
     }
+
+    // print benchmark tables
+    if( true )
+    {
+        ofstream tableFileKeypoints;
+        ofstream tableFileMatchedKeypoints;
+        ofstream tableFileTime;
+
+        tableFileKeypoints.open("task7_num_keypoints.csv");
+        tableFileMatchedKeypoints.open("task8_num_matchedkeypoints.csv");
+        tableFileTime.open("task9_time.csv");
+
+        tableFileKeypoints        << "   ";
+        tableFileMatchedKeypoints << "   ";
+        tableFileTime             << "   ";
+
+        for( string descriptorType : descriptorTypeList )
+        {
+            tableFileKeypoints        << "; " << descriptorType << " ";
+            tableFileMatchedKeypoints << "; " << descriptorType << " ";
+            tableFileTime             << "; " << descriptorType << " ";
+        }
+        tableFileKeypoints        << endl;
+        tableFileMatchedKeypoints << endl;
+        tableFileTime             << endl;
+
+        for( string detectorType : detectorTypeList )
+        {
+            tableFileKeypoints        << detectorType << " ";
+            tableFileMatchedKeypoints << detectorType << " ";
+            tableFileTime             << detectorType << " ";
+
+            for( string descriptorType : descriptorTypeList )
+            {
+                tableFileKeypoints        << "; " << numKeypointsMap[ detectorType ][ descriptorType ] << " ";
+                tableFileMatchedKeypoints << "; " << numMatchedKeypointsMap[ detectorType ][ descriptorType ] << " ";
+                tableFileTime             << "; " << timeMap[ detectorType ][ descriptorType ] << " ";
+            }
+            tableFileKeypoints        << endl;
+            tableFileMatchedKeypoints << endl;
+            tableFileTime             << endl;
+        }
+
+        tableFileKeypoints.close();
+        tableFileMatchedKeypoints.close();
+        tableFileTime.close();
+    }
+
     return 0;
 }
 

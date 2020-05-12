@@ -165,7 +165,7 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
         {
             dataBuffer.erase( dataBuffer.begin(), dataBuffer.end() - 2 );
         }
-        cout << "-------------------- #images in buffer: " << dataBuffer.size() << " --------------------- " << endl;
+//         cout << "-------------------- #images in buffer: " << dataBuffer.size() << " --------------------- " << endl;
 
         // push image into data frame buffer
         DataFrame frame;

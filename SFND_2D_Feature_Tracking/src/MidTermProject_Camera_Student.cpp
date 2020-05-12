@@ -253,20 +253,11 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType2 = "DES_BINARY"; // DES_BINARY, DES_HOG
-            string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN   (BF for benchmark!)
+            string descriptorType2 = "DES_HOG";   // DES_BINARY, DES_HOG
+            string selectorType = "SEL_KNN";      // SEL_NN, SEL_KNN
 
             cout << "INFO: " << __LINE__ << ": detectorType=\"" << detectorType << "\",   descriptorType=\"" << descriptorType << "\"" << endl;
-            if( ( detectorType.compare("SHITOMASI") == 0 && descriptorType.compare("BRISK") == 0 ) ||
-                ( detectorType.compare("SHITOMASI") == 0 && descriptorType.compare("BRIEF") == 0 ) ||
-                ( detectorType.compare("SHITOMASI") == 0 && descriptorType.compare("FREAK") == 0 )  ||
-                ( detectorType.compare("SHITOMASI") == 0 && descriptorType.compare("ORB") == 0 ) )
-            {
-                cout << "INFO: " << __LINE__ << ": " << endl;
-                descriptorType2 = "DES_HOG";
-            }
-//             descriptorType
 
             //// STUDENT ASSIGNMENT
             //// TASK MP.5 -> add FLANN matching in file matching2D.cpp

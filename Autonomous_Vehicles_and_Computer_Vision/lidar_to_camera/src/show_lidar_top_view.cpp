@@ -19,16 +19,22 @@ void showLidarTopview()
     // create topview image
     cv::Mat topviewImg(imageSize, CV_8UC3, cv::Scalar(0, 0, 0));
 
-    // plot Lidar points into image
+    float minZ = -5.0f;
+    cout << "minZ = " << minZ << endl;
+  
     for (auto it = lidarPoints.begin(); it != lidarPoints.end(); ++it)
     {
+        //if( it->z < minZ ) continue; // skip points that belong to ground (decision is based on assumption that ground is "flat")
+
         float xw = (*it).x; // world position in m with x facing forward from sensor
         float yw = (*it).y; // world position in m with y facing left from sensor
 
         int y = (-xw * imageSize.height / worldSize.height) + imageSize.height;
         int x = (-yw * imageSize.height / worldSize.height) + imageSize.width / 2;
 
-        cv::circle(topviewImg, cv::Point(x, y), 5, cv::Scalar(0, 0, 255), -1);
+        uchar cv = (uchar)( std::max( std::min( xw / 20.0f * 255.0f, 255.0f ), 0.0f ) );
+        cv::Scalar color(0,0,255); //(0, cv, 255 - cv); // BGR
+        cv::circle(topviewImg, cv::Point(x, y), 5, color, -1);
         
         // TODO: 
         // 1. Change the color of the Lidar points such that 
@@ -48,7 +54,7 @@ void showLidarTopview()
 
     // display image
     string windowName = "Top-View Perspective of LiDAR data";
-    cv::namedWindow(windowName, 2);
+    cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
     cv::imshow(windowName, topviewImg);
     cv::waitKey(0); // wait for key to be pressed
 }

@@ -48,7 +48,7 @@ int main(int argc, const char *argv[])
     return 0;
 }
 
-void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoints, int &numMatchedKeypoints, double &time)
+void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoints, int &numMatchedKeypoints, double &benchTime)
 {
     if ( ( detectorType.compare("AKAZE") != 0 && descriptorType.compare("AKAZE") == 0 ) ||
          ( detectorType.compare("SIFT") == 0  && descriptorType.compare("ORB")   == 0 ) )
@@ -60,7 +60,7 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
         return;
     }
  
-    
+    benchTime = 0.0;
     /* INIT VARIABLES AND DATA STRUCTURES */
 
     // data location
@@ -124,7 +124,7 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
         //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-        time += detKeypointsModern( keypoints, imgGray, detectorType, false ); // covers also the "old" / heritage types
+        benchTime += detKeypointsModern( keypoints, imgGray, detectorType, false ); // covers also the "old" / heritage types
         //// EOF STUDENT ASSIGNMENT
 
         //// STUDENT ASSIGNMENT
@@ -179,7 +179,7 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
 
         cv::Mat descriptors;
 //         string descriptorType = "SIFT"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
-        time += descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
+        benchTime += descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
         //// EOF STUDENT ASSIGNMENT
 
         // push descriptors for current frame to end of data buffer
@@ -215,7 +215,7 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
             double matchTime = matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
                              (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
                              matches, descriptorType2, matcherType, selectorType);
-            time += matchTime;
+            benchTime += matchTime;
 
             //// EOF STUDENT ASSIGNMENT
 

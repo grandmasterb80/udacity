@@ -63,7 +63,7 @@ const std::map<std::string, std::function<double(std::vector<cv::KeyPoint>&, cv:
 double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::KeyPoint> &kPtsRef, cv::Mat &descSource, cv::Mat &descRef,
                       std::vector<cv::DMatch> &matches, std::string descriptorType, std::string matcherType, std::string selectorType)
 {
-    double deltaTime;
+    double deltaTime = 0.0;
     // configure matcher
     bool crossCheck = false;
     cv::Ptr<cv::DescriptorMatcher> matcher;
@@ -99,8 +99,9 @@ double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::K
     { // nearest neighbor (best match)
         double t = (double)cv::getTickCount();
         matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
-        deltaTime = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+        t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
         cout << " (NN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
+        deltaTime = t;
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
@@ -121,8 +122,9 @@ double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::K
             }
         }
 
-        deltaTime = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+        t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
         cout << " (NN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
+        deltaTime = t;
     }
     else
     {

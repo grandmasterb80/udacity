@@ -50,6 +50,16 @@ int main(int argc, const char *argv[])
 
 void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoints, int &numMatchedKeypoints, double &time)
 {
+    if ( ( detectorType.compare("AKAZE") != 0 && descriptorType.compare("AKAZE") == 0 ) ||
+         ( detectorType.compare("SIFT") == 0  && descriptorType.compare("ORB")   == 0 ) )
+    {
+        cerr << __FILE__ << "[" << __LINE__ << "] in function " << __FUNCTION__ << ": detector \"" << detectorType << "\" cannot be combined with descriptor \"" << descriptorType << "\"" << endl;
+        numKeypoints = -1;
+        numMatchedKeypoints = -1;
+        benchTime = -1;
+        return;
+    }
+ 
     
     /* INIT VARIABLES AND DATA STRUCTURES */
 

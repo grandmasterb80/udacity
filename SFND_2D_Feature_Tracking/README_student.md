@@ -1,4 +1,4 @@
-SFND_2D_Feature_Tracking Project by Daniel Baudisch
+SFND 2D Feature Tracking Project by Daniel Baudisch
 ===================================================
 
 Task 1: Data buffer optimization
@@ -51,56 +51,21 @@ Is already included in the work of Task 5, i.e. the functionality was already im
 
 
 Task 7,8,9: Implement the descriptor distance ratio test
-----------------------------------------------------
+--------------------------------------------------------
 
-Instead of executing all the different combinations manually, I added a loop to iterate through all the iterations. For each iterations, 
+Instead of executing all the different combinations manually, I added a loop to iterate through all the iterations. I moved the actual code into a new function "runBenchmark", which takes as argument the
+detector (string), the matcher (string) and three references to the variables that are used to store the results (#keypoint, #matches, time). For each iteration, the #keypoints, #matches and time for the
+key operations is recorded. At the end of the loop, all data is written to three files (for each task one table) in CSV format. I used libreoffice/calc to merge the tables into one to easily check the
+results. Already the #keypoints showed that BRISK seems to be able to detect more corners for tracking. The tracking result is pretty clear: BRISK is definitely the corner detector to go. As matcher, all
+(but AKAZE, which can only run with AKAZE detector) result in a fairly usable amount of tracking points. Nevertheless, BRISK as matcher gives the highest number of tracking points over all images (around
+8 to 9 in average per image).
 
+***Best out of three:***
+1) BRISK detector with BRISK matcher (81 tracked points)
+2) BRISK detector with BRIEF matcher (74 tracked points)
+3) BRISK detector with ORB matcher (75 tracked points)
 
-
-
-
-
-######################################
-to be deleted:
-
-Heading
-=======
-
-Sub-heading
------------
-
-Paragraphs are separated
-by a blank line.
-
-Two spaces at the end of a line  
-produces a line break.
-
-Text attributes _italic_, 
-**bold**, `monospace`.
-
-Horizontal rule:
-
----
-
-Strikethrough:
-~~strikethrough~~
-
-Bullet list:
-
-  * apples
-  * oranges
-  * pears
-
-Numbered list:
-
-  1. lather
-  2. rinse
-  3. repeat
-
-An [example](http://example.com).
-
-![Image](Icon-pictures.png "icon")
-
-> Markdown uses email-style > characters for blockquoting.
-
-Inline <abbr title="Hypertext Markup Language">HTML</abbr> is supported.
+***
+My choices: BRISK corner detection with BRISK tracking (keypoint matcher). The consumed time seems feasible to me (less than 1ms, remark: I ran it on my PC locally). It is slower than most others, but the others
+also result in no tracking at all.
+***

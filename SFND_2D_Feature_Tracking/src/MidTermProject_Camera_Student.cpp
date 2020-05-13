@@ -271,10 +271,10 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN   (BF for benchmark!)
-            string descriptorType2 = "DES_HOG";   // DES_BINARY, DES_HOG
-            string selectorType = "SEL_KNN";      // SEL_NN, SEL_KNN
-
+            string matcherType = "MAT_BF";           // MAT_BF, MAT_FLANN   (BF for benchmark!)
+            string descriptorType2 = "DES_BINARY";   // DES_BINARY, DES_HOG
+            string selectorType = "SEL_NN";          // SEL_NN, SEL_KNN
+            
             cout << "INFO: " << __LINE__ << ": detectorType=\"" << detectorType << "\",   descriptorType=\"" << descriptorType << "\"" << endl;
 
             //// STUDENT ASSIGNMENT

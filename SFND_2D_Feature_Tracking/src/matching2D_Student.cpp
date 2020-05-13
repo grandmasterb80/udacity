@@ -339,41 +339,16 @@ double detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bo
 
 double detKeypointsFast(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
-    int blockSize = 6;       //  size of a block for computing a derivative covariation matrix over each pixel neighborhood
-    double maxOverlap = 0.0; // max. permissible overlap between two features in %
-    double minDistance = (1.0 - maxOverlap) * blockSize;
-    int maxCorners = img.rows * img.cols / max(1.0, minDistance); // max. num. of keypoints
-    double qualityLevel = 0.01;                                   // minimal accepted quality of image corners
-    double k = 0.04;
-
     // Initiate FAST object with default values
     int threshold = 30;                                                              // difference between intensity of the central pixel and pixels of a circle around this pixel
     bool bNMS = true;                                                                // perform non-maxima suppression on keypoints
     cv::FastFeatureDetector::DetectorType type = cv::FastFeatureDetector::TYPE_9_16; // TYPE_9_16, TYPE_7_12, TYPE_5_8
     cv::Ptr<cv::FastFeatureDetector> fast = cv::FastFeatureDetector::create(threshold, bNMS, type);
 
-    //fast->detect( img, keypoints );
-    // find and draw the keypoints
-    vector<cv::KeyPoint> kptsFast;
-    vector<cv::Point2f> fastCorners;
-    //----------------------------
     double t = (double)cv::getTickCount();
-    fast->detect( img, kptsFast );
-    cv::Mat fastMask(img.rows, img.cols, CV_8UC1, cv::Scalar(0));
-    cv::drawKeypoints(fastMask, kptsFast, fastMask, cv::Scalar(1), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
-    cv::goodFeaturesToTrack(img, fastCorners, maxCorners, qualityLevel, minDistance, fastMask, blockSize, false /*useHarris*/, k);
-
+    fast->detect( img, keypoints );
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
 //     cout << "FAST with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
-    keypoints.clear();
-    for (auto it = fastCorners.begin(); it != fastCorners.end(); ++it)
-    { // add fastCorners to result vector
-
-        cv::KeyPoint newKeyPoint;
-        newKeyPoint.pt = cv::Point2f((*it).x, (*it).y);
-        newKeyPoint.size = blockSize;
-        keypoints.push_back(newKeyPoint);
-    }
 
     //----------------------------
     // visualize results

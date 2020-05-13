@@ -148,11 +148,11 @@ double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::K
         }
     }*/
 // ------------------------------------------------------------------------------------------------------------------------------------------------
-    for (size_t i = 0; i < matches.size(); i++)
-    {
-        if( matches[i].imgIdx >= matches.size() ) cout << "Suspicous entry " << i << " is pointing to entry " << matches[i].imgIdx << " which is out of bounds (" << matches.size() << ")" << endl;
-        if( matches[i].queryIdx >= matches.size() ) cout << "Suspicous entry " << i << " is pointing to entry " << matches[i].queryIdx << " which is out of bounds (" << matches.size() << ")" << endl;
-    }
+//     for (size_t i = 0; i < matches.size(); i++)
+//     {
+//         if( matches[i].imgIdx >= matches.size() ) cout << "Suspicous entry " << i << " is pointing to entry " << matches[i].imgIdx << " which is out of bounds (" << matches.size() << ")" << endl;
+//         if( matches[i].queryIdx >= matches.size() ) cout << "Suspicous entry " << i << " is pointing to entry " << matches[i].queryIdx << " which is out of bounds (" << matches.size() << ")" << endl;
+//     }
 // ------------------------------------------------------------------------------------------------------------------------------------------------
     return deltaTime;
 }

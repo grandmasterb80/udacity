@@ -61,6 +61,17 @@ int main(int argc, const char *argv[])
     // print benchmark tables
     if( true )
     {
+        int cellWidth = 10;
+        string tableSeparator = "|";
+        // filled: fill the given string with leading spaced to get a resulting string of length "cellWidth"
+        // remark: the function is similar to std::string.resize, but it extends the string on the left side instead of the right side.
+        std::function< string( string ) > filledS = [ cellWidth ]( string str ) {
+            str.insert( str.begin(), std::max( 0, cellWidth - static_cast<int>( str.size() ) ), ' ' );
+            return str;
+        };
+        std::function< string( int ) > filledI = [ filledS, cellWidth ]( int i ) { return filledS( (i >= 0) ? to_string( i ) : "-" ); };
+        std::function< string( double ) > filledF = [ filledS, cellWidth ]( double f ) { return filledS( (f >= 0.0) ? to_string( f ) : "-" ); };
+
         ofstream tableFileKeypoints;
         ofstream tableFileMatchedKeypoints;
         ofstream tableFileTime;
@@ -69,31 +80,38 @@ int main(int argc, const char *argv[])
         tableFileMatchedKeypoints.open("task8_num_matchedkeypoints.csv");
         tableFileTime.open("task9_time.csv");
 
-        tableFileKeypoints        << "   ";
-        tableFileMatchedKeypoints << "   ";
-        tableFileTime             << "   ";
+        std::stringstream headerSeparator;
+        tableFileKeypoints        << filledS("");
+        tableFileMatchedKeypoints << filledS("");
+        tableFileTime             << filledS("");
+        headerSeparator           << ":" << std::string( cellWidth-1, '-' );
 
         for( string descriptorType : descriptorTypeList )
         {
-            tableFileKeypoints        << "; " << descriptorType << " ";
-            tableFileMatchedKeypoints << "; " << descriptorType << " ";
-            tableFileTime             << "; " << descriptorType << " ";
+            tableFileKeypoints        << " " << tableSeparator << filledS( descriptorType );
+            tableFileMatchedKeypoints << " " << tableSeparator << filledS( descriptorType );
+            tableFileTime             << " " << tableSeparator << filledS( descriptorType );
+            headerSeparator           << ":" << tableSeparator << std::string( cellWidth, '-' );
         }
         tableFileKeypoints        << endl;
         tableFileMatchedKeypoints << endl;
         tableFileTime             << endl;
 
+        tableFileKeypoints        << headerSeparator.str() << endl;
+        tableFileMatchedKeypoints << headerSeparator.str() << endl;
+        tableFileTime             << headerSeparator.str() << endl;
+        
         for( string detectorType : detectorTypeList )
         {
-            tableFileKeypoints        << detectorType << " ";
-            tableFileMatchedKeypoints << detectorType << " ";
-            tableFileTime             << detectorType << " ";
+            tableFileKeypoints        << filledS( detectorType );
+            tableFileMatchedKeypoints << filledS( detectorType );
+            tableFileTime             << filledS( detectorType );
 
             for( string descriptorType : descriptorTypeList )
             {
-                tableFileKeypoints        << "; " << numKeypointsMap[ detectorType ][ descriptorType ] << " ";
-                tableFileMatchedKeypoints << "; " << numMatchedKeypointsMap[ detectorType ][ descriptorType ] << " ";
-                tableFileTime             << "; " << timeMap[ detectorType ][ descriptorType ] << " ";
+                tableFileKeypoints        << " " << tableSeparator << filledI( numKeypointsMap[ detectorType ][ descriptorType ] );
+                tableFileMatchedKeypoints << " " << tableSeparator << filledI( numMatchedKeypointsMap[ detectorType ][ descriptorType ] );
+                tableFileTime             << " " << tableSeparator << filledF( timeMap[ detectorType ][ descriptorType ] );
             }
             tableFileKeypoints        << endl;
             tableFileMatchedKeypoints << endl;

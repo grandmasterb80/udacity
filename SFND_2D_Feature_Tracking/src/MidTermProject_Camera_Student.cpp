@@ -23,9 +23,7 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
 /* MAIN PROGRAM */
 int main(int argc, const char *argv[])
 {
-//     std::vector<std::string> detectorTypeList = { "SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT" };
-//     std::vector<std::string> descriptorTypeList = { "BRISK", "BRIEF", "ORB", "FREAK", "AKAZE", "SIFT" };
-    std::vector<std::string> detectorTypeList = { "SIFT", "SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE" };
+    std::vector<std::string> detectorTypeList = { "SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT" };
     std::vector<std::string> descriptorTypeList = { "BRISK", "BRIEF", "ORB", "FREAK", "AKAZE", "SIFT" };
     std::map< std::string, std::map < std::string, int    > > numKeypointsMap;            // task #7
     std::map< std::string, std::map < std::string, int    > > numMatchedKeypointsMap;     // task #8

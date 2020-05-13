@@ -14,8 +14,8 @@ using namespace std;
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------------------
-// taken from here: https://stackoverflow.com/questions/10167534/how-to-find-out-what-type-of-a-mat-object-is-with-mattype-in-opencv
-// helper function to convert a data type of cv::Mat to a string for debugging purpose
+/// taken from here: https://stackoverflow.com/questions/10167534/how-to-find-out-what-type-of-a-mat-object-is-with-mattype-in-opencv
+/// helper function to convert a data type of cv::Mat to a string for debugging purpose
 
 string type2str(int type) {
   string r;
@@ -43,6 +43,7 @@ string type2str(int type) {
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------------------
+/// mapping of detector name to its function to do the detection of keypoints
 
 const std::map<std::string, std::function<double(std::vector<cv::KeyPoint>&, cv::Mat&, bool)>> KeypointFnMap =
     {

@@ -278,6 +278,13 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
             string descriptorType2 = "DES_BINARY";   // DES_BINARY, DES_HOG
             string selectorType = "SEL_NN";          // SEL_NN, SEL_KNN
             
+            if( descriptorType.compare("SIFT") == 0 )
+            {
+                matcherType = "MAT_BF";           // MAT_BF, MAT_FLANN   (BF for benchmark!)
+                descriptorType2 = "DES_HOG";      // DES_BINARY, DES_HOG
+                selectorType = "SEL_KNN";         // SEL_NN, SEL_KNN
+            }
+            
             cout << "INFO: " << __LINE__ << ": detectorType=\"" << detectorType << "\",   descriptorType=\"" << descriptorType << "\"" << endl;
 
             //// STUDENT ASSIGNMENT

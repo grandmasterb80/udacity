@@ -44,8 +44,11 @@ int main(int argc, const char *argv[])
             runBenchmark( detectorType, descriptorType, numKeypoints, numMatchedKeypoints, time );
             } catch(const cv::Exception& e)
             {
-                cout << endl << "***************************************************************************** detectorType=\"" << detectorType << "\", descriptorType=\"" << descriptorType << "\"" << endl;
-                cout << e.msg << endl;
+                cerr << endl;
+                cerr << "*****************************************************************************" << endl;
+                cerr << "EXCEPTION!" << endl;
+                cerr << "detectorType=\"" << detectorType << "\", descriptorType=\"" << descriptorType << "\"" << endl;
+                cerr << e.msg << endl;
             }
 
             numKeypointsMap[ detectorType ][ descriptorType ]        = numKeypoints;

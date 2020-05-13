@@ -74,7 +74,7 @@ double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::K
     {
         int normType = descriptorType.compare("DES_BINARY") == 0 ? cv::NORM_HAMMING : cv::NORM_L2;
         matcher = cv::BFMatcher::create(normType, crossCheck);
-        cout << "BF matching cross-check=" << crossCheck << ", ";
+//         cout << "BF matching cross-check=" << crossCheck << ", ";
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
@@ -87,7 +87,7 @@ double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::K
             descRef.convertTo(descRef, CV_32F);
         }
         matcher = cv::DescriptorMatcher::create( cv::DescriptorMatcher::FLANNBASED );
-        cout << "FLANN matching";
+//         cout << "FLANN matching";
     }
     else
     {
@@ -100,7 +100,7 @@ double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::K
         double t = (double)cv::getTickCount();
         matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
         t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-        cout << " (NN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
+//         cout << " (NN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
         deltaTime = t;
     }
     else if (selectorType.compare("SEL_KNN") == 0)
@@ -123,7 +123,7 @@ double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::K
         }
 
         t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-        cout << " (KNN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
+//         cout << " (KNN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
         deltaTime = t;
     }
     else

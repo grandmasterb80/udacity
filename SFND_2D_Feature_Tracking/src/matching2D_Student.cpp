@@ -124,7 +124,7 @@ double matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::K
         }
 
         t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-        cout << " (NN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
+        cout << " (KNN) with n=" << matches.size() << " matches in " << 1000 * t / 1.0 << " ms" << endl;
         deltaTime = t;
     }
     else

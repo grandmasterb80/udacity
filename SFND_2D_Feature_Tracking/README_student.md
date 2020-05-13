@@ -1,3 +1,68 @@
+SFND 2D Feature Tracking Project by Daniel Baudisch (Resubmission)
+==================================================================
+
+Modifcations
+------------
+
+  * Correction of FAST detection (a filter based on tracking was applied before due to Copy&Paste from "intermediate" solutions during the course)
+    ==> This gives now more keypoints. It did not change the number of matched keypoints at all. This led to the next change.
+  * Using BF & Binary & NN (all descriptorTypes but SIFT, which uses BF & HOG & KNN)
+    ==> This gives way more tracked keypoints, especially for detector=FAST.
+  * Plenty of modifications regardings the output
+      * Most output is now commented out
+      * Table is now output in MarkDown format to copy&paste the result into this document (see below)
+
+New observations
+----------------
+
+In general, detector={FAST, BRISK} and matcher={BRISK, BRIEF, ORB} give good results in #keypoints and #matched keypoints. While detector=BRISK results
+about twice as many tracked keypoints, the detector=FAST result in a ten time faster execution time.
+
+***Based on the new results, I choose following detector / matcher combination (in given order):***
+1) FAST detector with BRIEF matcher (1348 tracked points, 0.012sec)
+2) FAST detector with BRISK matcher (1348 tracked points, 0.021sec)
+3) FAST detector with ORB matcher   (1348 tracked points, 0.028sec)
+
+
+## Number of Keypoints
+
+           |     BRISK |     BRIEF |       ORB |     FREAK |     AKAZE |      SIFT
+:---------:|----------:|----------:|----------:|----------:|----------:|----------
+ SHITOMASI |      1179 |      1179 |      1179 |      1179 |         - |      1179
+    HARRIS |       197 |       197 |       197 |       197 |         - |       197
+      FAST |      1491 |      1491 |      1491 |      1491 |         - |      1491
+     BRISK |      2762 |      2762 |      2762 |      2762 |         - |      2762
+       ORB |      1161 |      1161 |      1161 |      1161 |         - |      1161
+     AKAZE |      1670 |      1670 |      1670 |      1670 |      1670 |      1670
+      SIFT |      1386 |      1386 |         - |      1386 |         - |      1386
+
+## Number of Keypoint Matches
+      
+           |     BRISK |     BRIEF |       ORB |     FREAK |     AKAZE |      SIFT
+:---------:|----------:|----------:|----------:|----------:|----------:|----------
+ SHITOMASI |      1067 |      1067 |      1067 |      1067 |         - |         0
+    HARRIS |       168 |       168 |       168 |       168 |         - |         0
+      FAST |      1348 |      1348 |      1348 |      1348 |         - |         2
+     BRISK |      2508 |      2508 |      2508 |      2326 |         - |        63
+       ORB |       950 |      1033 |      1033 |       549 |         - |         1
+     AKAZE |      1491 |      1491 |      1491 |      1491 |      1491 |         0
+      SIFT |      1248 |      1249 |         - |      1239 |         - |         0
+
+## Time for keypoint detection and keypoint matching for 10 frames
+      
+           |     BRISK |     BRIEF |       ORB |     FREAK |     AKAZE |      SIFT
+:---------:|----------:|----------:|----------:|----------:|----------:|----------
+ SHITOMASI |  0.107484 |  0.095182 |  0.111640 |  0.250736 |         - |  0.142831
+    HARRIS |  0.105829 |  0.105109 |  0.113242 |  0.308331 |         - |  0.201947
+      FAST |  0.021491 |  0.012487 |  0.028873 |  0.190147 |         - |  0.103229
+     BRISK |  0.336192 |  0.315105 |  0.382493 |  0.495511 |         - |  0.464918
+       ORB |  0.238283 |  0.051769 |  0.125387 |  0.232777 |         - |  0.207384
+     AKAZE |  0.318410 |  0.301407 |  0.351459 |  0.476272 |  0.526876 |  0.413504
+      SIFT |  0.619682 |  0.618369 |         - |  0.803187 |         - |  1.040087
+
+
+
+
 SFND 2D Feature Tracking Project by Daniel Baudisch
 ===================================================
 

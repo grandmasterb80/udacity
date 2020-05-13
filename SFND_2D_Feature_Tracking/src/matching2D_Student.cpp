@@ -204,7 +204,7 @@ double descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &des
     double t = (double)cv::getTickCount();
     extractor->compute(img, keypoints, descriptors);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
+//     cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
     return t;
 }
 
@@ -255,7 +255,7 @@ double detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
         keypoints.push_back(newKeyPoint);
     }
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "Shi-Tomasi detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+//     cout << "Shi-Tomasi detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     // visualize results
     vis( "Shi-Tomasi Corner Detector Results", keypoints, img, bVis );
@@ -303,7 +303,7 @@ double detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bo
             }
         }
     });
-    std::cout << "Found key points: " << keypoints.size() << " with min=" << min << " and max=" << max << std::endl;
+//     std::cout << "Found key points: " << keypoints.size() << " with min=" << min << " and max=" << max << std::endl;
 
     std::sort (keypoints.begin(), keypoints.end(), []( const cv::KeyPoint &i, const cv::KeyPoint &j) -> bool { return ( i.size < j.size ); });
 
@@ -364,7 +364,7 @@ double detKeypointsFast(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
     cv::goodFeaturesToTrack(img, fastCorners, maxCorners, qualityLevel, minDistance, fastMask, blockSize, false /*useHarris*/, k);
 
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "FAST with n= " << fastCorners.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+//     cout << "FAST with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
     keypoints.clear();
     for (auto it = fastCorners.begin(); it != fastCorners.end(); ++it)
     { // add fastCorners to result vector
@@ -392,7 +392,7 @@ double detKeypointsBrisk(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, boo
     double t = (double)cv::getTickCount();
     detector->detect(img, keypoints);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "BRISK detector with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+//     cout << "BRISK detector with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     //----------------------------
     // visualize results
@@ -411,7 +411,7 @@ double detKeypointsOrb(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool 
     double t = (double)cv::getTickCount();
     detector->detect(img, keypoints);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "ORB detector with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+//     cout << "ORB detector with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     //----------------------------
     // visualize results
@@ -430,7 +430,7 @@ double detKeypointsAkaze(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, boo
     double t = (double)cv::getTickCount();
     detector->detect(img, keypoints);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "AKAZE detector with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+//     cout << "AKAZE detector with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     //----------------------------
     // visualize results
@@ -449,7 +449,7 @@ double detKeypointsSift(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
     double t = (double)cv::getTickCount();
     detector->detect(img, keypoints);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "SIFT detector with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+//     cout << "SIFT detector with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     //----------------------------
     // visualize results

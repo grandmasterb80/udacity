@@ -170,6 +170,30 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 
+void clusterKeypointsWithROI(DataFrame &frame)
+{
+    for( cv::KeyPoint& kp : frame.keypoints )
+    {
+        vector<vector<BoundingBox>::iterator> enclosingBoxes; // pointers to all bounding boxes which enclose the current Lidar point
+        for (vector<BoundingBox>::iterator bb = frame.boundingBoxes.begin(); bb != frame.boundingBoxes.end(); ++bb)
+        {
+            if( bb->roi.contains( kp.pt ) ) 
+            {
+                enclosingBoxes.push_back( bb );
+            }
+        }
+        // check wether point has been enclosed by one or by multiple boxes
+        if (enclosingBoxes.size() == 1)
+        { 
+            // add Lidar point to bounding box
+            enclosingBoxes[0]->keypoints.push_back( kp );
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------
 
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {

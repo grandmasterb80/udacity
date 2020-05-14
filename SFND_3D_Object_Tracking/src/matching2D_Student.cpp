@@ -159,5 +159,112 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
 
     // visualize results
     vis( "Shi-Tomasi Corner Detector Results", keypoints, img, bVis );
+}
+
+void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+{
+    // Detector parameters
+    int blockSize = 2;     // for every pixel, a blockSize × blockSize neighborhood is considered
+    int apertureSize = 3;  // aperture parameter for Sobel operator (must be odd)
+    int minResponse = 100; // minimum value for a corner in the 8bit scaled response matrix
+    double k = 0.04;       // Harris parameter (see equation for details)
+
+    // Detect Harris corners and normalize output
+    cv::Mat dst, dst_norm, dst_norm_scaled;
+    dst = cv::Mat::zeros(img.size(), CV_32FC1);
+//     double t = (double)cv::getTickCount();
+    cv::cornerHarris(img, dst, blockSize, apertureSize, k, cv::BORDER_DEFAULT);
+    cv::normalize(dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
+    cv::convertScaleAbs(dst_norm, dst_norm_scaled);
+
+    // TODO: Your task is to locate local maxima in the Harris response matrix 
+    // and perform a non-maximum suppression (NMS) in a local neighborhood around 
+    // each maximum. The resulting coordinates shall be stored in a list of keypoints 
+    // of the type `vector<cv::KeyPoint>`.
+    double min, max;
+    float tolerance = 0.6; // consider all points within the highest 2% of the value range
+    cv::minMaxLoc( dst, &min, &max);
+    min = max - (max - min) * tolerance;
+
+    std::mutex myMutex;
+    dst.forEach< cv::Vec<float,1> >([min,max,&myMutex,&keypoints](cv::Vec<float,1> &p, const int * position) -> void {
+        if( p[0] >= min && p[0] <= max )
+        {
+            cv::KeyPoint kp( (float)position[1], (float)position[0], 4 + 4 * p[ 0 ] );
+            {
+                std::lock_guard<std::mutex> lk(myMutex);
+                //std::cout << "Found keypoint @(" << position[0] << ", " << position[1] << ") with val = " << p[0] << std::endl;
+                keypoints.push_back( kp );
+            }
+        }
+    });
+//     std::cout << "Found key points: " << keypoints.size() << " with min=" << min << " and max=" << max << std::endl;
+
+    std::sort (keypoints.begin(), keypoints.end(), []( const cv::KeyPoint &i, const cv::KeyPoint &j) -> bool { return ( i.size < j.size ); });
+
+    vector<cv::KeyPoint>::iterator kp = keypoints.begin();
+    while( kp != keypoints.end() )
     {
+        vector<cv::KeyPoint>::iterator kp2 = kp;
+        kp2++;
+        while( kp2 != keypoints.end() )
+        {
+            if( ( kp->pt.x - kp2->pt.x ) * ( kp->pt.x - kp2->pt.x ) + ( kp->pt.y - kp2->pt.y ) * ( kp->pt.y - kp2->pt.y ) <= ( kp->size + kp2->size ) * ( kp->size + kp2->size ) )
+            {
+                keypoints.erase( kp2 );
+            }
+            else
+            {
+                kp2++;
+            }
+        }
+        kp++;
     }
+
+//     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+//     cout <<  HARRIS" with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
+    // visualize results
+    vis( "Harris Corner Detector Results", keypoints, img, bVis );
+}
+
+void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis)
+{
+    cv::Ptr<cv::FeatureDetector> detector;
+    string windowName = detectorType + " Corner Detector Results";
+
+    if( detectorType.compare("FAST") == 0 )
+    {
+        // Initiate FAST object with default values
+        int threshold = 30;                                                              // difference between intensity of the central pixel and pixels of a circle around this pixel
+        bool bNMS = true;                                                                // perform non-maxima suppression on keypoints
+        cv::FastFeatureDetector::DetectorType type = cv::FastFeatureDetector::TYPE_9_16; // TYPE_9_16, TYPE_7_12, TYPE_5_8
+        detector = cv::FastFeatureDetector::create(threshold, bNMS, type);
+    }
+    else if( detectorType.compare("BRISK") == 0 )
+    {
+        detector = cv::BRISK::create();
+    }
+    else if( detectorType.compare("ORB") == 0 )
+    {
+        detector = cv::ORB::create();
+    }
+    else if( detectorType.compare("AKAZE") == 0 )
+    {
+        detector = cv::AKAZE::create();
+    }
+    else if( detectorType.compare("SIFT") == 0 )
+    {
+        detector = cv::xfeatures2d::SIFT::create();
+    }
+
+//     double t = (double)cv::getTickCount();
+    detector->detect( img, keypoints );
+//     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+//     cout << detectorType << " with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
+    //----------------------------
+    // visualize results
+    vis( windowName, keypoints, img, bVis );
+}
+

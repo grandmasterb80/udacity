@@ -20,6 +20,10 @@
 #include "lidarData.hpp"
 #include "camFusion.hpp"
 
+extern bool DOWNSIZE_VIS;
+
+bool DOWNSIZE_VIS = true;
+
 using namespace std;
 
 /* MAIN PROGRAM */
@@ -285,6 +289,7 @@ int main(int argc, const char *argv[])
 
                         string windowName = "Final Results : TTC";
                         cv::namedWindow(windowName, 4);
+                        if( DOWNSIZE_VIS ) resize(visImg, visImg, cv::Size(), 0.25, 0.25, cv::INTER_CUBIC);
                         cv::imshow(windowName, visImg);
                         cout << "Press key to continue to next frame" << endl;
                         cv::waitKey(0);

@@ -186,7 +186,6 @@ int main(int argc, const char *argv[])
 
         cout << "#5 : DETECT KEYPOINTS done" << endl;
 
-
         /* EXTRACT KEYPOINT DESCRIPTORS */
 
         cv::Mat descriptors;

@@ -19,7 +19,19 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        // ...
+        if (descSource.type() != CV_32F)
+        { // OpenCV bug workaround : convert binary descriptors to floating point due to a bug in current OpenCV implementation
+            descSource.convertTo(descSource, CV_32F);
+        }
+        if (descRef.type() != CV_32F)
+        { // OpenCV bug workaround : convert binary descriptors to floating point due to a bug in current OpenCV implementation
+            descRef.convertTo(descRef, CV_32F);
+        }
+        matcher = cv::DescriptorMatcher::create( cv::DescriptorMatcher::FLANNBASED );
+    }
+    else
+    {
+        cerr << endl << "Wrong parameter for matcherType" << endl;
     }
 
     // perform matching task
@@ -30,8 +42,27 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
+        int kLevel = ( matcherType.compare("MAT_FLANN") == 0 ) ? 2 : 1;
+        double t = (double)cv::getTickCount();
+        std::vector< std::vector< cv::DMatch > > knn_matches;        
 
-        // ...
+        // Since SURF is a floating-point descriptor NORM_L2 is used
+        matcher->knnMatch( descSource, descRef, knn_matches, kLevel );
+        //-- Filter matches using the Lowe's ratio test
+        const float ratio_thresh = 0.8f;
+        for (size_t i = 0; i < knn_matches.size(); i++)
+        {
+            if (knn_matches[i][0].distance < ratio_thresh * knn_matches[i][1].distance)
+            {
+                matches.push_back( knn_matches[i][0] );
+            }
+        }
+        t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+        cout << "Descriptor matching using " << descriptorType << ", " << matcherType << ", " << selectorType << " done in " << 1000 * t / 1.0 << " ms" << endl;
+    }
+    else
+    {
+        cerr << endl << "Wrong parameter for selectorType" << endl;
     }
 }
 

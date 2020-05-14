@@ -52,6 +52,10 @@ OpenCV - Final Project:
 
 git clone --recursive https://github.com/udacity/SFND_3D_Object_Tracking.git
 
+Get YOLO DNN using the download script:
+../Autonomous_Vehicles_and_Computer_Vision/yolo/download.sh
+
+
 Copy Media and PCD files into own copy of the repo
     Source: SFND_3D_Object_Tracking/LICENSE
     Source: SFND_3D_Object_Tracking/README.md
@@ -59,18 +63,16 @@ Copy Media and PCD files into own copy of the repo
 
 Instructions:
     mkdir ../SFND_3D_Object_Tracking
-    ln -s SFND_3D_Object_Tracking/
 
     # only for the very initial check-out; afterwards .gitignore will be checked in
-    echo "dat" >> ../SFND_3D_Object_Tracking/.gitignore
     echo "images" >> ../SFND_3D_Object_Tracking/.gitignore
     echo "README.md" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "dat" >> ../SFND_3D_Object_Tracking/.gitignore
     echo "build" >> ../SFND_3D_Object_Tracking/.gitignore
 
-    cp -r SFND_3D_Object_Tracking/dat        ../SFND_3D_Object_Tracking/
     cp -r SFND_3D_Object_Tracking/images     ../SFND_3D_Object_Tracking/
     cp    SFND_3D_Object_Tracking/README.md  ../SFND_3D_Object_Tracking/
-
-    echo "dat" >> ../SFND_3D_Object_Tracking/.gitignore
-    echo "images" >> ../SFND_3D_Object_Tracking/.gitignore
-    echo "README.md" >> ../SFND_3D_Object_Tracking/.gitignore
+    cp -r SFND_3D_Object_Tracking/dat        ../SFND_3D_Object_Tracking/
+    rm -r SFND_3D_Object_Tracking/dat/yolo
+    cd    SFND_3D_Object_Tracking/dat
+    ln -s ../../Autonomous_Vehicles_and_Computer_Vision/yolo ./

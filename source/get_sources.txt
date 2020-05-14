@@ -50,27 +50,27 @@ Instructions:
 OpenCV - Final Project:
 -----------------------
 
-git clone https://github.com/udacity/SFND_3D_Feature_Tracking.git
+git clone --recursive https://github.com/udacity/SFND_3D_Object_Tracking.git
 
 Copy Media and PCD files into own copy of the repo
-    Source: SFND_2D_Feature_Tracking/LICENSE
-    Source: SFND_2D_Feature_Tracking/README.md
-    Source: SFND_2D_Feature_Tracking/images
+    Source: SFND_3D_Object_Tracking/LICENSE
+    Source: SFND_3D_Object_Tracking/README.md
+    Source: SFND_3D_Object_Tracking/images
 
 Instructions:
-    mkdir ../SFND_3D_Feature_Tracking
-    ln -s SFND_3D_Feature_Tracking/
+    mkdir ../SFND_3D_Object_Tracking
+    ln -s SFND_3D_Object_Tracking/
 
     # only for the very initial check-out; afterwards .gitignore will be checked in
-    echo "dat" >> ../SFND_3D_Feature_Tracking/.gitignore
-    echo "images" >> ../SFND_3D_Feature_Tracking/.gitignore
-    echo "README.md" >> ../SFND_3D_Feature_Tracking/.gitignore
-    echo "build" >> ../SFND_3D_Feature_Tracking/.gitignore
+    echo "dat" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "images" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "README.md" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "build" >> ../SFND_3D_Object_Tracking/.gitignore
 
-    cp -r SFND_3D_Feature_Tracking/dat        ../SFND_3D_Feature_Tracking/
-    cp -r SFND_3D_Feature_Tracking/images     ../SFND_3D_Feature_Tracking/
-    cp    SFND_3D_Feature_Tracking/README.md  ../SFND_3D_Feature_Tracking/
+    cp -r SFND_3D_Object_Tracking/dat        ../SFND_3D_Object_Tracking/
+    cp -r SFND_3D_Object_Tracking/images     ../SFND_3D_Object_Tracking/
+    cp    SFND_3D_Object_Tracking/README.md  ../SFND_3D_Object_Tracking/
 
-    echo "dat" >> ../SFND_3D_Feature_Tracking/.gitignore
-    echo "images" >> ../SFND_3D_Feature_Tracking/.gitignore
-    echo "README.md" >> ../SFND_3D_Feature_Tracking/.gitignore
+    echo "dat" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "images" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "README.md" >> ../SFND_3D_Object_Tracking/.gitignore

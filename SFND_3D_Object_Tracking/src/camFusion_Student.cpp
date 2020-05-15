@@ -142,7 +142,42 @@ void show3DObjects(std::vector<BoundingBox> &boundingBoxes, cv::Size worldSize, 
 // associate a given bounding box with the keypoints it contains
 void clusterKptMatchesWithROI(BoundingBox &prevBoundingBox, BoundingBox &currBoundingBox, std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, std::vector<cv::DMatch> &kptMatches)
 {
-    // ...
+    const double tolerance = 0.2;
+    double distanceMean = 0.0;
+    int    distanceMeanElements = 0;
+    std::vector<int> bbMatches; // indicies to matches of interest
+
+    currBoundingBox.keypoints.clear();
+
+    for( cv::DMatch &match : kptMatches )
+    {
+        int queryIdx = match.queryIdx; // source
+        int trainIdx = match.trainIdx; // target
+
+        if( ! prevBoundingBox.roi.contains( kptsPrev[ queryIdx ].pt ) )  continue;
+        if( ! currBoundingBox.roi.contains( kptsCurr[ trainIdx ].pt ) )  continue;
+
+        distanceMean += match.distance;
+        distanceMeanElements++;
+    }
+    distanceMean /= distanceMeanElements;
+
+    // second run: new add the elements to the bounding box that we are interested in
+    for( cv::DMatch &match : kptMatches )
+    //for( int matchIdx = 0; matchIdx < boundingBox.kptMatches.size(); matchIdx++ )
+    {
+        int queryIdx = match.queryIdx; // source
+        int trainIdx = match.trainIdx; // target
+
+        if( ! prevBoundingBox.roi.contains( kptsPrev[ queryIdx ].pt ) )  continue;
+        if( ! currBoundingBox.roi.contains( kptsCurr[ trainIdx ].pt ) )  continue;
+
+        if( match.distance <= distanceMean * (1.0 - tolerance) ||
+            match.distance >= distanceMean * (1.0 + tolerance) ) continue;
+
+        currBoundingBox.kptMatches.push_back( match );
+        currBoundingBox.keypoints.push_back( kptsCurr[ trainIdx ] );
+    }
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------

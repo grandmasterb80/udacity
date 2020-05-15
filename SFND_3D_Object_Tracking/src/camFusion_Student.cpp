@@ -188,7 +188,64 @@ void clusterKptMatchesWithROI(BoundingBox &prevBoundingBox, BoundingBox &currBou
 void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, 
                       std::vector<cv::DMatch> kptMatches, double frameRate, double &TTC, cv::Mat *visImg)
 {
+    double deltaTime = 1.0 / frameRate;
     // ...
+    // sort matches according to the points based on y value (e.g. left to right)
+    // take the outside matches
+    auto matchSort = [&]( cv::DMatch& a, cv::DMatch& b )-> bool {
+        return ( kptsCurr[ a.trainIdx ].pt.y ) < kptsCurr[ b.trainIdx ].pt.y;
+    };
+
+    std::sort( kptMatches.begin(), kptMatches.end(), matchSort );
+
+    std::vector<cv::DMatch>::const_iterator idx1 = kptMatches.begin();
+    std::vector<cv::DMatch>::const_iterator idx2 = kptMatches.end() - 1;
+    int numMeasurements = 10; // max # measurements 
+    std::vector<double> TTCs;
+    do
+    {
+        int prevIdx1 = idx1->queryIdx;      // source
+        int currIdx1 = idx1->trainIdx;      // target
+        int prevIdx2 = idx2->queryIdx;      // source
+        int currIdx2 = idx2->trainIdx;      // target
+
+        cv::Point2f prevCon = kptsPrev[ prevIdx1 ].pt - kptsPrev[ prevIdx2 ].pt;
+        cv::Point2f currCon = kptsCurr[ currIdx1 ].pt - kptsCurr[ currIdx2 ].pt;
+        double h_prev = sqrt( prevCon.dot( prevCon ) );
+        double h_curr = sqrt( currCon.dot( currCon ) );
+
+        TTC = - deltaTime / ( 1 - h_curr / h_prev );
+        if( fabs( h_curr - h_prev ) > 0.01 * deltaTime )
+        {
+            TTCs.push_back( TTC );
+        }
+
+        cout << "TTC_cam: h_prev=" << h_prev << "(), h_curr=" << h_curr << "(), deltaTime=" << deltaTime << endl;
+        cout << "TTC_cam: TTC=" << TTC << endl;
+
+        //for (size_t i = 0; i < nMarkers; ++i)
+        if(visImg!=nullptr)
+        {
+            cv::line(*visImg, kptsPrev[ prevIdx1 ].pt, kptsPrev[ prevIdx2 ].pt, cv::Scalar( 255,   0,   0 ) );
+            cv::line(*visImg, kptsCurr[ currIdx1 ].pt, kptsCurr[ currIdx2 ].pt, cv::Scalar(   0,   0, 255 ) );
+        }
+        else
+        {
+            cout << "*** no visualization available ***" << endl;
+        }
+        idx1++;
+        idx2--;
+        numMeasurements--;
+    } while( numMeasurements > 0 && idx1 != idx2 );
+    if( TTCs.size() > 0 )
+    {
+        std::sort( TTCs.begin(), TTCs.end() );
+        TTC = TTCs[ TTCs.size() / 2 ];
+    }
+    else
+    {
+        TTC = 999.9;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------

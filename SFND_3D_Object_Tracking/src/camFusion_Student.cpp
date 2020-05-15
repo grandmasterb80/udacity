@@ -419,6 +419,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
 //             matchCount[i][j] = 0;
         }
     }
+/*
     for( int matchIdx = 0; matchIdx < currFrame.kptMatches.size(); matchIdx++ )
     {
         int queryIdx = currFrame.kptMatches[ matchIdx ].queryIdx; // source
@@ -452,7 +453,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
             }
         }
     }
-
+*/
     for(int i = 0; i < prevFrame.boundingBoxes.size(); i++)
     {
 //         cout << "i=" << i << ": {";

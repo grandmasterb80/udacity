@@ -163,7 +163,128 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
 void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
                      std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC)
 {
-    // ...
+    double deltaTime = 1.0 / frameRate;
+    // helper function: we only need the distances of the lidar points ==> we copy the values into a dedicated area and sort the area accordingly
+    struct {
+        bool operator()( LidarPoint& a, LidarPoint& b ) const
+        {
+            return a.x < b.x;
+        }
+    } lidarPointLess;
+    // sort points along distance
+    std::sort( lidarPointsPrev.begin(), lidarPointsPrev.end(), lidarPointLess );
+    std::sort( lidarPointsCurr.begin(), lidarPointsCurr.end(), lidarPointLess );
+    double prevDist = 0.0;
+    double currDist = 0.0;
+    if( lidarPointsPrev.size() > 10 && lidarPointsCurr.size() > 10 )
+    {
+        double Xrange = 0.3;
+        double tolerance = 0.05;
+        double tolSquared = tolerance * tolerance;
+
+        int prevN = 0;
+        int currN = 0;
+        double prevMinX = lidarPointsPrev[ 0 ].x;
+        double currMinX = lidarPointsCurr[ 0 ].x;
+        for(prevN = 0; prevN < lidarPointsPrev.size() /*&& lidarPointsPrev[ prevN ].x < prevMinX + Xrange*/; prevN++)
+            prevDist += lidarPointsPrev[ prevN ].x;
+        for(currN = 0; currN < lidarPointsCurr.size() /*&& lidarPointsCurr[ currN ].x < currMinX + Xrange*/; currN++)
+            currDist += lidarPointsCurr[ currN ].x;
+
+        int i = 0;
+        int j = prevN - 1;
+        while( i < j )
+        {
+            double errorI = 0.0;
+            double errorJ = 0.0;
+            double prevDistI = ( prevDist - lidarPointsPrev[ i ].x ) / ( prevN - 1 );
+            double prevDistJ = ( prevDist - lidarPointsPrev[ j ].x ) / ( prevN - 1 );
+            for(int sub = i + 1; sub < j - 1; sub++)
+            {
+                double eI = lidarPointsPrev[ sub ].x - prevDistI; eI *= eI;
+                double eJ = lidarPointsPrev[ sub ].x - prevDistJ; eJ *= eJ;
+                errorI += eI;
+                errorJ += eJ;
+            }
+            {
+                double eI = lidarPointsPrev[ i ].x - prevDistI; eI *= eI;
+                double eJ = lidarPointsPrev[ j ].x - prevDistJ; eJ *= eJ;
+                errorI += eI;
+                errorJ += eJ;
+            }
+            errorI = errorI / (prevN - 1);
+            errorJ = errorJ / (prevN - 1);
+
+            if( errorI < tolSquared && errorJ < tolSquared ) break;
+            // remove the one causing the bigger error
+            if( errorI > errorJ )
+            {
+                prevDist -= lidarPointsPrev[ i ].x;
+                i++;
+            }
+            else
+            {
+                prevDist -= lidarPointsPrev[ j ].x;
+                j--;
+            }
+            prevN--;
+        }
+
+        int k = 0;
+        int l = currN - 1;
+        while( k < l )
+        {
+            double errorK = 0.0;
+            double errorL = 0.0;
+            double currDistI = ( currDist - lidarPointsCurr[ k ].x ) / ( currN - 1 );
+            double currDistJ = ( currDist - lidarPointsCurr[ l ].x ) / ( currN - 1 );
+            for(int sub = k + 1; sub < l - 1; sub++)
+            {
+                double eK = lidarPointsCurr[ sub ].x - currDistI; eK *= eK;
+                double eL = lidarPointsCurr[ sub ].x - currDistJ; eL *= eL;
+                errorK += eK;
+                errorL += eL;
+            }
+            {
+                double eK = lidarPointsCurr[ k ].x - currDistI; eK *= eK;
+                double eL = lidarPointsCurr[ l ].x - currDistJ; eL *= eL;
+                errorK += eK;
+                errorL += eL;
+            }
+            errorK = errorK / (currN - 1);
+            errorL = errorL / (currN - 1);
+
+            if( errorK < tolSquared && errorL < tolSquared ) break;
+            // remove the one causing the bigger error
+            if( errorK > errorL )
+            {
+                currDist -= lidarPointsCurr[ k ].x;
+                k++;
+            }
+            else
+            {
+                currDist -= lidarPointsCurr[ l ].x;
+                l--;
+            }
+            currN--;
+        }
+        prevDist /= prevN;
+        currDist /= currN;
+
+        TTC = currDist * deltaTime / ( prevDist - currDist );
+
+//         cout << "prev points idx = [" << i << ", " << j << "]     curr points idx = [" << k << ", " << l << "]" << endl;
+//         cout << "TTC Lidar: prevN=" << prevN << "/" << lidarPointsPrev.size() << ", currN=" << currN << "/" << lidarPointsCurr.size() << ", prevDist=" << prevDist << ", currDist=" << currDist << " @fps=" << frameRate << endl;
+        cout << "TTC_Lidar: prev closest = " << lidarPointsPrev[ 0 ].x << "    prev farest = " << lidarPointsPrev[ lidarPointsPrev.size() - 1 ].x << endl;
+        cout << "TTC_Lidar: curr closest = " << lidarPointsCurr[ 0 ].x << "    curr farest = " << lidarPointsCurr[ lidarPointsCurr.size() - 1 ].x << endl;
+        cout << "TTC_Lidar: TTC = " << TTC << endl;
+
+    }
+    else
+    {
+        TTC = 999.9;
+    }
+
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------

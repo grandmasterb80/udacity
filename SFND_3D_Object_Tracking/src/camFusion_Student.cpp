@@ -474,7 +474,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         }
         else
         {
-            //cout << "CHECKPOINT: " << __FILE__ << ", " << __LINE__ << " no match found" << endl;
+            cout << "CHECKPOINT: " << __FILE__ << ", " << __LINE__ << " no match found" << endl;
         }
     }
 }

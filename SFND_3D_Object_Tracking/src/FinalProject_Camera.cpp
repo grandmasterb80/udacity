@@ -83,6 +83,7 @@ int main(int argc, const char *argv[])
 
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex+=imgStepWidth)
     {
+        cv::Mat visImg;
         /* LOAD IMAGE INTO BUFFER */
 
         // assemble filenames for current index
@@ -97,6 +98,11 @@ int main(int argc, const char *argv[])
         DataFrame frame;
         frame.cameraImg = img;
         dataBuffer.push_back(frame);
+
+        if (bVis)
+        {
+            visImg = (dataBuffer.end() - 1)->cameraImg.clone();
+        }
 
         cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
 
@@ -136,7 +142,7 @@ int main(int argc, const char *argv[])
         // Visualize 3D objects
         if(bVis_3DObj)
         {
-            show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(4.0, 20.0), cv::Size(2000, 2000), true);
+            show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(4.0, 20.0), cv::Size(2000, 2000), false);
         }
 
         cout << "#4 : CLUSTER LIDAR POINT CLOUD done" << endl;
@@ -271,31 +277,27 @@ int main(int argc, const char *argv[])
                     computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera);
                     //// EOF STUDENT ASSIGNMENT
 
-                    bVis = true;
                     if (bVis)
                     {
-                        cv::Mat visImg = (dataBuffer.end() - 1)->cameraImg.clone();
                         showLidarImgOverlay(visImg, currBB->lidarPoints, P_rect_00, R_rect_00, RT, &visImg);
                         cv::rectangle(visImg, cv::Point(currBB->roi.x, currBB->roi.y), cv::Point(currBB->roi.x + currBB->roi.width, currBB->roi.y + currBB->roi.height), cv::Scalar(0, 255, 0), 2);
                         
                         char str[200];
                         sprintf(str, "TTC Lidar : %f s, TTC Camera : %f s", ttcLidar, ttcCamera);
                         putText(visImg, str, cv::Point2f(80, 50), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0,0,255));
-
-                        string windowName = "Final Results : TTC";
-                        cv::namedWindow(windowName, 4);
-                        if( DOWNSIZE_VIS ) resize(visImg, visImg, cv::Size(), 0.25, 0.25, cv::INTER_CUBIC);
-                        cv::imshow(windowName, visImg);
-                        cout << "Press key to continue to next frame" << endl;
-                        cv::waitKey(0);
                     }
-                    bVis = false;
-
                 } // eof TTC computation
             } // eof loop over all BB matches            
-
         }
-
+        if (bVis)
+        {
+            string windowName = "Final Results : TTC";
+            cv::namedWindow(windowName, 4);
+            //if( DOWNSIZE_VIS ) resize(visImg, visImg, cv::Size(), 0.25, 0.25, cv::INTER_CUBIC);
+            cv::imshow(windowName, visImg);
+            cout << "Press key to continue to next frame" << endl;
+            cv::waitKey(0);
+        }
     } // eof loop over all images
 
     return 0;

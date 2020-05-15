@@ -197,11 +197,15 @@ void clusterKeypointsWithROI(DataFrame &frame)
 
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
-    int matchCount[ currFrame.boundingBoxes.size() ][ prevFrame.boundingBoxes.size() ];
-    for(int i = 0; i < currFrame.boundingBoxes.size(); i++)
-        for(int j = 0; j < prevFrame.boundingBoxes.size(); j++)
-            matchCount[i][j] = 0;
-            
+    int matchCount[ prevFrame.boundingBoxes.size() ][ currFrame.boundingBoxes.size() ];
+    for(int i = 0; i < prevFrame.boundingBoxes.size(); i++)
+    {
+        for(int j = 0; j < currFrame.boundingBoxes.size(); j++)
+        {
+            matchCount[i][j] = ( prevFrame.boundingBoxes[ i ].roi & currFrame.boundingBoxes[ j ].roi ).area();
+//             matchCount[i][j] = 0;
+        }
+    }
     for( int matchIdx = 0; matchIdx < currFrame.kptMatches.size(); matchIdx++ )
     {
         int queryIdx = currFrame.kptMatches[ matchIdx ].queryIdx; // source
@@ -231,18 +235,18 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
         {
             for( vector<BoundingBox>::iterator currBB : currBoxes )
             {
-                matchCount[ currBB->boxID ][ prevBB->boxID ]++;
+                matchCount[ prevBB->boxID ][ currBB->boxID ]++;
             }
         }
     }
 
-    for(int i = 0; i < currFrame.boundingBoxes.size(); i++)
+    for(int i = 0; i < prevFrame.boundingBoxes.size(); i++)
     {
 //         cout << "i=" << i << ": {";
         int mc = 0;
         int matchBBIdx = -1;
 
-        for(int j = 0; j < prevFrame.boundingBoxes.size(); j++)
+        for(int j = 0; j < currFrame.boundingBoxes.size(); j++)
         {
 //             if(j!=0) cout << ", ";
 //             cout << matchCount[i][j];
@@ -251,8 +255,8 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
 //         cout << "}" << endl;
         if( matchBBIdx >= 0 )
         {
-            cout << __FILE__ << ", " << __LINE__ << ": prevFrame.boxID=" << prevFrame.boundingBoxes[ matchBBIdx ].boxID << "(idx=" << matchBBIdx << ") ---> currFrame.boxID=" << currFrame.boundingBoxes[ i ].boxID << "(idx=" << i << ")" << endl;
-            bbBestMatches[ currFrame.boundingBoxes[ i ].boxID ] = prevFrame.boundingBoxes[ matchBBIdx ].boxID;
+//             cout << __FILE__ << ", " << __LINE__ << ": prevFrame.boxID=" << prevFrame.boundingBoxes[ i ].boxID << "(idx=" << i << ") ---> currFrame.boxID=" << currFrame.boundingBoxes[ matchBBIdx ].boxID << "(idx=" << matchBBIdx << ")" << endl;
+            bbBestMatches[ prevFrame.boundingBoxes[ i ].boxID ] = currFrame.boundingBoxes[ matchBBIdx ].boxID;
         }
         else
         {

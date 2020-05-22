@@ -19,6 +19,7 @@ using namespace std;
 // Create groups of Lidar points whose projection into the camera falls into the same bounding box
 void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<LidarPoint> &lidarPoints, float shrinkFactor, cv::Mat &P_rect_xx, cv::Mat &R_rect_xx, cv::Mat &RT)
 {
+    double t = (double)cv::getTickCount();
     // loop over all Lidar points and associate them to a 2D bounding box
     cv::Mat X(4, 1, cv::DataType<double>::type);
     cv::Mat Y(3, 1, cv::DataType<double>::type);
@@ -63,6 +64,8 @@ void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<Li
         }
 
     } // eof loop over all Lidar points
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "DONE: " << __FUNCTION__ << " in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
 
@@ -142,6 +145,7 @@ void show3DObjects(std::vector<BoundingBox> &boundingBoxes, cv::Size worldSize, 
 // associate a given bounding box with the keypoints it contains
 void clusterKptMatchesWithROI(BoundingBox &prevBoundingBox, BoundingBox &currBoundingBox, std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, std::vector<cv::DMatch> &kptMatches)
 {
+    double t = (double)cv::getTickCount();
     const double tolerance = 0.2;
     double distanceMean = 0.0;
     int    distanceMeanElements = 0;
@@ -178,6 +182,8 @@ void clusterKptMatchesWithROI(BoundingBox &prevBoundingBox, BoundingBox &currBou
         currBoundingBox.kptMatches.push_back( match );
         currBoundingBox.keypoints.push_back( kptsCurr[ trainIdx ] );
     }
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "DONE: " << __FUNCTION__ << " in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -188,6 +194,7 @@ void clusterKptMatchesWithROI(BoundingBox &prevBoundingBox, BoundingBox &currBou
 void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, 
                       std::vector<cv::DMatch> kptMatches, double frameRate, double &TTC, cv::Mat *visImg)
 {
+    double t = (double)cv::getTickCount();
     double deltaTime = 1.0 / frameRate;
     // ...
     // sort matches according to the points based on y value (e.g. left to right)
@@ -246,6 +253,8 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
     {
         TTC = 999.9;
     }
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "DONE: " << __FUNCTION__ << " in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -255,7 +264,8 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
 void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
                      std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC)
 {
-    double deltaTime = 1.0 / frameRate;
+    double t = (double)cv::getTickCount();
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     // helper function: we only need the distances of the lidar points ==> we copy the values into a dedicated area and sort the area accordingly
     struct {
         bool operator()( LidarPoint& a, LidarPoint& b ) const
@@ -263,13 +273,52 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
             return a.x < b.x;
         }
     } lidarPointLess;
+
+    struct {
+        double operator()( LidarPoint& a, double b ) const
+        {
+            return a.x + b;
+        }
+    } lidarPointSumX;
+
     // sort points along distance
     std::sort( lidarPointsPrev.begin(), lidarPointsPrev.end(), lidarPointLess );
     std::sort( lidarPointsCurr.begin(), lidarPointsCurr.end(), lidarPointLess );
     double prevDist = 0.0;
     double currDist = 0.0;
-    if( lidarPointsPrev.size() > 10 && lidarPointsCurr.size() > 10 )
+    if( lidarPointsPrev.size() > 18 && lidarPointsCurr.size() > 18 )
     {
+        enum TTCMethod = { TTCMedian, TTCAverage4, TTCAverage4_First10, TTCAverageSmallestError};
+        TTCMethod ttcMethod = TTCMedian;
+        switch( ttcMethod )
+        {
+            case TTCMedian:
+                prevDist = lidarPointsPrev[ lidarPointsPrev.size() / 2 ];
+                currDist = lidarPointsCurr[ lidarPointsCurr.size() / 2 ];
+                break;
+            case TTCAverage4:
+                lidarPointsPrev.erase( lidarPointsPrev.begin(), lidarPointsPrev.begin() + 4 );
+                lidarPointsPrev.erase( lidarPointsPrev.end() - 5, lidarPointsPrev.end() - 1 );
+
+                lidarPointsCurr.erase( lidarPointsCurr.begin(), lidarPointsCurr.begin() + 4 );
+                lidarPointsCurr.erase( lidarPointsCurr.end() - 5, lidarPointsCurr.end() - 1 );
+                prevDist = std::partial_sum( lidarPointsPrev.begin(), lidarPointsPrev.end(), 0.0, lidarPointSumX ) / lidarPointsPrev.size();
+                currDist = std::partial_sum( lidarPointsCurr.begin(), lidarPointsCurr.end(), 0.0, lidarPointSumX ) / lidarPointsCurr.size();
+                break;
+            case TTCAverage4_First10:
+                lidarPointsPrev.erase( lidarPointsPrev.begin(), lidarPointsPrev.begin() + 4 );
+                lidarPointsPrev.erase( lidarPointsPrev.end() - 5, lidarPointsPrev.end() - 1 );
+
+                lidarPointsCurr.erase( lidarPointsCurr.begin(), lidarPointsCurr.begin() + 4 );
+                lidarPointsCurr.erase( lidarPointsCurr.end() - 5, lidarPointsCurr.end() - 1 );
+                prevDist = std::partial_sum( lidarPointsPrev.begin(), lidarPointsPrev.begin() + 10, 0.0, lidarPointSumX ) / 10;
+                currDist = std::partial_sum( lidarPointsCurr.begin(), lidarPointsCurr.begin() + 10, 0.0, lidarPointSumX ) / 10;
+                break;
+            case TTCAverageSmallestError:
+                break;
+        }
+        // method: 
+/*
         double Xrange = 0.3;
         double tolerance = 0.05;
         double tolSquared = tolerance * tolerance;
@@ -362,6 +411,8 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
         }
         prevDist /= prevN;
         currDist /= currN;
+*/
+        // ---------------------------------------------------------------------------------------
 
         TTC = currDist * deltaTime / ( prevDist - currDist );
 
@@ -376,7 +427,8 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
     {
         TTC = 999.9;
     }
-
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "DONE: " << __FUNCTION__ << " in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -385,6 +437,7 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 
 void clusterKeypointsWithROI(DataFrame &frame)
 {
+    double t = (double)cv::getTickCount();
     for( cv::KeyPoint& kp : frame.keypoints )
     {
         vector<vector<BoundingBox>::iterator> enclosingBoxes; // pointers to all bounding boxes which enclose the current Lidar point
@@ -402,6 +455,8 @@ void clusterKeypointsWithROI(DataFrame &frame)
             enclosingBoxes[0]->keypoints.push_back( kp );
         }
     }
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "DONE: " << __FUNCTION__ << " in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -411,6 +466,7 @@ void clusterKeypointsWithROI(DataFrame &frame)
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
     int matchCount[ prevFrame.boundingBoxes.size() ][ currFrame.boundingBoxes.size() ];
+    double t = (double)cv::getTickCount();
     for(int i = 0; i < prevFrame.boundingBoxes.size(); i++)
     {
         for(int j = 0; j < currFrame.boundingBoxes.size(); j++)
@@ -423,7 +479,7 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
     for( int matchIdx = 0; matchIdx < currFrame.kptMatches.size(); matchIdx++ )
     {
         int queryIdx = currFrame.kptMatches[ matchIdx ].queryIdx; // source
-        int trainIdx = currFrame.kptMatches[ matchIdx ].trainIdx; // target
+        int trainIdx = currFrame.kptMatches[ deceitmatchIdx ].trainIdx; // target
 
         vector<vector<BoundingBox>::iterator> prevBoxes; // pointers to all bounding boxes which enclose the current Lidar point
         for (vector<BoundingBox>::iterator bb = prevFrame.boundingBoxes.begin(); bb != prevFrame.boundingBoxes.end(); ++bb)
@@ -477,4 +533,6 @@ void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bb
             cout << "CHECKPOINT: " << __FILE__ << ", " << __LINE__ << " no match found" << endl;
         }
     }
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "DONE: " << __FUNCTION__ << " in " << 1000 * t / 1.0 << " ms" << endl;
 }

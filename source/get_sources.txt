@@ -60,6 +60,7 @@ Copy Media and PCD files into own copy of the repo
     Source: SFND_3D_Object_Tracking/LICENSE
     Source: SFND_3D_Object_Tracking/README.md
     Source: SFND_3D_Object_Tracking/images
+    Source: SFND_3D_Object_Tracking/dat
 
 Instructions:
     mkdir ../SFND_3D_Object_Tracking

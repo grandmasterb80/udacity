@@ -1,28 +1,40 @@
-SFND 3D Object Tracking Project by Daniel Baudisch (Resubmission)
-==================================================================
+SFND 3D Object Tracking Project by Daniel Baudisch
+==================================================
 
 
 FP.1: Implement matchBoundingBoxes
 ----------------------------------
 
 Function was implemented as suggested:
-  * At the beginning the function creates a counter for each possible combination of "previous" boundingbox and "current" boundingbox.
-  * For each match, the function takes the keypoint from the previous image and the keypoint from the current image. For the keypoint in the previous image, all boundingboxes for which the keypoint lies in are determined. Similar is done for the boundingboxes in the current image based on the keypoint in the current image. For each combination of the "previous" boundingboxes and the "current" boundingboxes the corresponding counter is incremented.
-  * Finally, the mapping is created based on the counter array: for each "previous" boundingbox the function determines the "current" boundingbox with the most matches.
+  * At the beginning the function creates a counter for each possible combination of "previous" boundingbox and "current"
+    boundingbox.
+  * For each match, the function takes the keypoint from the previous image and the keypoint from the current image. For
+    the keypoint in the previous image, all boundingboxes for which the keypoint lies in are determined. Similar is done
+    for the boundingboxes in the current image based on the keypoint in the current image. For each combination of the
+    "previous" boundingboxes and the "current" boundingboxes the corresponding counter is incremented.
+  * Finally, the mapping is created based on the counter array: for each "previous" boundingbox the function determines
+    the "current" boundingbox with the most matches.
 
 
-I also tried a different way: I assigned to each counter a value based on the overlap of two bounding boxes. Complexity is O(#bounding boxes ^ 2) compared to the method above that has O(#matches * #bounding boxes).
+I also tried a different way: I assigned to each counter a value based on the overlap of two bounding boxes. Complexity
+is O(#bounding boxes ^ 2) compared to the method above that has O(#matches * #bounding boxes).
 
 
 Remark:
-Something that I postponed way too long: update the visualization. During FP.3 and FP.4, I actually recognized that in a single step that there are breaks just in the processing of one image. I did then a review and modifed the code in a way that the processing of one image is done without a break. The drawing is done during the iteration os a single loop and a "wait" is called only at the end. This showed that some steps were not executed due to some conditions. It helped a lot in the debugging.
+Something that I postponed way too long: update the visualization. During FP.3 and FP.4, I actually recognized that in a
+single step that there are breaks just in the processing of one image. I did then a review and modifed the code in a way
+that the processing of one image is done without a break. The drawing is done during the iteration os a single loop and
+a "wait" is called only at the end. This showed that some steps were not executed due to some conditions. It helped a lot
+in the debugging.
 
 
 
 FP.2: TTC for Lidar
 -------------------
 
-The formula is straight forward and can be taken from previous lessons. However, to determine the right values for the distance was quite a lot of experimenting with different statistical approaches (also to ensure that the computational effort is kept low). In the end, a quite computing expensive operation is executed.
+The formula is straight forward and can be taken from previous lessons. However, to determine the right values for the
+distance was quite a lot of experimenting with different statistical approaches (also to ensure that the computational
+effort is kept low). In the end, a quite computing expensive operation is executed.
 
 Tested approaches:
    * ***Select median:*** Sort points and select the median.
@@ -36,7 +48,8 @@ Tested approaches:
       1. Remove the element causing the larger error.
       1. Go to step 2.
 
-A more sophisticated algorithm should also consider the position in y direction. Example is already at hand: the car is kind of "bend" and there is apparently one outliner in the middle, which seems to be okay-ish from its x-value.
+A more sophisticated algorithm should also consider the position in y direction. Example is already at hand: the car is
+kind of "bend" and there is apparently one outliner in the middle, which seems to be okay-ish from its x-value.
 
 
 
@@ -67,36 +80,77 @@ Challenge was to select a good pair. Thereby, I considered following: Pairs of p
 FP.5 : Performance Evaluation 1
 -------------------------------
 
+Observation:
+
+Used methods to compute the TTC:
+   * ttcMethod = TTCMedian (sort list, take median)
+   * ttcMethod = TTCAverage10 (sort list, remove first and last ten elements, compute average)
+   * ttcMethod = TTCAverage10_First10 (sort list, remove first ten elements, compute average of next ten elements)
+   * ttcMethod = TTCAverageSmallestError
+
 A run with following commands:
-$./3D_object_tracking | grep "TTC_Lidar: TTC = "
+$./3D_object_tracking
 
-Results in
-TTC_Lidar: TTC = 13.353
-TTC_Lidar: TTC = 12.1525
-TTC_Lidar: TTC = ***18.9113***
-TTC_Lidar: TTC = ***14.599***
-TTC_Lidar: TTC = 12.498
-TTC_Lidar: TTC = ***14.8021***
-TTC_Lidar: TTC = 10.783
-TTC_Lidar: TTC = ***15.4232***
-TTC_Lidar: TTC = 12.9701
-TTC_Lidar: TTC = 12.8063
-TTC_Lidar: TTC = 11.5108
-TTC_Lidar: TTC = 10.2232
-TTC_Lidar: TTC = 9.25454
-TTC_Lidar: TTC = 9.47441
-TTC_Lidar: TTC = 8.3212
-TTC_Lidar: TTC = 8.89867
-TTC_Lidar: TTC = ***11.0301***
-TTC_Lidar: TTC = 8.53557
-
-The outliners are highlighted. The outlines clearly show a large (unexpected) increase of the TTC: the preceding vehicle gets constantly closer every cycle (eye measurement), hence the TTC must get closer to zero.
-
+&nbsp; &nbsp; &nbsp; L:Median &nbsp; &nbsp; &nbsp;  |&nbsp; &nbsp; &nbsp; L:Avg10 &nbsp; &nbsp; &nbsp;  |&nbsp; &nbsp; &nbsp; L:Avg10Cl10 &nbsp; &nbsp; &nbsp;  |&nbsp; &nbsp; &nbsp; L:AvgMinErr &nbsp; &nbsp; &nbsp;  |&nbsp; &nbsp; &nbsp; C:Median &nbsp; &nbsp; &nbsp;  |&nbsp; &nbsp; &nbsp; C:Avg10 &nbsp; &nbsp; &nbsp;  |&nbsp; &nbsp; &nbsp; C:Avg10Cl10 &nbsp; &nbsp; &nbsp;  |&nbsp; &nbsp; &nbsp; C:AvgMinErr &nbsp; &nbsp; &nbsp; 
+---------------- |---------------- |---------------- |---------------- |---------------- |---------------- |---------------- |----------------
+       12.515600 |       12.374812 |       13.806449 |       13.352985 |        1.256704 |        1.810627 |        0.071308 |        6.520647
+       12.614245 |       13.216110 |       10.704909 |       12.152486 |       10.106185 |        8.006677 |        4.894691 |       10.106185
+       14.091013 |       17.165788 |       14.970913 |       18.911302 |        4.384510 |        3.357245 |        3.197808 |        4.908068
+       16.689386 |       14.900194 |       10.226255 |       14.598984 |        5.870845 |        3.546933 |               - |        6.654123
+       15.908233 |       12.743410 |       12.312320 |       12.497964 |               - |        1.730855 |               - |        3.615809
+       12.678716 |       13.544171 |        6.701063 |       14.802141 |        3.019400 |        3.377528 |        2.957307 |        3.019400
+       11.984351 |       13.291290 |       16.467190 |       10.783008 |        2.920359 |        0.409687 |               - |       11.448349
+       13.124118 |       13.963203 |       18.078185 |       15.423229 |        1.562084 |        0.924601 |        0.050147 |        3.874026
+       13.024118 |       12.580945 |       11.277533 |       12.970127 |        3.282068 |        2.981885 |        0.076886 |        6.799235
+       11.174641 |       12.341949 |       13.731587 |       12.806308 |        2.466865 |        2.652301 |               - |        2.565320
+       12.808601 |       11.957508 |        9.441069 |       11.510780 |        6.580250 |        4.222187 |        4.457521 |        7.977774
+        8.959780 |       10.237946 |        9.400632 |       10.223198 |        3.372656 |        3.611966 |        3.517671 |        9.044844
+        9.964390 |        9.417084 |        8.273021 |        9.254543 |        4.990491 |        6.616758 |        3.112517 |       11.431390
+        9.598630 |        9.427343 |       10.394741 |        9.474407 |        1.555110 |        1.313830 |               - |               -
+        8.573525 |        8.440677 |        7.634313 |        8.321200 |        7.074812 |       22.950574 |        4.965627 |        7.730384
+        9.516170 |        9.023848 |        8.700758 |        8.898673 |        3.472479 |        3.098455 |        2.954516 |        3.472479
+        9.546581 |       11.250549 |        9.097104 |       11.030114 |        7.079633 |        3.135788 |        6.615466 |        8.864827
+        8.398803 |        8.412031 |        8.980818 |        8.535568 |        0.427746 |        1.223593 |        0.271523 |        6.492742
 
 
-This exercise is about conducting tests with the final project code, especially with regard to the Lidar part. Look for several examples where you have the impression that the Lidar-based TTC estimate is way off. Once you have found those, describe your observations and provide a sound argumentation why you think this happened.
 
-The task is complete once several examples (2-3) have been identified and described in detail. The assertion that the TTC is off should be based on manually estimating the distance to the rear of the preceding vehicle from a top view perspective of the Lidar points.
+   5.3708
+   5.3905
+***8.4837***
+   5.2686
+   3.8693
+   5.5469
+***10.009***
+   7.4438
+***26.612***
+   6.1448
+   8.6862
+   6.8033
+   5.9837
+   6.0595
+   6.9202
+***9.8262***
+   7.9798
+   7.2532
+
+
+
+
+The outliners are highlighted. The outlines clearly show a large (unexpected) increase of the TTC: the preceding vehicle gets
+constantly closer every cycle (can be seen by pure "eye" measurement), hence the TTC must get closer to zero. For the third
+method (TTCAverage10_First10), there is also one outlier to the other direction that might lead to a false positive due to the
+strong drop, if it is not correctly handled in a fusion part afterwards.
+
+I would go for the TTCMedian, since it seems to have pretty good values, despite of its outliers.
+
+
+
+This exercise is about conducting tests with the final project code, especially with regard to the Lidar part. Look for several examples
+where you have the impression that the Lidar-based TTC estimate is way off. Once you have found those, describe your observations and
+provide a sound argumentation why you think this happened.
+
+The task is complete once several examples (2-3) have been identified and described in detail. The assertion that the TTC is off should
+be based on manually estimating the distance to the rear of the preceding vehicle from a top view perspective of the Lidar points.
 
 
 

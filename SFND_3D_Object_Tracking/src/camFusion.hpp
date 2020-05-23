@@ -8,6 +8,12 @@
 #include "dataStructures.h"
 
 
+enum TTCMethod { TTCMedian, TTCAverage10, TTCAverage10_First10, TTCAverageSmallestError };
+extern TTCMethod ttcMethodLidar;
+extern TTCMethod ttcMethodCam;
+
+std::string ttcMethodStr(TTCMethod m);
+
 void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<LidarPoint> &lidarPoints, float shrinkFactor, cv::Mat &P_rect_xx, cv::Mat &R_rect_xx, cv::Mat &RT);
 // original:
 // void clusterKptMatchesWithROI(BoundingBox &boundingBox, std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPoint> &kptsCurr, std::vector<cv::DMatch> &kptMatches);

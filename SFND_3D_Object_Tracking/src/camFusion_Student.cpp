@@ -13,6 +13,28 @@ extern bool DOWNSIZE_VIS;
 using namespace std;
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------
+
+TTCMethod ttcMethodLidar = TTCAverage10;
+TTCMethod ttcMethodCam   = TTCAverage10;
+
+std::string ttcMethodStr(TTCMethod m)
+{
+	switch(m)
+	{
+		case TTCMedian:
+			return std::string("Median");
+		case TTCAverage10:
+			return std::string("Avg10");
+		case TTCAverage10_First10:
+			return std::string("Avg10Cl10");
+		case TTCAverageSmallestError:
+			return std::string("AvgMinErr");
+		default:
+			return std::string("Unknown");
+	}
+}
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------------------
 

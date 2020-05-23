@@ -247,7 +247,78 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
     if( TTCs.size() > 0 )
     {
         std::sort( TTCs.begin(), TTCs.end() );
-        TTC = TTCs[ TTCs.size() / 2 ];
+        int TTCsSize = TTCs.size();
+		switch( ttcMethodCam )
+		{
+			case TTCMedian:
+			{
+				TTC = TTCs[ TTCsSize / 2 ];
+				break;
+			}
+			case TTCAverage10:
+			{
+				TTCs.erase( TTCs.begin(), TTCs.begin() + TTCsSize / 3 );
+				TTCs.erase( TTCs.end() - 1 - TTCsSize / 3, TTCs.end() - 1 );
+				TTC = std::accumulate( TTCs.begin(), TTCs.end(), 0.0 ) / TTCsSize;
+				break;
+			}
+			case TTCAverage10_First10:
+			{
+				TTCs.erase( TTCs.begin(), TTCs.begin() + TTCsSize / 3 );
+				TTC = std::accumulate( TTCs.begin(), TTCs.begin() + TTCsSize / 3, 0.0 ) / ( TTCsSize / 3);
+				break;
+			}
+			case TTCAverageSmallestError:
+			{
+				double Xrange = 0.3;
+				double tolerance = 0.05;
+				double tolSquared = tolerance * tolerance;
+
+				int currN = TTCs.size();
+				TTC = std::accumulate( TTCs.begin(), TTCs.end(), 0.0 );
+
+				int k = 0;
+				int l = currN - 1;
+				while( k < l )
+				{
+					double errorK = 0.0;
+					double errorL = 0.0;
+					double currDistI = ( TTC - TTCs[ k ] ) / ( currN - 1 );
+					double currDistJ = ( TTC - TTCs[ l ] ) / ( currN - 1 );
+					for(int sub = k + 1; sub < l - 1; sub++)
+					{
+						double eK = TTCs[ sub ] - currDistI; eK *= eK;
+						double eL = TTCs[ sub ] - currDistJ; eL *= eL;
+						errorK += eK;
+						errorL += eL;
+					}
+					{
+						double eK = TTCs[ k ] - currDistI; eK *= eK;
+						double eL = TTCs[ l ] - currDistJ; eL *= eL;
+						errorK += eK;
+						errorL += eL;
+					}
+					errorK = errorK / (currN - 1);
+					errorL = errorL / (currN - 1);
+
+					if( errorK < tolSquared && errorL < tolSquared ) break;
+					// remove the one causing the bigger error
+					if( errorK > errorL )
+					{
+						TTC -= TTCs[ k ];
+						k++;
+					}
+					else
+					{
+						TTC -= TTCs[ l ];
+						l--;
+					}
+					currN--;
+				}
+				TTC /= currN;
+				break;
+			}
+		}
     }
     else
     {

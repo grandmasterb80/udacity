@@ -20,14 +20,25 @@
 #include "lidarData.hpp"
 #include "camFusion.hpp"
 
+
 extern bool DOWNSIZE_VIS;
 
 bool DOWNSIZE_VIS = true;
 
 using namespace std;
 
-/* MAIN PROGRAM */
-int main(int argc, const char *argv[])
+/**
+ * @brief: Benchmark - helper function to run a benchmark with a specific set of parameters
+ */
+int benchmark(	const string &detectorType,
+				const string &descriptorType,
+				const string &matcherType,
+				const string &descriptorTypeM,
+				const string &selectorType,
+				std::vector< std::pair< double, double > > &TTCTimes,
+				const bool bVis_3DObj = true,
+				const bool bVis = true
+				)
 {
     /* INIT VARIABLES AND DATA STRUCTURES */
 
@@ -78,9 +89,6 @@ int main(int argc, const char *argv[])
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
 
     /* MAIN LOOP OVER ALL IMAGES */
-    bool bVis_3DObj = true;        // visualize lidar cloud and ROI box
-    bool bVis       = true;        // visualize camera image
-
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex+=imgStepWidth)
     {
         cv::Mat visImg;
@@ -156,8 +164,6 @@ int main(int argc, const char *argv[])
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "FAST";
-//         string detectorType = "SHITOMASI"; // course "default"
 
         if (detectorType.compare("SHITOMASI") == 0)
         {
@@ -194,7 +200,6 @@ int main(int argc, const char *argv[])
         /* EXTRACT KEYPOINT DESCRIPTORS */
 
         cv::Mat descriptors;
-        string descriptorType = "BRISK"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
 
         // push descriptors for current frame to end of data buffer
@@ -209,13 +214,9 @@ int main(int argc, const char *argv[])
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
-            string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
-
             matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
                              (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
-                             matches, descriptorType, matcherType, selectorType);
+                             matches, descriptorTypeM, matcherType, selectorType);
 
             // store matches in current data frame
             (dataBuffer.end() - 1)->kptMatches = matches;
@@ -277,6 +278,9 @@ int main(int argc, const char *argv[])
                     //// EOF STUDENT ASSIGNMENT
 
                     computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera, bVis ? &visImg : nullptr);
+
+					TTCTimes.push_back( std::pair< double, double >( ttcLidar, ttcCamera ) );
+
                     if (bVis)
                     {
                         showLidarImgOverlay(visImg, currBB->lidarPoints, P_rect_00, R_rect_00, RT, &visImg);
@@ -295,10 +299,200 @@ int main(int argc, const char *argv[])
             cv::namedWindow(windowName, 4);
             //if( DOWNSIZE_VIS ) resize(visImg, visImg, cv::Size(), 0.25, 0.25, cv::INTER_CUBIC);
             cv::imshow(windowName, visImg);
-            cout << "Press key to continue to next frame" << endl;
-            cv::waitKey(0);
+            //~ cout << "Press key to continue to next frame" << endl;
+            //~ cv::waitKey(0);
         }
     } // eof loop over all images
 
+    return 0;
+}
+
+
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+/* MAIN PROGRAM */
+int main(int argc, const char *argv[])
+{
+	std::vector<std::string> detectorTypeList = { "SHITOMASI", "HARRIS", "FAST", "BRISK", "ORB", "AKAZE", "SIFT" };
+	std::vector<std::string> descriptorTypeList = { "BRISK", "BRIEF", "ORB", "FREAK", "AKAZE", "SIFT" };
+	std::vector< TTCMethod > ttcMethodList = { TTCMedian, TTCAverage10, TTCAverage10_First10, TTCAverageSmallestError };
+
+	bool bVis_3DObj = true;        // visualize lidar cloud and ROI box
+	bool bVis       = true;        // visualize camera image
+
+
+	int cellWidth = 16;
+	string tableSeparator = "|";
+	// filled: fill the given string with leading spaced to get a resulting string of length "cellWidth"
+	// remark: the function is similar to std::string.resize, but it extends the string on the left side instead of the right side.
+	std::function< string( string ) > filledS = [ cellWidth ]( string str ) {
+		str.insert( str.begin(), std::max( 0, cellWidth - static_cast<int>( str.size() ) ), ' ' );
+		return str;
+	};
+	std::function< string( int ) > filledI = [ filledS, cellWidth ]( int i ) { return filledS( (i >= 0) ? to_string( i ) : "-" ); };
+	std::function< string( double ) > filledF = [ filledS, cellWidth ]( double f ) { return filledS( (f >= 0.0) ? to_string( f ) : "-" ); };
+
+	{
+		std::vector< std::vector< std::pair< double, double > > > ttcMethodResults;
+		for( TTCMethod ttcMethod : ttcMethodList )
+		{
+			ttcMethodLidar = ttcMethod;
+			ttcMethodCam   = ttcMethod;
+
+			string detectorType = "FAST";
+			string descriptorType = "BRIEF";
+			string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
+			string descriptorTypeM = "DES_BINARY"; // DES_BINARY, DES_HOG
+			string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+
+			std::vector< std::pair< double, double > > ttcMethodR;
+
+			int r = benchmark(	detectorType,
+								descriptorType,
+								matcherType,
+								descriptorTypeM,
+								selectorType,
+								ttcMethodR,
+								bVis_3DObj,
+								bVis
+							);
+			ttcMethodResults.push_back( ttcMethodR );
+		}
+		// --------------------------------------
+		int numBenchmarks = ttcMethodResults.front().size();
+		for( std::vector< std::pair< double, double > > ttcMethodR : ttcMethodResults )
+		{
+			assert( ttcMethodR.size() == numBenchmarks );
+		}
+		// --------------------------------------
+		for( int b = -2; b < numBenchmarks; b++ )
+		{
+			// Lidar
+			for( int m = 0; m < ttcMethodResults.size(); m++ )
+			{
+				if( b == -2 )
+				{
+					if( m > 0 ) cout << " " << tableSeparator;
+					cout << filledS( "&nbsp; &nbsp; &nbsp; L:" + ttcMethodStr( ttcMethodList [ m ] ) + " &nbsp; &nbsp; &nbsp; " );
+				}
+				else if( b == -1 )
+				{
+					if( m > 0 ) cout << " " << tableSeparator;
+					cout << std::string( cellWidth, '-' );
+				}
+				else
+				{
+					if( m > 0 ) cout << " " << tableSeparator ;
+					cout << filledF( ttcMethodResults[m][b].first );
+				}
+			}
+			// Camera
+			for( int m = 0; m < ttcMethodResults.size(); m++ )
+			{
+				if( b == -2 )
+				{
+					cout << " " << tableSeparator;
+					cout << filledS( "&nbsp; &nbsp; &nbsp; C:" + ttcMethodStr( ttcMethodList [ m ] ) + " &nbsp; &nbsp; &nbsp; " );
+				}
+				else if( b == -1 )
+				{
+					cout << " " << tableSeparator;
+					cout << std::string( cellWidth, '-' );
+				}
+				else
+				{
+					cout << " " << tableSeparator ;
+					cout << filledF( ttcMethodResults[m][b].second );
+				}
+			}
+			cout << endl;
+		}
+	}
+
+/*
+    for( string detectorType : detectorTypeList )
+    {
+        for( string descriptorType : descriptorTypeList )
+        {
+			//~ TTCMedian, TTCAverage10, TTCAverage10_First10, TTCAverageSmallestError
+			ttcMethodLidar = TTCMedian;
+			ttcMethodCam   = TTCMedian;
+			string detectorType = "FAST";
+			string descriptorType = "BRIEF";
+			string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
+			string descriptorTypeM = "DES_BINARY"; // DES_BINARY, DES_HOG
+			string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+
+			std::vector< std::pair< double, double > > TTCTimes;
+
+			int r = benchmark(	detectorType,
+								descriptorType,
+								matcherType,
+								descriptorTypeM,
+								selectorType,
+								TTCTimes,
+								bVis_3DObj,
+								bVis
+							);
+		}
+	}
+*/
+
+/*
+    // print benchmark tables
+    if( true )
+    {
+        ofstream tableFileKeypoints;
+        ofstream tableFileMatchedKeypoints;
+        ofstream tableFileTime;
+
+        tableFileKeypoints.open("task7_num_keypoints.csv");
+        tableFileMatchedKeypoints.open("task8_num_matchedkeypoints.csv");
+        tableFileTime.open("task9_time.csv");
+
+        std::stringstream headerSeparator;
+        tableFileKeypoints        << filledS("");
+        tableFileMatchedKeypoints << filledS("");
+        tableFileTime             << filledS("");
+        headerSeparator           << ":" << std::string( cellWidth-1, '-' );
+
+        for( string descriptorType : descriptorTypeList )
+        {
+            tableFileKeypoints        << " " << tableSeparator << filledS( descriptorType );
+            tableFileMatchedKeypoints << " " << tableSeparator << filledS( descriptorType );
+            tableFileTime             << " " << tableSeparator << filledS( descriptorType );
+            headerSeparator           << ":" << tableSeparator << std::string( cellWidth, '-' );
+        }
+        tableFileKeypoints        << endl;
+        tableFileMatchedKeypoints << endl;
+        tableFileTime             << endl;
+
+        tableFileKeypoints        << headerSeparator.str() << endl;
+        tableFileMatchedKeypoints << headerSeparator.str() << endl;
+        tableFileTime             << headerSeparator.str() << endl;
+        
+        for( string detectorType : detectorTypeList )
+        {
+            tableFileKeypoints        << filledS( detectorType );
+            tableFileMatchedKeypoints << filledS( detectorType );
+            tableFileTime             << filledS( detectorType );
+
+            for( string descriptorType : descriptorTypeList )
+            {
+                tableFileKeypoints        << " " << tableSeparator << filledI( numKeypointsMap[ detectorType ][ descriptorType ] );
+                tableFileMatchedKeypoints << " " << tableSeparator << filledI( numMatchedKeypointsMap[ detectorType ][ descriptorType ] );
+                tableFileTime             << " " << tableSeparator << filledF( timeMap[ detectorType ][ descriptorType ] );
+            }
+            tableFileKeypoints        << endl;
+            tableFileMatchedKeypoints << endl;
+            tableFileTime             << endl;
+        }
+
+        tableFileKeypoints.close();
+        tableFileMatchedKeypoints.close();
+        tableFileTime.close();
+    }
+
+*/
     return 0;
 }

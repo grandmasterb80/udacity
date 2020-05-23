@@ -218,6 +218,7 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
 {
     double t = (double)cv::getTickCount();
     double deltaTime = 1.0 / frameRate;
+
     // ...
     // sort matches according to the points based on y value (e.g. left to right)
     // take the outside matches
@@ -227,16 +228,26 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
 
     std::sort( kptMatches.begin(), kptMatches.end(), matchSort );
 
-    std::vector<cv::DMatch>::const_iterator idx1 = kptMatches.begin();
-    std::vector<cv::DMatch>::const_iterator idx2 = kptMatches.end() - 1;
-    int numMeasurements = 10; // max # measurements 
+	int idx1 = 0;
+	int idx2 = kptMatches.size() - 1;
+
+    int numMeasurements = 30; // max # measurements 
     std::vector<double> TTCs;
-    do
+    while( numMeasurements > 0 && idx1 < idx2 )
     {
-        int prevIdx1 = idx1->queryIdx;      // source
-        int currIdx1 = idx1->trainIdx;      // target
-        int prevIdx2 = idx2->queryIdx;      // source
-        int currIdx2 = idx2->trainIdx;      // target
+        int prevIdx1 = kptMatches[ idx1 ].queryIdx;      // source
+        int currIdx1 = kptMatches[ idx1 ].trainIdx;      // target
+        int prevIdx2 = kptMatches[ idx2 ].queryIdx;      // source
+        int currIdx2 = kptMatches[ idx2 ].trainIdx;      // target
+        //~ cout << __LINE__ << ": prevIdx1=" << prevIdx1 << ", currIdx1=" << currIdx1 << ", prevIdx2" << prevIdx2 << ", currIdx2" << currIdx2 << ", kptsPrev.size()=" << kptsPrev.size() << ", kptsCurr.size()=" << kptsCurr.size() << endl;
+        assert( prevIdx1 >= 0 );
+        assert( prevIdx1 < kptsPrev.size() );
+        assert( prevIdx2 >= 0 );
+        assert( prevIdx2 < kptsPrev.size() );
+        assert( currIdx1 >= 0 );
+        assert( currIdx1 < kptsCurr.size() );
+        assert( currIdx2 >= 0 );
+        assert( currIdx2 < kptsCurr.size() );
 
         cv::Point2f prevCon = kptsPrev[ prevIdx1 ].pt - kptsPrev[ prevIdx2 ].pt;
         cv::Point2f currCon = kptsCurr[ currIdx1 ].pt - kptsCurr[ currIdx2 ].pt;
@@ -265,7 +276,8 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
         idx1++;
         idx2--;
         numMeasurements--;
-    } while( numMeasurements > 0 && idx1 != idx2 );
+    }
+
     if( TTCs.size() > 0 )
     {
         std::sort( TTCs.begin(), TTCs.end() );

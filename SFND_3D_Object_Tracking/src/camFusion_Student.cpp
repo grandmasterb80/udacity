@@ -249,8 +249,8 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
             TTCs.push_back( TTC );
         }
 
-        cout << "TTC_cam: h_prev=" << h_prev << "(), h_curr=" << h_curr << "(), deltaTime=" << deltaTime << endl;
-        cout << "TTC_cam: TTC=" << TTC << endl;
+        // cout << "TTC_cam: h_prev=" << h_prev << "(), h_curr=" << h_curr << "(), deltaTime=" << deltaTime << endl;
+        // cout << "TTC_cam: TTC=" << TTC << endl;
 
         //for (size_t i = 0; i < nMarkers; ++i)
         if(visImg!=nullptr)
@@ -344,9 +344,13 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
     }
     else
     {
+		cout << "TTC_cam: WARNING - not enough tracked points (" << kptMatches.size() << ")" << endl;
         TTC = 999.9;
     }
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+
+	cout << "TTC_cam: TTC=" << TTC << endl;
+
     cout << "DONE: " << __FUNCTION__ << " in " << 1000 * t / 1.0 << " ms" << endl;
 }
 

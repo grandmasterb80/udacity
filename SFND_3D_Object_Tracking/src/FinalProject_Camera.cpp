@@ -328,8 +328,8 @@ int main(int argc, const char *argv[])
 	std::vector<std::string> descriptorTypeList = { "BRISK", "BRIEF", "ORB", "FREAK", "AKAZE", "SIFT" };
 	std::vector< TTCMethod > ttcMethodList = { TTCMedian, TTCAverage10, TTCAverage10_First10, TTCAverageSmallestError };
 
-	bool bVis_3DObj = true;        // visualize lidar cloud and ROI box
-	bool bVis       = true;        // visualize camera image
+	bool bVis_3DObj = !true;        // visualize lidar cloud and ROI box
+	bool bVis       = !true;        // visualize camera image
 
 
 	int cellWidth = 16;

@@ -388,7 +388,7 @@ int main(int argc, const char *argv[])
 				}
 				else if( b == -1 )
 				{
-					if( m > 0 ) cout << " " << tableSeparator;
+					if( m > 0 ) cout << "-" << tableSeparator;
 					cout << std::string( cellWidth, '-' );
 				}
 				else
@@ -407,7 +407,7 @@ int main(int argc, const char *argv[])
 				}
 				else if( b == -1 )
 				{
-					cout << " " << tableSeparator;
+					cout << "-" << tableSeparator;
 					cout << std::string( cellWidth, '-' );
 				}
 				else

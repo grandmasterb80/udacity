@@ -41,6 +41,13 @@ int benchmark(	const string &detectorType,
                 const bool bWait = true
 				)
 {
+    if ( ( detectorType.compare("AKAZE") != 0 && descriptorType.compare("AKAZE") == 0 ) ||
+         ( detectorType.compare("SIFT")  == 0 && descriptorType.compare("ORB")   == 0 ) )
+    {
+        cerr << __FILE__ << "[" << __LINE__ << "] in function " << __FUNCTION__ << ": detector \"" << detectorType << "\" cannot be combined with descriptor \"" << descriptorType << "\"" << endl;
+        return -1;
+    }
+
     /* INIT VARIABLES AND DATA STRUCTURES */
 
     // data location

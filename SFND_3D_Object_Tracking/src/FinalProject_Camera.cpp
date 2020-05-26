@@ -525,10 +525,11 @@ int main(int argc, const char *argv[])
             x << (i+1) << "-" << (i+2);
             cout << tableSeparator << " " << filledS( x.str(), cellWidth );
         }
+        cout << tableSeparator << " " << filledS( "error", cellWidth );
         cout << endl;
 
 
-        for( int i = 0; i <= numElements; i++ )
+        for( int i = 0; i <= numElements + 1; i++ )
         {
             if( i > 0 ) cout << "-" << tableSeparator;
             cout << std::string( ( i > 0 ) ? cellWidth : cellWidthT, '-' );
@@ -541,6 +542,7 @@ int main(int argc, const char *argv[])
         {
             cout << " " << tableSeparator << filledF( *result, fprec );
         }
+        cout << " " << tableSeparator << filledS( "-", cellWidth );
         cout << endl;
 
 
@@ -550,13 +552,27 @@ int main(int argc, const char *argv[])
             cout << filledS( colName, cellWidthT );
             if( results->second.size() > 0 )
             {
+                std::vector< double >::iterator resultLidar = lidarTTCMethodResults.begin();
+                double totalError = 0.0;
+                int numMeasurements = 0;
                 for( std::vector< double >::iterator result = results->second.begin(); result != results->second.end(); result++ )
                 {
                     if( *result < 990 )
+                    {
                         cout << " " << tableSeparator << filledF( *result, fprec );
+                        assert( resultLidar != lidarTTCMethodResults.end() );
+                        double e = (*result - *resultLidar);
+                        totalError += e * e;
+                        numMeasurements++;
+                    }
                     else
+                    {
                         cout << " " << tableSeparator << filledS( "-", cellWidth );
+                    }
+                    resultLidar++;
                 }
+                totalError = sqrt( totalError / numMeasurements );
+                cout << " " << tableSeparator << filledF( totalError, fprec );
             }
             else
             {

@@ -90,6 +90,9 @@ void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<Li
     cout << "DONE: " << __FUNCTION__ << " in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------------------------
 
 void show3DObjects(std::vector<BoundingBox> &boundingBoxes, cv::Size worldSize, cv::Size imageSize, bool bWait)
 {
@@ -271,7 +274,7 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
         }
         else
         {
-            cout << "*** no visualization available ***" << endl;
+//             cout << "*** no visualization available ***" << endl;
         }
         idx1++;
         idx2--;

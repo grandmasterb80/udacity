@@ -284,7 +284,7 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
     if( TTCs.size() > 0 )
     {
         std::sort( TTCs.begin(), TTCs.end() );
-        int TTCsSize = TTCs.size();
+        int TTCsSize = std::min( 30, static_cast<int>( TTCs.size() ) );
 		switch( ttcMethodCam )
 		{
 			case TTCMedian:
@@ -401,6 +401,7 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
     double currDist = 0.0;
     if( lidarPointsPrev.size() > 30 && lidarPointsCurr.size() > 30 )
     {
+        int pointCloudSize = std::min( 30, std::min( static_cast<int>( lidarPointsPrev.size() ), static_cast<int>( lidarPointsCurr.size() ) ) );
         switch( ttcMethodLidar )
         {
             case TTCMedian:
@@ -411,22 +412,22 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 			}
             case TTCAverage10:
             {
-                lidarPointsPrev.erase( lidarPointsPrev.begin(), lidarPointsPrev.begin() + 10 );
-                lidarPointsPrev.erase( lidarPointsPrev.end() - 11, lidarPointsPrev.end() - 1 );
+                lidarPointsPrev.erase( lidarPointsPrev.begin(), lidarPointsPrev.begin() + pointCloudSize );
+                lidarPointsPrev.erase( lidarPointsPrev.end() - 1 - pointCloudSize, lidarPointsPrev.end() - 1 );
 
-                lidarPointsCurr.erase( lidarPointsCurr.begin(), lidarPointsCurr.begin() + 10 );
-                lidarPointsCurr.erase( lidarPointsCurr.end() - 11, lidarPointsCurr.end() - 1 );
+                lidarPointsCurr.erase( lidarPointsCurr.begin(), lidarPointsCurr.begin() + pointCloudSize / 3 );
+                lidarPointsCurr.erase( lidarPointsCurr.end() - 1 - pointCloudSize / 3, lidarPointsCurr.end() - 1 );
                 prevDist = std::accumulate( lidarPointsPrev.begin(), lidarPointsPrev.end(), 0.0, lidarPointSumX ) / lidarPointsPrev.size();
                 currDist = std::accumulate( lidarPointsCurr.begin(), lidarPointsCurr.end(), 0.0, lidarPointSumX ) / lidarPointsCurr.size();
                 break;
 			}
             case TTCAverage10_First10:
             {
-                lidarPointsPrev.erase( lidarPointsPrev.begin(), lidarPointsPrev.begin() + 10 );
+                lidarPointsPrev.erase( lidarPointsPrev.begin(), lidarPointsPrev.begin() + pointCloudSize / 3 );
+                lidarPointsCurr.erase( lidarPointsCurr.begin(), lidarPointsCurr.begin() + pointCloudSize / 3 );
 
-                lidarPointsCurr.erase( lidarPointsCurr.begin(), lidarPointsCurr.begin() + 10 );
-                prevDist = std::accumulate( lidarPointsPrev.begin(), lidarPointsPrev.begin() + 10, 0.0, lidarPointSumX ) / 10;
-                currDist = std::accumulate( lidarPointsCurr.begin(), lidarPointsCurr.begin() + 10, 0.0, lidarPointSumX ) / 10;
+                prevDist = std::accumulate( lidarPointsPrev.begin(), lidarPointsPrev.begin() + pointCloudSize / 3, 0.0, lidarPointSumX ) / ( pointCloudSize / 3 );
+                currDist = std::accumulate( lidarPointsCurr.begin(), lidarPointsCurr.begin() + pointCloudSize / 3, 0.0, lidarPointSumX ) / ( pointCloudSize / 3 );
                 break;
 			}
             case TTCAverageSmallestError:

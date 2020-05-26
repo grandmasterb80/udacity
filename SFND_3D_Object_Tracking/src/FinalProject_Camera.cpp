@@ -37,7 +37,8 @@ int benchmark(	const string &detectorType,
 				const string &selectorType,
 				std::vector< std::pair< double, double > > &TTCTimes,
 				const bool bVis_3DObj = true,
-				const bool bVis = true
+				const bool bVis = true,
+                const bool bWait = true
 				)
 {
     /* INIT VARIABLES AND DATA STRUCTURES */
@@ -299,8 +300,11 @@ int benchmark(	const string &detectorType,
             cv::namedWindow(windowName, 4);
             //if( DOWNSIZE_VIS ) resize(visImg, visImg, cv::Size(), 0.25, 0.25, cv::INTER_CUBIC);
             cv::imshow(windowName, visImg);
-            //~ cout << "Press key to continue to next frame" << endl;
-            //~ cv::waitKey(0);
+            if( bWait )
+            {
+                cout << "Press key to continue to next frame" << endl;
+                cv::waitKey(0);
+            }
         }
     } // eof loop over all images
 

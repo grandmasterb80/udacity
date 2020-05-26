@@ -112,7 +112,7 @@ $./3D_object_tracking
          9.546581    |  ***11.250549*** |         9.097104 |  ***11.030114*** |         7.079633 |         3.135788 |         6.615466 |         8.864827
          8.398803    |         8.412031 |         8.980818 |         8.535568 |         0.427746 |         1.223593 |         0.271523 |         6.492742
 
-         
+
 ### Observation
 
 The outliners for Lidar (Method to find distance: median of point cloud) are highlighted. The outlines clearly show an (unexpected) increase of the TTC: the
@@ -137,32 +137,66 @@ I would go for the TTCMedian or Avg10, since they seem to have pretty good value
 FP.6 : Performance Evaluation 2
 -------------------------------
 
-This last exercise is about running the different detector / descriptor combinations and looking at the differences in TTC estimation. Find out which methods perform best and also include several examples where camera-based TTC estimation is way off. As with Lidar, describe your observations again and also look into potential reasons. This is the last task in the final project.
+### Experiment / Observation
 
-The task is complete once all detector / descriptor combinations implemented in previous chapters have been compared with regard to the TTC estimate on a frame-by-frame basis. To facilitate the comparison, a spreadsheet and graph should be used to represent the different TTCs.
+Executed as described in assignment: run the benchmark (all images) for all combinations of detector and descriptor types. The table below shows the result of the runs for Lidar and the camera using the different detector and descriptor type. The last column contains the mean error compared to the Lidar measurements (only for valid measurements!).
 
-We are super-excited to receive your submission as soon as possible.
+Following combinations are not valid, and therefore, not listed:
+   * BRISK/AKAZE
+   * FAST/AKAZE
+   * HARRIS/AKAZE
+   * ORB/AKAZE
+   * SHITOMASI/AKAZE
+   * SIFT/AKAZE
+   * SIFT/ORB
+
+Entries without a value had not enough tracking points to compute the TTC.
+
+  Method |    1-2|    2-3|    3-4|    4-5|    5-6|    6-7|    7-8|    8-9|   9-10|  10-11|  11-12|  12-13|  13-14|  14-15|  15-16|  16-17|  17-18|  18-19|  error
+-----------------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|------
+           Lidar | 12.52 | 12.61 | 14.09 | 16.69 | 15.91 | 12.68 | 11.98 | 13.12 | 13.02 | 11.17 | 12.81 |  8.96 |  9.96 |  9.60 |  8.57 |  9.52 |  9.55 |  8.40 |     -
+     AKAZE/AKAZE | 14.62 | 14.69 |  9.58 | 11.20 | 12.32 | 10.36 | 14.13 |  8.62 | 13.55 | 12.34 | 10.86 | 15.10 |  7.44 | 10.14 |  4.93 |  9.62 |  7.47 |  5.05 |  3.17
+     AKAZE/BRIEF | 14.29 | 10.99 | 14.36 | 15.52 | 11.72 | 12.72 | 10.29 | 10.00 | 12.66 | 12.83 |  6.71 |  9.83 |  9.75 |  8.71 |  8.17 | 10.20 |  7.13 |  9.11 | ***2.19***
+     AKAZE/BRISK | 11.59 | 15.63 | 12.68 | 15.24 | 10.00 | 18.15 | 15.66 | 10.07 | 10.41 | 13.66 |  9.64 |  9.73 |  8.65 |  8.97 |  7.74 |  6.70 | 12.44 |  8.86 |  2.84
+     AKAZE/FREAK |  8.21 |  9.54 |  8.52 |  7.94 | 13.30 | 10.91 |  9.49 |  9.17 |  9.57 | 10.53 |  8.68 |  9.85 |  8.44 |  8.38 |  4.23 |  6.15 | 13.08 |  7.17 |  3.69
+       AKAZE/ORB | 11.41 | 16.06 |  9.91 | 11.29 | 13.34 | 11.71 | 14.67 | 12.06 | 12.50 |  8.26 |  9.01 | 10.70 |  9.64 |  9.82 |  6.85 |  8.15 |  7.75 |  8.29 | ***2.47***
+      AKAZE/SIFT |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     -
+     BRISK/BRIEF |  0.12 |  1.08 |  6.77 |  3.67 |  2.55 |  5.65 |  4.67 |  1.82 | 15.39 |  5.38 |  6.87 |  7.81 |  6.20 |  3.62 |  5.43 |  4.60 |  5.40 |  5.43 |  7.83
+     BRISK/BRISK |  0.89 |  9.00 |  3.30 |  3.76 |     - |  3.92 | 10.17 |  4.94 | 10.84 |  4.51 |  5.47 |  4.58 |  3.78 |  5.70 |  6.71 | 11.44 |  5.11 |  6.64 |  7.78
+     BRISK/FREAK |     - |  2.85 |  2.73 |  4.28 |  6.62 |  6.43 |  6.36 |  6.81 |  1.31 |  6.60 | 11.90 |  2.59 |  6.83 |  7.12 |  5.84 |  4.74 |  4.44 |  6.38 |  7.72
+       BRISK/ORB |  1.95 |  4.41 |  5.23 |  4.80 |  2.41 |  3.32 |  6.22 |  3.18 | 11.74 |  4.45 |  5.01 |  4.32 |  7.42 |  1.86 |  3.58 |  5.80 |  4.17 |  3.93 |  7.76
+      BRISK/SIFT |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     -
+      FAST/BRIEF |  1.26 | 10.11 |  4.38 |  5.87 |     - |  3.02 |  2.92 |  1.56 |  3.28 |  2.47 |  6.58 |  3.37 |  4.99 |  1.56 |  7.07 |  3.47 |  7.08 |  0.43 |  9.23
+      FAST/BRISK |  5.37 |  5.39 |  8.48 |  5.27 |  3.87 |  5.55 | 10.01 |  7.44 | 26.61 |  6.14 |  8.69 |  6.80 |  5.98 |  6.06 |  6.92 |  9.83 |  7.98 |  7.25 |  6.51
+      FAST/FREAK |  0.95 |     - |  2.37 |  1.49 |     - |  2.72 |     - |  5.73 |  4.46 |  4.30 |  7.04 |  6.72 |  9.77 | 11.11 |  4.61 |  3.64 |  5.69 |  5.14 | 10.70
+        FAST/ORB |  8.41 |  3.45 |  3.86 |  3.89 |     - |  3.43 |  0.13 |  5.42 |  5.80 |  7.67 |  2.10 |  6.23 |  6.50 | 12.55 |  3.91 |  3.36 |  3.88 |  5.81 |  8.28
+       FAST/SIFT |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     -
+    HARRIS/BRIEF |  2.42 |     - |268.90 |     - |  2.65 |     - |  5.74 |     - |     - |     - |     - |     - |  3.47 |     - |  9.53 |     - |     - |     - | 74.53
+    HARRIS/BRISK |     - |     - |     - |     - |     - |     - |  6.72 |  3.93 |  0.19 |     - |  0.22 |     - |     - |     - |     - |  7.52 |  4.46 |     - | 14.20
+    HARRIS/FREAK |  2.65 |     - | 11.37 |  0.20 |     - |     - |  6.42 |  0.57 |  0.10 |     - |  0.27 |  0.27 |     - |     - |     - |  2.36 |  4.46 | 31.57 | 12.51
+      HARRIS/ORB |     - |     - |268.90 |     - |  3.43 |     - | 11.80 |  3.28 |     - |     - |     - |     - |     - |     - |  2.04 |     - |     - |     - | 85.74
+     HARRIS/SIFT |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     -
+       ORB/BRIEF |     - |  3.41 |  5.90 |  5.47 |  3.42 |  6.33 |  5.84 | 12.36 |  4.73 | 10.39 | 41.15 |     - |     - |  9.52 |  4.00 | 10.73 |     - |     - | 16.41
+       ORB/BRISK |  2.82 |  5.90 |  7.35 |  1.53 |     - |  2.38 |  5.94 |  9.46 |  1.77 |  0.18 |  1.75 |  3.61 |  3.78 |  4.30 |  2.20 |  3.90 |     - |  0.65 | 10.36
+       ORB/FREAK |  7.94 |     - |  4.82 |  4.56 |     - |     - |     - |  6.74 |  1.06 |  3.03 |  7.25 |  9.74 |  4.76 |  2.33 |  4.70 |  2.73 |  0.92 |  3.08 | 10.53
+         ORB/ORB | 12.24 |     - |  4.14 |  4.31 |  2.85 |  5.06 |  5.73 |  2.91 | 17.65 |  6.47 |  5.03 |  5.01 |  6.48 |  5.21 |  3.59 |  6.03 |  5.15 |  3.98 | 11.11
+        ORB/SIFT |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     -
+ SHITOMASI/BRIEF |  2.89 |  6.90 |  9.46 |  3.88 |  1.73 |  4.13 |  2.67 |  5.07 |  7.86 |  1.29 |  5.20 |     - |  6.29 |  6.66 |  5.53 |  3.98 | 15.29 |  5.99 |  8.34
+ SHITOMASI/BRISK |  8.45 |  6.35 |  6.57 |  7.41 | 10.09 |  5.88 |  2.65 |  7.77 |  7.04 |  9.40 |  3.50 |  7.79 |  9.74 |  9.42 |  6.44 |  6.96 |  6.55 |  9.26 |  5.49
+ SHITOMASI/FREAK |  5.71 |  5.48 |  6.66 |  5.76 |  8.44 | 11.32 |  9.14 |  5.29 |  8.18 |  7.57 |  8.69 |  6.63 |  7.95 | 10.12 |  4.73 |  5.83 |  8.54 |  4.83 |  5.29
+   SHITOMASI/ORB |  1.21 |  4.38 |  3.68 |     - |  4.45 |  4.48 |  6.15 |  6.51 |  7.12 | 12.42 |  6.16 |  9.83 |  5.26 |  6.29 |  5.81 |  5.43 |  6.20 |  4.83 |  7.65
+  SHITOMASI/SIFT |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     -
+      SIFT/BRIEF | 10.35 |  5.68 |  8.66 | 14.42 |  8.11 | 13.39 |  7.91 | 11.52 | 14.55 | 12.85 |  9.38 | 10.42 |  7.96 |  6.49 |  7.98 |  7.47 |  8.73 |  6.93 |  3.40
+      SIFT/BRISK |  8.74 | 14.85 | 13.10 | 12.85 | 16.48 | 10.29 | 11.38 | 14.12 | 16.41 |  8.43 |  9.75 | 11.81 |  7.52 |  7.24 |  8.50 |  6.81 |  9.15 |  7.18 | ***2.35***
+      SIFT/FREAK | 10.58 | 12.20 | 11.45 | 17.79 | 14.63 | 10.44 | 11.57 | 10.38 | 11.17 | 11.32 |  8.60 |  6.62 |  9.98 |  8.01 |  8.17 |  7.95 |  8.34 |  6.80 | ***1.86***
+       SIFT/SIFT |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     - |     -
 
 
+Looking at the table, it can be seen that some combinations provide a valid TTC in 100 percent of the given data set, which is a prefered base to use them at all. In my opinion, a combination is okay to have no valid TTC up to a certain amount (e.g. 1 in 1000 cases) if they would provide good results, i.e. a TTC close to ground-truth. Other combinations are literally useless for the data set at hand: they don't provide values at all (HARRIS/\*, \*/SIFT).
 
+Walking through the table, I would select an approach that has 1) good coverage (valid TTC in most cases) and 2) that is close to Lidar TTC, which I consider as a trustful source to judge wether a TTC from camera is close to the ground truth data. In previous task (FP.5), I already highlighted the values for the Lidar TTCs that need to be ignored for this comparison.
 
+To select a combination for further use, I computed the mean error to the Lidar TTC. BRISK/\*, FAST/\*, HARRIS/\*, ORB/\* and SHITOMASI/\* are all above an error of 5. In contrast, AKAZE and SIFT seem to be suited detectors for the given data set. In particular, SIFT/FREAK and AKAZE/BRIEF provide the lowest error (which also includes the comparison to the outliers in the Lidar TTCs). Nevertheless, definitely worth to follow those combination for further development. As a next step, I would also have a look at the performance of those detectors.
 
-Task 7,8,9: Implement the descriptor distance ratio test
---------------------------------------------------------
-
-Instead of executing all the different combinations manually, I added a loop to iterate through all the iterations. I moved the actual code into a new function "runBenchmark", which takes as argument the
-detector (string), the matcher (string) and three references to the variables that are used to store the results (#keypoint, #matches, time). For each iteration, the #keypoints, #matches and time for the
-key operations is recorded. At the end of the loop, all data is written to three files (for each task one table) in CSV format. I used libreoffice/calc to merge the tables into one to easily check the
-results. Already the #keypoints showed that BRISK seems to be able to detect more corners for tracking. The tracking result is pretty clear: BRISK is definitely the corner detector to go. As matcher, all
-(but AKAZE, which can only run with AKAZE detector) result in a fairly usable amount of tracking points. Nevertheless, BRISK as matcher gives the highest number of tracking points over all images (around
-8 to 9 in average per image).
-
-***Best out of three:***
-1) BRISK detector with BRISK matcher (81 tracked points)
-2) BRISK detector with BRIEF matcher (74 tracked points)
-3) BRISK detector with ORB matcher (75 tracked points)
-
-***
-My choices: BRISK corner detection with BRISK tracking (keypoint matcher). The consumed time seems feasible to me (less than 1ms, remark: I ran it on my PC locally). It is slower than most others, but the others
-also result in no tracking at all.
-***
+![TTC for AKAZE detector](TTC_AKAZE.png "TTC for AKAZE detector")
+![TTC for SIFT detector](TTC_SIFT.png "TTC for SIFT detector")

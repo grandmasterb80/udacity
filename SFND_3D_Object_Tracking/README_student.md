@@ -80,7 +80,7 @@ Challenge was to select a good pair. Thereby, I considered following: Pairs of p
 FP.5 : Performance Evaluation 1
 -------------------------------
 
-Observation:
+### Experiment
 
 Used methods to compute the TTC:
    * ttcMethod = TTCMedian (sort list, take median)
@@ -112,47 +112,25 @@ $./3D_object_tracking
          9.546581    |  ***11.250549*** |         9.097104 |  ***11.030114*** |         7.079633 |         3.135788 |         6.615466 |         8.864827
          8.398803    |         8.412031 |         8.980818 |         8.535568 |         0.427746 |         1.223593 |         0.271523 |         6.492742
 
+         
+### Observation
+
+The outliners for Lidar (Method to find distance: median of point cloud) are highlighted. The outlines clearly show an (unexpected) increase of the TTC: the
+preceding vehicle gets constantly closer every cycle (can be seen by pure "eye" measurement), hence the TTC must get smaller every cycle. For the third
+method (TTCAverage10_First10), there is also one outlier to the other direction (6seconds, while others are around 12 to 14 seconds) that might lead to a
+false positive due to the strong drop, if it is not correctly handled in a fusion part afterwards.
 
 
-   5.3708
-   5.3905
-***8.4837***
-   5.2686
-   3.8693
-   5.5469
-***10.009***
-   7.4438
-***26.612***
-   6.1448
-   8.6862
-   6.8033
-   5.9837
-   6.0595
-   6.9202
-***9.8262***
-   7.9798
-   7.2532
+### Reason / Explanation
+
+Looking at the top-view visualization with the Lidar point cloud, one can see that especially the forth set has a lot of outlines to the far end. Just looking
+at the points at the close end of the cloud should solve the problem (which is method Avg10Cl10). However, the values seem to be generally more distributed to
+the far end of the bounding box. I expect that this can be generally observe in (more) real world data, and therefore, needs to be filtered properly.
 
 
+### Final statement for TTC from Lidar
 
-
-The outliners are highlighted. The outlines clearly show a large (unexpected) increase of the TTC: the preceding vehicle gets
-constantly closer every cycle (can be seen by pure "eye" measurement), hence the TTC must get closer to zero. For the third
-method (TTCAverage10_First10), there is also one outlier to the other direction that might lead to a false positive due to the
-strong drop, if it is not correctly handled in a fusion part afterwards.
-
-I would go for the TTCMedian, since it seems to have pretty good values, despite of its outliers.
-
-
-
-This exercise is about conducting tests with the final project code, especially with regard to the Lidar part. Look for several examples
-where you have the impression that the Lidar-based TTC estimate is way off. Once you have found those, describe your observations and
-provide a sound argumentation why you think this happened.
-
-The task is complete once several examples (2-3) have been identified and described in detail. The assertion that the TTC is off should
-be based on manually estimating the distance to the rear of the preceding vehicle from a top view perspective of the Lidar points.
-
-
+I would go for the TTCMedian or Avg10, since they seem to have pretty good values at O(nlog n) for the sorting and O(1) for determing the value.
 
 
 

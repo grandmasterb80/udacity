@@ -180,13 +180,13 @@ end
 %
 % This function initializes a constant velocity filter based on a detection.
 function filter = initSimDemoFilter(detection)
-% Use a 2-D constant velocity model to initialize a trackingKF filter.
-% The state vector is [x;vx;y;vy]
-% The detection measurement vector is [x;y;vx;vy]
-% As a result, the measurement model is H = [1 0 0 0; 0 0 1 0; 0 1 0 0; 0 0 0 1]
+    % Use a 2-D constant velocity model to initialize a trackingKF filter.
+    % The state vector is [x;vx;y;vy]
+    % The detection measurement vector is [x;y;vx;vy]
+    % As a result, the measurement model is H = [1 0 0 0; 0 0 1 0; 0 1 0 0; 0 0 0 1]
 
-%TODO: Implement the Kalman filter using trackingKF function. If stuck
-%review the implementation discussed in the project walkthrough
+    %TODO: Implement the Kalman filter using trackingKF function. If stuck
+    %review the implementation discussed in the project walkthrough
 
 
 end
@@ -205,37 +205,37 @@ end
 % In addition, this function removes the third dimension of the measurement 
 % (the height) and reduces the measurement vector to [x;y;vx;vy].
 function detectionClusters = clusterDetections(detections, vehicleSize)
-N = numel(detections);
-distances = zeros(N);
-for i = 1:N
-    for j = i+1:N
-        if detections{i}.SensorIndex == detections{j}.SensorIndex
-            distances(i,j) = norm(detections{i}.Measurement(1:2) - detections{j}.Measurement(1:2));
-        else
-            distances(i,j) = inf;
+    N = numel(detections);
+    distances = zeros(N);
+    for i = 1:N
+        for j = i+1:N
+            if detections{i}.SensorIndex == detections{j}.SensorIndex
+                distances(i,j) = norm(detections{i}.Measurement(1:2) - detections{j}.Measurement(1:2));
+            else
+                distances(i,j) = inf;
+            end
         end
     end
-end
-leftToCheck = 1:N;
-i = 0;
-detectionClusters = cell(N,1);
-while ~isempty(leftToCheck)    
-    % Remove the detections that are in the same cluster as the one under
-    % consideration
-    
-    %TODO : Complete the clustering loop based on the implementation
-    %discussed in the lesson 
+    leftToCheck = 1:N;
+    i = 0;
+    detectionClusters = cell(N,1);
+    while ~isempty(leftToCheck)    
+        % Remove the detections that are in the same cluster as the one under
+        % consideration
 
-end
-detectionClusters(i+1:end) = [];
+        %TODO : Complete the clustering loop based on the implementation
+        %discussed in the lesson 
 
-% Since the detections are now for clusters, modify the noise to represent
-% that they are of the whole car
-for i = 1:numel(detectionClusters)
-    measNoise(1:2,1:2) = vehicleSize^2 * eye(2);
-    measNoise(3:4,3:4) = eye(2) * 100 * vehicleSize^2;
-    detectionClusters{i}.MeasurementNoise = measNoise;
-end
+    end
+    detectionClusters(i+1:end) = [];
+
+    % Since the detections are now for clusters, modify the noise to represent
+    % that they are of the whole car
+    for i = 1:numel(detectionClusters)
+        measNoise(1:2,1:2) = vehicleSize^2 * eye(2);
+        measNoise(3:4,3:4) = eye(2) * 100 * vehicleSize^2;
+        detectionClusters{i}.MeasurementNoise = measNoise;
+    end
 end
 
 %%% 

@@ -110,8 +110,6 @@ velocitySelector = [0 1 0 0; 0 0 0 1]; % Velocity selector
 % Create the display and return a handle to the bird's-eye plot
 BEP = createDemoDisplay(egoCar, sensors);
 
-
-
 %% Simulate the Scenario
 % The following loop moves the vehicles, calls the sensor simulation, and
 % performs the tracking.
@@ -144,7 +142,7 @@ toSnap = true;
 while advance(scenario) && ishghandle(BEP.Parent)    
     % Get the scenario time
     time = scenario.SimulationTime;
-    
+
     % Get the position of the other vehicle in ego vehicle coordinates
     ta = targetPoses(egoCar);
     
@@ -180,15 +178,13 @@ end
 %
 % This function initializes a constant velocity filter based on a detection.
 function filter = initSimDemoFilter(detection)
-    % Use a 2-D constant velocity model to initialize a trackingKF filter.
-    % The state vector is [x;vx;y;vy]
-    % The detection measurement vector is [x;y;vx;vy]
-    % As a result, the measurement model is H = [1 0 0 0; 0 0 1 0; 0 1 0 0; 0 0 0 1]
+% Use a 2-D constant velocity model to initialize a trackingKF filter.
+% The state vector is [x;vx;y;vy]
+% The detection measurement vector is [x;y;vx;vy]
+% As a result, the measurement model is H = [1 0 0 0; 0 0 1 0; 0 1 0 0; 0 0 0 1]
 
     %TODO: Implement the Kalman filter using trackingKF function. If stuck
     %review the implementation discussed in the project walkthrough
-
-
 end
 
 %%%
@@ -205,17 +201,17 @@ end
 % In addition, this function removes the third dimension of the measurement 
 % (the height) and reduces the measurement vector to [x;y;vx;vy].
 function detectionClusters = clusterDetections(detections, vehicleSize)
-    N = numel(detections);
-    distances = zeros(N);
-    for i = 1:N
-        for j = i+1:N
-            if detections{i}.SensorIndex == detections{j}.SensorIndex
-                distances(i,j) = norm(detections{i}.Measurement(1:2) - detections{j}.Measurement(1:2));
-            else
-                distances(i,j) = inf;
-            end
+N = numel(detections);
+distances = zeros(N);
+for i = 1:N
+    for j = i+1:N
+        if detections{i}.SensorIndex == detections{j}.SensorIndex
+            distances(i,j) = norm(detections{i}.Measurement(1:2) - detections{j}.Measurement(1:2));
+        else
+            distances(i,j) = inf;
         end
     end
+end
     leftToCheck = 1:N;
     i = 0;
     detectionClusters = cell(N,1);

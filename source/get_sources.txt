@@ -46,7 +46,8 @@ Instructions:
     echo "LICENSE" >> ../SFND_2D_Feature_Tracking/.gitignore
     echo "README.md" >> ../SFND_2D_Feature_Tracking/.gitignore
 
-    
+
+
 OpenCV - Final Project:
 -----------------------
 
@@ -77,3 +78,30 @@ Instructions:
     rm -r SFND_3D_Object_Tracking/dat/yolo
     cd    SFND_3D_Object_Tracking/dat
     ln -s ../../Autonomous_Vehicles_and_Computer_Vision/yolo ./
+
+
+
+SFND_Unscented_Kalman_Filter
+----------------------------
+
+git clone https://github.com/udacity/SFND_Unscented_Kalman_Filter
+
+Copy Media and PCD files into own copy of the repo
+    Source: SFND_Unscented_Kalman_Filter/README.md
+    Source: SFND_Unscented_Kalman_Filter/media
+    Source: SFND_Unscented_Kalman_Filter/src/sensors/data
+    Source: SFND_Unscented_Kalman_Filter/src/Eigen
+
+Instructions:
+    mkdir -p ../SFND_Unscented_Kalman_Filter/src/sensors/data
+
+    # only for the very initial check-out; afterwards .gitignore will be checked in
+    echo "README.md" >> ../SFND_Unscented_Kalman_Filter/.gitignore
+    echo "media" >> ../SFND_Unscented_Kalman_Filter/.gitignore
+    echo "src/sensors/data" >> ../SFND_Unscented_Kalman_Filter/.gitignore
+    echo "src/Eigen" >> ../SFND_Unscented_Kalman_Filter/.gitignore
+
+    cp    SFND_3D_Object_Tracking/README.md         ../SFND_Unscented_Kalman_Filter/
+    cp -r SFND_3D_Object_Tracking/media             ../SFND_Unscented_Kalman_Filter/
+    cp -r SFND_3D_Object_Tracking/src/sensors/data  ../SFND_Unscented_Kalman_Filter/src/sensors/
+    cp -r SFND_3D_Object_Tracking/src/Eigen         ../SFND_Unscented_Kalman_Filter/src/

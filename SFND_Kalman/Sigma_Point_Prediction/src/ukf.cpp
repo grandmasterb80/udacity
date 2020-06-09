@@ -50,10 +50,40 @@ void UKF::SigmaPointPrediction(MatrixXd* Xsig_out) {
    */
 
   // predict sigma points
+  VectorXd x_k = Xsig_aug.block( 0, 0, n_x, 1 );
+  double px            = x_k[ 0 ];
+  double py            = x_k[ 1 ];
+  double v             = x_k[ 2 ];
+  double psi           = x_k[ 3 ];
+  double psiD          = x_k[ 4 ];
+  double upsilon_a     = Xsig_aug( 0, 5 );
+  double upsilon_psiDD = Xsig_aug( 0, 6 );
 
   // avoid division by zero
+  VectorXd p1 = VectorXd( n_x );
+  if( fabs( psiD ) <= 1.0e-6 ) // check for very small values instead for == 0.0
+  {
+      p1 << v / psiD * ( sin( psi + psiD * delta_t ) - sin( psi ) ),
+            v / psiD * (-cos( psi + psiD * delta_t ) + cos( psi ) ),
+            0.0,
+            psiD * deltaT,
+            0.0;
+  }
+  else
+  {
+      p1 << v / psiD * ( sin( psi + psiD * delta_t ) - sin( psi ) ),
+            v / psiD * (-cos( psi + psiD * delta_t ) + cos( psi ) ),
+            0.0,
+            psiD * deltaT,
+            0.0;
+  }
+  VectorXd p2 = VectorXd( n_x );
+  p2 << 0.5 * delta_t * delta_t * cos( psi ) *
+
+  VectorXd x_kp1 = x_k + p1 + p2;
 
   // write predicted sigma points into right column
+  Xsig_pred
 
   /**
    * Student part end

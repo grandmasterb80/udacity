@@ -28,6 +28,6 @@ while ~isempty(leftToCheck)
     i = i + 1;
     detectionClusters{i} = detections{detInds(1)};
     detectionClusters{i}.Measurement = meas2D;
-    leftToCheck(clusterInds) = {};
+    leftToCheck(clusterInds) = [];
 end
 detectionClusters(i+1:end) = [];

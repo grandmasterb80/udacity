@@ -1,0 +1,99 @@
+Radar Target Generation and Detection - Daniel Baudisch
+=======================================================
+
+This document describes how I implemented the Project and particular remarkable
+experiences.
+In general, the required steps have been discussed in detail in previous lessons.
+During those lessons, I created little programs to follow the content. Hence, I
+simply had to find the corresponding parts in my files and copy them into the
+project file. 
+
+1) Project Overview
+-------------------
+
+Nothing to mention. Downloaded the document, started it in Matlab and it was not
+working, yet. This was expected, since a lot of stuff had to be implemented.
+
+I started to follow the "TODO"s in the project file and processed/implemented
+them step-by-step. For each TODO, I checked the online description to get more
+information.
+
+The variables to be declared, where described already on "1. Project Overview"
+and simply had to be written down. I took them out of one of my project file and
+had only to rename some variables.
+
+In addition, I defined the radar distance and resolution.
+
+Finally, I chose some random values for my target. During further implementation,
+I also changed the values to double-check if the implemenation behaves as expected.
+
+
+
+2) Target Generation
+--------------------
+
+This part had to be implemented in the first loop. First of all, I had to look
+up the reference for linspace function to check how I can access the time stamps
+in the loop.
+
+Variables have been already defined and where given. The loop is supposed to
+compute simulated values. Hence, I update the physical environment first, i.e. the
+vehicle position.
+The computation of Tx and Rx are given in the project description and have to be
+written down. The computation of Mix was not directly understandable and I looked
+it up via given link. Afterwards, implementation was straight forward.
+
+Remarks: the FFT in step 3 did not result in what I wanted, because I was not
+aware of the syntax to get a row out of a matrix (i.e. A(1,:) for the first row,
+I expected A(1) - maybe because I am more into C and C++). This took me most of
+the time in this project to figure out, why the FFT ended up with a constant
+value. Nevertheless, testing and visualization payed of at this situation.
+
+
+
+3) FFT Operation
+----------------
+
+The 1D FFT operation was already implemented in a previous exercise. I looked
+for the implementation and copied the required parts.
+What I had to look up in addition, was the "how to" reshape. Moreover, the
+extraction of a row of a matrix was not implemented proper by me. Took me a while
+to find the root cause (I only saw that the displayed result of the FFT was not
+correct). Using an intermediate variable that was printed to the console, I
+noticed that the format is incorrect. Solution: I look up for corresponding
+reference in the internet and using the correct notation ==> solved.
+
+Plotting the function is pretty straight forward. I had to work a bit on the "ff"
+variable to get the correct numbers for the x axis. I have to admit that this
+was a bit of trial-and-error (mostly because it is 4am and brain power dropped :-)).
+Anyway, it was clear that the discrete values must be mapped to the distance
+based on bandwidth and detection range of the radar.
+
+
+4) 2D CFAR
+----------
+
+Once again, this part was already discussed in detail in a previous lessen and
+I simply checked the TODO points with the existing implementation to copy the
+correct parts into the project file.
+
+Adaptions that I had to make:
+- db2pow and pow2db calls, since the RDM is in log scale, while the functionality
+  at hand has linear assumptions. Where this had to be placed was described in 
+  the project description.
+- The output signal is now "binary" (either 0 or 1). I left the assignment of
+  "1" at the beginning to tune the Tr, Gr, Td and Gd parameters.
+- The plot function needed a minor correction: I had to add the signal_cfar (my
+  output) at the corresponding place, which was marked.
+- I modified the size of the target arrays to match the size to the required
+  format. This allows me to skip the step to match the format, since the "missing"
+  values have to be set to 0, anyway.
+- Tuning of Tr, Gr, Td and Gd was pretty simple: I tried to reduce them as far
+  as possible, to reduce computation effort and the "waste" of non-thresholded
+  values in RDM. The resulting values are basically result of following method:
+    * turn the values down as far as possible
+    * turn it up again to ensure proper functionality also with different values
+  Finally, I increased offset, until only a tall peak was left.
+  To this end, I expect that the choosen values might be to restrictive for
+  real world application. They are a good starting point though and can be make
+  more tolerant, anytime, e.g. when testing the function with data from recordings.

@@ -15,6 +15,7 @@ vr = fd * lambda / 2;
 disp(vr);
 
 
+% Erata:
 % 2. Range Estimation:
 % Formulas for the range should use brackets (on the slides):
 % range = c * chirp_time * bf / ( 2 * Bsweep );

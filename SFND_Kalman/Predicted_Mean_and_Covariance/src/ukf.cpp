@@ -42,7 +42,7 @@ void UKF::PredictMeanAndCovariance(VectorXd* x_out, MatrixXd* P_out) {
           0.352, 0.29997, 0.46212, 0.37633,  0.4841, 0.41872,   0.352, 0.38744, 0.40562, 0.24347, 0.32926,  0.2214, 0.28687,   0.352, 0.318159;
 
   // create vector for weights
-  VectorXd weights = VectorXd(2*n_aug+1);
+  VectorXd weights = VectorXd( 2 * n_aug + 1 );
   
   // create vector for predicted state
   VectorXd x = VectorXd(n_x);
@@ -56,10 +56,32 @@ void UKF::PredictMeanAndCovariance(VectorXd* x_out, MatrixXd* P_out) {
    */
 
   // set weights
+  double w = 1.0 / ( lambda + n_aug );
+  weights = VectorXd::Constant( 2 * n_aug + 1, 0.5 * w );
+  weights(0) = lambda * w;
+  //std::cout << "Predicted state" << std::endl;
+  //std::cout << weights << std::endl;
 
   // predict state mean
+  x.fill( 0.0 ); //.noalias() = VectorXd::Zero( n_x );
+  for(int i = 0; i < 2 * n_aug + 1; i++)
+  {
+    x += weights(i) * Xsig_pred.col(i);
+  }
 
   // predict state covariance matrix
+  P.fill( 0.0 ); //.noalias() = MatrixXd::Zero( n_x, n_x );
+  for(int i = 0; i < 2 * n_aug + 1; i++)
+  {
+    VectorXd t = Xsig_pred.col(i) - x;
+
+    // angle normalization (taken from lesson 4/24: Predicted mean and covariance solution)
+    // Reference: https://classroom.udacity.com/nanodegrees/nd313/parts/da5e72fc-972d-42ae-bb76-fca3d3b2db06/modules/c32eb575-0080-4a25-a087-98ab84cb3092/lessons/daf3dee8-7117-48e8-a27a-fc4769d2b954/concepts/07b59fdd-adb3-479b-8566-336332cf5f09
+    while (t(3)> M_PI) t(3)-=2.*M_PI;
+    while (t(3)<-M_PI) t(3)+=2.*M_PI;
+
+    P += weights(i) * ( t * t.transpose().eval() );
+  }
 
   /**
    * Student part end

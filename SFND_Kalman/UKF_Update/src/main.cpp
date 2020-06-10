@@ -2,6 +2,7 @@
 #include "ukf.h"
 
 using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 int main() {
 
@@ -11,8 +12,9 @@ int main() {
   /**
    * Programming assignment calls
    */
-  MatrixXd Xsig_pred = MatrixXd(15, 5);
-  ukf.SigmaPointPrediction(&Xsig_pred);
+  VectorXd x_out = VectorXd(5);
+  MatrixXd P_out = MatrixXd(5, 5);
+  ukf.UpdateState(&x_out, &P_out);
 
   return 0;
 }

@@ -41,6 +41,53 @@ class UKF {
    */
   void UpdateRadar(MeasurementPackage meas_package);
 
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  // Student BAUDISCH - Start
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  /**
+   * Create the augmented sigma points by computing also the augmented state and covariance matrix.
+   * The function will store the result in Xsig_aug_.
+   */
+  void GenerateAugmentedSigmaPoints();
+
+  /**
+   * Predicts the mean and covariance for the current augmented sigma points (Xsig_aug_). The
+   * result will be stored in Xsig_pred_.
+   * @param delta_t          The time difference between current state and the predicted state.
+   */
+  void SigmaPointPrediction(double delta_t);
+
+  /**
+   * Predicts the mean and covariances based on the class member Xsig_pred_. The update will
+   * be written to the members x_ and P_.
+   */
+  void PredictMeanAndCovariance();
+
+  /**
+   * Predict the next step for a radar measurement.
+   */
+  void PredictRadarMeasurement(Eigen::VectorXd& z_out, Eigen::MatrixXd& S_out);
+
+  /**
+   * Update the state for a Radar measurement.
+   */
+  void UpdateState(Eigen::VectorXd& z_in, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S_in);
+
+  /// Radar measurement dimension
+  int n_z_;
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  /// Student BAUDISCH - End
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------------
 
   // initially set to false, set to true in first call of ProcessMeasurement
   bool is_initialized_;
@@ -59,6 +106,9 @@ class UKF {
 
   // predicted sigma points matrix
   Eigen::MatrixXd Xsig_pred_;
+
+  // augmented sigma covariance matrix
+  Eigen::MatrixXd Xsig_aug_;
 
   // time when the state is true, in us
   long long time_us_;

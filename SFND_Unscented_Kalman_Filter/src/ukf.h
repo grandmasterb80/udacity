@@ -80,6 +80,9 @@ class UKF {
 
   /// Radar measurement dimension
   int n_z_;
+  Eigen::MatrixXd R_;
+  Eigen::MatrixXd H_;
+  Eigen::MatrixXd F_;
   // ------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------
   /// Student BAUDISCH - End

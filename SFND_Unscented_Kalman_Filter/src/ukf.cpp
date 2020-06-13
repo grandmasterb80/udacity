@@ -110,6 +110,22 @@ UKF::UKF() {
   // time when the state is true, in us
   time_us_ = 0;
 
+  // measurement covariance
+  R_ = MatrixXd(2, 2);
+  R_ << 0.0225, 0,
+            0, 0.0225;
+
+  // measurement matrix
+  H_ = MatrixXd(2, 4);
+  H_ << 1, 0, 0, 0,
+            0, 1, 0, 0;
+
+  // the initial transition matrix F_
+  F_ = MatrixXd(4, 4);
+  F_ << 1, 0, 1, 0,
+            0, 1, 0, 1,
+            0, 0, 1, 0,
+            0, 0, 0, 1;
   // ------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------
   /// Student BAUDISCH - End

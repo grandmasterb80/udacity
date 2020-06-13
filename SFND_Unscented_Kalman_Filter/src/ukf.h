@@ -71,12 +71,12 @@ class UKF {
   /**
    * Predict the next step for a radar measurement.
    */
-  void PredictRadarMeasurement(Eigen::VectorXd& z_out, Eigen::MatrixXd& S_out);
+  void PredictRadarMeasurement(Eigen::VectorXd& z_out, Eigen::MatrixXd &Zsig_out, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S_out);
 
   /**
    * Update the state for a Radar measurement.
    */
-  void UpdateState(Eigen::VectorXd& z_in, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S_in);
+  void UpdateState(Eigen::VectorXd& z_in, Eigen::MatrixXd &Zsig_in, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S_in);
 
   /// Radar measurement dimension
   int n_z_;

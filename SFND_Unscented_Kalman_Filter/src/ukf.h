@@ -71,18 +71,37 @@ class UKF {
   /**
    * Predict the next step for a radar measurement.
    */
-  void PredictRadarMeasurement(Eigen::VectorXd& z_out, Eigen::MatrixXd &Zsig_out, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S_out);
+  void PredictRadarMeasurement(Eigen::MatrixXd &Zsig_out, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S_out);
 
   /**
    * Update the state for a Radar measurement.
    */
-  void UpdateState(Eigen::VectorXd& z_in, Eigen::MatrixXd &Zsig_in, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S_in);
+  void UpdateStateRadar(Eigen::VectorXd& z_in, Eigen::MatrixXd &Zsig_in, Eigen::VectorXd& z_pred, Eigen::MatrixXd& S_in);
 
   /// Radar measurement dimension
-  int n_z_;
-  Eigen::MatrixXd R_;
-  Eigen::MatrixXd H_;
-  Eigen::MatrixXd F_;
+  int n_z_radar_;
+  /// Lidar measurement dimension
+  int n_z_lidar_;
+
+  /// Normalized Innovation Squared (NIS) for radar (see https://classroom.udacity.com/nanodegrees/nd313/parts/da5e72fc-972d-42ae-bb76-fca3d3b2db06/modules/c32eb575-0080-4a25-a087-98ab84cb3092/lessons/daf3dee8-7117-48e8-a27a-fc4769d2b954/concepts/f3ba9445-452d-4727-8209-b317d44ff1f1)
+  double NIS_radar_;
+  unsigned int NIS_radar_950_;
+  unsigned int NIS_radar_900_;
+  unsigned int NIS_radar_100_;
+  unsigned int NIS_radar_050_;
+  unsigned int NIS_radar_total_;
+
+  /// Normalized Innovation Squared (NIS) for lidar (see https://classroom.udacity.com/nanodegrees/nd313/parts/da5e72fc-972d-42ae-bb76-fca3d3b2db06/modules/c32eb575-0080-4a25-a087-98ab84cb3092/lessons/daf3dee8-7117-48e8-a27a-fc4769d2b954/concepts/f3ba9445-452d-4727-8209-b317d44ff1f1)
+  double NIS_lidar_;
+  unsigned int NIS_lidar_950_;
+  unsigned int NIS_lidar_900_;
+  unsigned int NIS_lidar_100_;
+  unsigned int NIS_lidar_050_;
+  unsigned int NIS_lidar_total_;
+
+  /// ID of this filter - to limit debugging to specific objects
+  int FID;
+
   // ------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------
   /// Student BAUDISCH - End

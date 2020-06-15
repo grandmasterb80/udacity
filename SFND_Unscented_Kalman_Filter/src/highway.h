@@ -15,6 +15,9 @@ public:
 	bool pass = true;
 	std::vector<double> rmseThreshold = {0.30,0.16,0.95,0.70};
 	std::vector<double> rmseFailLog = {0.0,0.0,0.0,0.0};
+	std::vector<double> rmseMaxLog = {0.0,0.0,0.0,0.0};
+	std::vector<double> rmseAvgLog = {0.0,0.0,0.0,0.0};
+  uint64_t rmseNumMeasurements = 0;
 	Lidar* lidar;
 	
 	// Parameters 
@@ -31,7 +34,12 @@ public:
 	// --------------------------------
   ~Highway()
   {
-    std::cout << "RMSE Highway: " << rmseFailLog[0] << ", " << rmseFailLog[1] << ", " << rmseFailLog[2] << ", " << rmseFailLog[3] << std::endl;
+    for(int i = 0; i < 4; i++ )
+    {
+      rmseAvgLog[i] = sqrt( rmseAvgLog[i] / rmseNumMeasurements );
+    }
+    std::cout << "RMSE Max:  " << rmseMaxLog[0] << ", " << rmseMaxLog[1] << ", " << rmseMaxLog[2] << ", " << rmseMaxLog[3] << std::endl;
+    std::cout << "RMSE Mean: " << rmseAvgLog[0] << ", " << rmseAvgLog[1] << ", " << rmseAvgLog[2] << ", " << rmseAvgLog[3] << std::endl;
   }
 
 	Highway(pcl::visualization::PCLVisualizer::Ptr& viewer)
@@ -156,29 +164,39 @@ public:
 
 		if(timestamp > 1.0e6)
 		{
+      if( rmseMaxLog[0] < rmse[0] )
+        rmseMaxLog[0] = rmse[0];
+      if( rmseMaxLog[1] < rmse[1] )
+        rmseMaxLog[1] = rmse[1];
+      if( rmseMaxLog[2] < rmse[2] )
+        rmseMaxLog[2] = rmse[2];
+      if( rmseMaxLog[3] < rmse[3] )
+        rmseMaxLog[3] = rmse[3];
+
+      rmseAvgLog[0] += rmse[0] * rmse[0];
+      rmseAvgLog[1] += rmse[1] * rmse[1];
+      rmseAvgLog[2] += rmse[2] * rmse[2];
+      rmseAvgLog[3] += rmse[3] * rmse[3];
+      rmseNumMeasurements++;
 
 			if(rmse[0] > rmseThreshold[0])
 			{
-        if( rmseFailLog[0] < rmse[0] )
-          rmseFailLog[0] = rmse[0];
+        rmseFailLog[0] = rmse[0];
 				pass = false;
 			}
 			if(rmse[1] > rmseThreshold[1])
 			{
-        if( rmseFailLog[1] < rmse[1] )
-          rmseFailLog[1] = rmse[1];
+        rmseFailLog[1] = rmse[1];
 				pass = false;
 			}
 			if(rmse[2] > rmseThreshold[2])
 			{
-        if( rmseFailLog[2] < rmse[2] )
-          rmseFailLog[2] = rmse[2];
+        rmseFailLog[2] = rmse[2];
 				pass = false;
 			}
 			if(rmse[3] > rmseThreshold[3])
 			{
-        if( rmseFailLog[3] < rmse[3] )
-          rmseFailLog[3] = rmse[3];
+        rmseFailLog[3] = rmse[3];
 				pass = false;
 			}
 		}

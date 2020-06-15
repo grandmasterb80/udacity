@@ -29,6 +29,10 @@ public:
 	double projectedTime = 0;
 	int projectedSteps = 0;
 	// --------------------------------
+  ~Highway()
+  {
+    std::cout << "RMSE Highway: " << rmseFailLog[0] << ", " << rmseFailLog[1] << ", " << rmseFailLog[2] << ", " << rmseFailLog[3] << std::endl;
+  }
 
 	Highway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 	{
@@ -155,22 +159,26 @@ public:
 
 			if(rmse[0] > rmseThreshold[0])
 			{
-				rmseFailLog[0] = rmse[0];
+        if( rmseFailLog[0] < rmse[0] )
+          rmseFailLog[0] = rmse[0];
 				pass = false;
 			}
 			if(rmse[1] > rmseThreshold[1])
 			{
-				rmseFailLog[1] = rmse[1];
+        if( rmseFailLog[1] < rmse[1] )
+          rmseFailLog[1] = rmse[1];
 				pass = false;
 			}
 			if(rmse[2] > rmseThreshold[2])
 			{
-				rmseFailLog[2] = rmse[2];
+        if( rmseFailLog[2] < rmse[2] )
+          rmseFailLog[2] = rmse[2];
 				pass = false;
 			}
 			if(rmse[3] > rmseThreshold[3])
 			{
-				rmseFailLog[3] = rmse[3];
+        if( rmseFailLog[3] < rmse[3] )
+          rmseFailLog[3] = rmse[3];
 				pass = false;
 			}
 		}

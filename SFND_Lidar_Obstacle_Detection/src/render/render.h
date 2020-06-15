@@ -81,12 +81,12 @@ struct Car
   	void render(pcl::visualization::PCLVisualizer::Ptr& viewer);
 
 	// collision helper function
-	bool inbetween(double point, double center, double range)
+	bool inbetween(double point, double center, double range) const
 	{
 		return (center-range <= point) && (center+range >= point);
 	}
 
-	bool checkCollision(const Vect3 &point)
+	bool checkCollision(const Vect3 &point) const
 	{
 		return (inbetween(point.x,position.x,dimensions.x/2)&&inbetween(point.y,position.y,dimensions.y/2)&&inbetween(point.z,position.z+dimensions.z/3,dimensions.z/3))||
 			   (inbetween(point.x,position.x,dimensions.x/4)&&inbetween(point.y,position.y,dimensions.y/2)&&inbetween(point.z,position.z+dimensions.z*5/6,dimensions.z/6));
@@ -99,7 +99,7 @@ struct Car
     //           Enter and Exit "timestamps" of intersection (OUT)
     // Return:   True if there is overlap between Line and AABB, False otherwise
     // Note:     Enter and Exit are used for calculations and are only updated in case of intersection
-    bool Line_AABB_1d(double start, double dir, double min, double max, double& enter, double& exit)
+    bool Line_AABB_1d(double start, double dir, double min, double max, double& enter, double& exit) const
     {
         //If the line segment is more of a point, just check if it's within the segment
         if(fabs(dir) < 1.0E-8)
@@ -136,7 +136,7 @@ struct Car
     //           Location where line hits the AABB (OUT)
     // Return:   True if a collision occurs, False otherwise
     // Note:     If no collision occurs, OUT param is not reassigned and is not considered useable
-    bool Line_AABB(const Vect3& s, const Vect3& dir, const Vect3& min, const Vect3& max, Vect3& hitPoint, double minDist, double &distance)
+    bool Line_AABB(const Vect3& s, const Vect3& dir, const Vect3& min, const Vect3& max, Vect3& hitPoint, double minDist, double &distance) const
     {
         double enter = minDist;
         double exit = distance;
@@ -165,7 +165,7 @@ struct Car
      *         minDist     Minimal distance that needs to be checked
      *         distance    Maximal distance that needs to be checked; if the vehicle is hit, it will contain the distance to the vehicle
      */ 
-	bool checkRayCollision(const Vect3 &origin, const Vect3 &direction, Vect3 &hitPoint, double minDist, double &distance)
+	bool checkRayCollision(const Vect3 &origin, const Vect3 &direction, Vect3 &hitPoint, double minDist, double &distance) const
     {
         bool hit1 = Line_AABB( origin, direction, box1min, box1max, hitPoint, minDist, distance );
         bool hit2 = Line_AABB( origin, direction, box2min, box2max, hitPoint, minDist, distance );

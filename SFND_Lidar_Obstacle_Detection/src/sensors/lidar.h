@@ -57,7 +57,7 @@ struct Ray
 			// check if there is any collisions with cars
 			if(!collision && castDistance < maxDistance)
 			{
-				for(Car car : cars)
+				for(const Car &car : cars)
 				{
 					collision |= car.checkCollision(castPosition);
 					if(collision)
@@ -84,7 +84,7 @@ struct Ray
 
 		bool collision = false;
         int i = 0;
-        for(Car car : cars)
+        for(const Car &car : cars)
         {
             Vect3 hitPoint;
             bool hit = car.checkRayCollision( origin, direction, castPosition, minDistance, castDistance);

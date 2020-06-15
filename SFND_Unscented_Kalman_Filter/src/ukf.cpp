@@ -7,11 +7,13 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-#define DEBUG_LEVEL     7
+#define DEBUG_LEVEL     0
 #define UKF_ID          3
 
 #define     DEBUG(level, instr)     do { if(level <= DEBUG_LEVEL) { instr; } } while(0);
 #define UKF_DEBUG(level, instr)     do { if(FID==UKF_ID && level <= DEBUG_LEVEL) { instr; } } while(0);
+
+#define     sign(a)     ( ( (a) >= 0.0 ) ? (a) : (-(a)) )
 
 static int ID = 0;
 
@@ -24,6 +26,10 @@ double NormalizeAngle( double angle )
   if( angle >  M_PI ) angle = angle - trunc( ( angle + M_PI ) / ( 2.0 * M_PI ) ) * 2.0 * M_PI;
   // round to zero; offset to get start at one and get an additional counter for every additional 2pi in z_diff(3)
   if( angle < -M_PI ) angle = angle - trunc( ( angle - M_PI ) / ( 2.0 * M_PI ) ) * 2.0 * M_PI;
+
+  assert( angle >= -M_PI );
+  assert( angle <=  M_PI );
+  return angle;
 }
 
 /**
@@ -52,7 +58,7 @@ UKF::UKF() {
   use_laser_ = true;
 
   // if this is false, radar measurements will be ignored (except during init)
-  use_radar_ = false;
+  use_radar_ = true;
 
   // initial state vector
   x_ = VectorXd(5);
@@ -182,10 +188,10 @@ UKF::~UKF() {
   if( NIS_radar_total_ > 0 )
   {
     DEBUG(1, std::cout << __LINE__ << " NIS radar for FID=" << FID << ": " <<
-    "\t\t0.050: " << (double)NIS_radar_050_ / NIS_radar_total_ <<
-    "\t\t0.100: " << (double)NIS_radar_100_ / NIS_radar_total_ <<
-    "\t\t0.900: " << (double)NIS_radar_900_ / NIS_radar_total_ <<
     "\t\t0.950: " << (double)NIS_radar_950_ / NIS_radar_total_ <<
+    "\t\t0.900: " << (double)NIS_radar_900_ / NIS_radar_total_ <<
+    "\t\t0.100: " << (double)NIS_radar_100_ / NIS_radar_total_ <<
+    "\t\t0.050: " << (double)NIS_radar_050_ / NIS_radar_total_ <<
     "\t\ttotal: " << NIS_radar_total_ <<
     std::endl );
   }
@@ -193,10 +199,10 @@ UKF::~UKF() {
   if( NIS_lidar_total_ > 0 )
   {
     DEBUG(1, std::cout << __LINE__ << " NIS lidar for FID=" << FID << ": " <<
-    "\t\t0.050: " << (double)NIS_lidar_050_ / NIS_lidar_total_ <<
-    "\t\t0.100: " << (double)NIS_lidar_100_ / NIS_lidar_total_ <<
-    "\t\t0.900: " << (double)NIS_lidar_900_ / NIS_lidar_total_ <<
     "\t\t0.950: " << (double)NIS_lidar_950_ / NIS_lidar_total_ <<
+    "\t\t0.900: " << (double)NIS_lidar_900_ / NIS_lidar_total_ <<
+    "\t\t0.100: " << (double)NIS_lidar_100_ / NIS_lidar_total_ <<
+    "\t\t0.050: " << (double)NIS_lidar_050_ / NIS_lidar_total_ <<
     "\t\ttotal: " << NIS_lidar_total_ <<
     std::endl );
   }
@@ -219,19 +225,38 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   if( is_initialized_ )
   {
     double delta_t = ( meas_package.timestamp_ - time_us_ ) / 1.0e6;
-    UKF_DEBUG( 8, std::cout << __LINE__ << " x_ before prediction " << vec2str( x_ ) << std::endl );
-    Prediction( delta_t );
-    UKF_DEBUG( 8, std::cout << __LINE__ << " x_ after prediction  " << vec2str( x_ ) << std::endl );
     if( meas_package.sensor_type_ == MeasurementPackage::LASER )
     {
+      MatrixXd m = MatrixXd( n_x_, n_x_ );
+      //m = MatrixXd::Identity( n_x_, n_x_ );
+      m << 0.10, 0.00, 0.00, 0.00, 0.00,
+           0.00, 0.10, 0.00, 0.00, 0.00,
+           0.00, 0.00, 0.50, 0.00, 0.00,
+           0.00, 0.00, 0.00, 0.20, 0.00,
+           0.00, 0.00, 0.00, 0.00, 0.10;
+      P_ = P_ + m * delta_t;
       DEBUG(9, std::cout << __LINE__ << " Lidar update for UKF " << FID << std::endl );
+      UKF_DEBUG( 8, std::cout << __LINE__ << " x_ before prediction " << vec2str( x_ ) << std::endl );
+      Prediction( delta_t );
+      UKF_DEBUG( 8, std::cout << __LINE__ << " x_ after prediction  " << vec2str( x_ ) << std::endl );
       UpdateLidar( meas_package );
       UKF_DEBUG( 6, std::cout << __LINE__ << " x_ after update      " << vec2str( x_ ) << std::endl );
       UKF_DEBUG( 7, std::cout << __LINE__ << " P_ after update      " << std::endl << P_ << std::endl );
     }
     else
     {
+      MatrixXd m = MatrixXd( n_x_, n_x_ );
+      //m = MatrixXd::Identity( n_x_, n_x_ );
+      m << 0.10, 0.00, 0.00, 0.00, 0.00,
+           0.00, 0.10, 0.00, 0.00, 0.00,
+           0.00, 0.00, 0.20, 0.00, 0.00,
+           0.00, 0.00, 0.00, 0.20, 0.00,
+           0.00, 0.00, 0.00, 0.00, 0.10;
+      P_ = P_ + m * delta_t;
       DEBUG(9, std::cout << __LINE__ << " Radar update for UKF " << FID << std::endl );
+      UKF_DEBUG( 8, std::cout << __LINE__ << " x_ before prediction " << vec2str( x_ ) << std::endl );
+      Prediction( delta_t );
+      UKF_DEBUG( 8, std::cout << __LINE__ << " x_ after prediction  " << vec2str( x_ ) << std::endl );
       UpdateRadar( meas_package );
       UKF_DEBUG( 6, std::cout << __LINE__ << " x_ after update      " << vec2str( x_ ) << std::endl );
       UKF_DEBUG( 7, std::cout << __LINE__ << " P_ after update      " << std::endl << P_ << std::endl );
@@ -249,9 +274,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
             0.0;
       P_ << std_laspx_*std_laspx_, 0.0, 0.0, 0.0, 0.0,    // std dev of lidar
             0.0, std_laspy_*std_laspy_, 0.0, 0.0, 0.0,    // std dev of lidar
-            0.0, 0.0, 400.0, 0.0, 0.0,                    // bicycle should not be sooo fast. Let's assume it can have up to 20m/s (would cover even a race bike)
-            0.0, 0.0, 0.0, 0.1*M_PI*M_PI, 0.0,                // maximum deviation of angle will be M_PI
-            0.0, 0.0, 0.0, 0.0, (M_PI/5.0)*(M_PI/5.0);    // 36degree/sec as maximum deviation of the rotation speed
+            0.0, 0.0, 1600.0, 0.0, 0.0,                    // bicycle should not be sooo fast. Let's assume it can have up to 20m/s (would cover even a race bike)
+            0.0, 0.0, 0.0, M_PI*M_PI, 0.0,                // maximum deviation of angle will be M_PI
+            0.0, 0.0, 0.0, 0.0, (M_PI/2.0)*(M_PI/2.0);    // 36degree/sec as maximum deviation of the rotation speed
     }
     else
     {
@@ -264,13 +289,11 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
             radial_v / cos( phi ),    // assume that vehicle drive in same direction
             0.0,
             0.0;
-/*
       P_ << cos( phi ) * std_radr_ * std_radr_ + sin( phi ) * std_radphi_ * std_radphi_, 0.0, 0.0, 0.0, 0.0,
             0.0, sin( phi ) * std_radr_ * std_radr_ - cos( phi ) * std_radphi_ * std_radphi_, 0.0, 0.0, 0.0,
             0.0, 0.0, cos( phi ) * std_radrd_ * std_radrd_, 0.0, 0.0,
             0.0, 0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 1.0;
-*/
     }
     is_initialized_ = true;
   }

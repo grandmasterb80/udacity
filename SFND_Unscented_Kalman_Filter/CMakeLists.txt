@@ -9,11 +9,18 @@ project(playback)
 
 find_package(PCL 1.2 REQUIRED)
 
+find_package(OpenMP)
+
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 
-
 add_executable (ukf_highway src/main.cpp src/ukf.cpp src/tools.cpp src/render/render.cpp)
-target_link_libraries (ukf_highway ${PCL_LIBRARIES})
+
+
+if(OpenMP_CXX_FOUND)
+    target_link_libraries( ukf_highway PUBLIC ${PCL_LIBRARIES} OpenMP::OpenMP_CXX)
+else()
+    target_link_libraries (ukf_highway ${PCL_LIBRARIES})
+endif()

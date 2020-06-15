@@ -71,6 +71,9 @@ struct Car
 
 	// units in meters
 	Vect3 position, dimensions;
+  Vect3 box1min, box1max;
+  Vect3 box2min, box2max;
+
 	Eigen::Quaternionf orientation;
 	std::string name;
 	Color color;
@@ -95,7 +98,12 @@ struct Car
 	{}
  
 	Car(Vect3 setPosition, Vect3 setDimensions, Color setColor, float setVelocity, float setAngle, float setLf, std::string setName)
-		: position(setPosition), dimensions(setDimensions), color(setColor), velocity(setVelocity), angle(setAngle), Lf(setLf), name(setName)
+		: position(setPosition), dimensions(setDimensions),
+          box1min ( -dimensions.x / 2.0, -dimensions.y / 2.0, 0.0 ),
+          box1max (  dimensions.x / 2.0,  dimensions.y / 2.0, dimensions.z * 2.0 / 3.0 ),
+          box2min ( -dimensions.x / 4.0, -dimensions.y / 2.0, dimensions.z  * 2.0 / 3.0 ),
+          box2max (  dimensions.x / 4.0,  dimensions.y / 2.0, dimensions.z ),
+          color(setColor), velocity(setVelocity), angle(setAngle), Lf(setLf), name(setName)
 	{
 		orientation = getQuaternion(angle);
 		acceleration = 0;
@@ -274,12 +282,20 @@ struct Car
      *         distance    Maximal distance that needs to be checked; if the vehicle is hit, it will contain the distance to the vehicle
      */ 
 	bool checkRayCollision(const Vect3 &origin, const Vect3 &direction, Vect3 &hitPoint, double minDist, double &distance) const
-    {
-        bool hit1 = Line_AABB( origin, direction, box1min, box1max, hitPoint, minDist, distance );
-        bool hit2 = Line_AABB( origin, direction, box2min, box2max, hitPoint, minDist, distance );
-        
-        return ( hit1 || hit2 );
-    }
+  {
+    Vect3 origin2;
+    Vect3 direction2;
+
+    origin2.x = cosNegTheta * (origin.x - position.x) - sinNegTheta * (origin.y - position.y);
+    origin2.y = sinNegTheta * (origin.x - position.x) + cosNegTheta * (origin.y - position.y);
+    direction2.x = cosNegTheta * direction.x - sinNegTheta * direction.x;
+    direction2.y = sinNegTheta * direction.x + cosNegTheta * direction.x;
+
+    bool hit1 = Line_AABB( origin2, direction2, box1min, box1max, hitPoint, minDist, distance );
+    bool hit2 = Line_AABB( origin2, direction2, box2min, box2max, hitPoint, minDist, distance );
+    
+    return ( hit1 || hit2 );
+  }
 };
 
 void renderHighway(double distancePos, pcl::visualization::PCLVisualizer::Ptr& viewer);

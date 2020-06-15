@@ -80,7 +80,7 @@ UKF::UKF() {
   std_a_ = 1.0;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = M_PI / 180.0 * 0.1;
+  std_yawdd_ = M_PI / 180.0 * 20.0;
   
   /**
    * DO NOT MODIFY measurement noise values below.
@@ -227,14 +227,13 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     double delta_t = ( meas_package.timestamp_ - time_us_ ) / 1.0e6;
     if( meas_package.sensor_type_ == MeasurementPackage::LASER )
     {
-      MatrixXd m = MatrixXd( n_x_, n_x_ );
-      //m = MatrixXd::Identity( n_x_, n_x_ );
-      m << 0.10, 0.00, 0.00, 0.00, 0.00,
-           0.00, 0.10, 0.00, 0.00, 0.00,
-           0.00, 0.00, 0.50, 0.00, 0.00,
-           0.00, 0.00, 0.00, 0.20, 0.00,
-           0.00, 0.00, 0.00, 0.00, 0.10;
-      P_ = P_ + m * delta_t;
+      // ensure that uncertainty stays above a specific threshold to ensure a certain level of reactivity of the filter
+      P_(0,0) = std::max( P_(0,0), 0.0001 );
+      P_(1,1) = std::max( P_(1,1), 0.0001 );
+      P_(2,2) = std::max( P_(2,2), 0.0001 );
+      P_(3,3) = std::max( P_(3,3), 0.0001 );
+      P_(4,4) = std::max( P_(4,4), 0.0001 );
+
       DEBUG(9, std::cout << __LINE__ << " Lidar update for UKF " << FID << std::endl );
       UKF_DEBUG( 8, std::cout << __LINE__ << " x_ before prediction " << vec2str( x_ ) << std::endl );
       Prediction( delta_t );
@@ -245,14 +244,13 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     }
     else
     {
-      MatrixXd m = MatrixXd( n_x_, n_x_ );
-      //m = MatrixXd::Identity( n_x_, n_x_ );
-      m << 0.10, 0.00, 0.00, 0.00, 0.00,
-           0.00, 0.10, 0.00, 0.00, 0.00,
-           0.00, 0.00, 0.20, 0.00, 0.00,
-           0.00, 0.00, 0.00, 0.20, 0.00,
-           0.00, 0.00, 0.00, 0.00, 0.10;
-      P_ = P_ + m * delta_t;
+      // ensure that uncertainty stays above a specific threshold to ensure a certain level of reactivity of the filter
+      P_(0,0) = std::max( P_(0,0), 0.0001 );
+      P_(1,1) = std::max( P_(1,1), 0.0001 );
+      P_(2,2) = std::max( P_(2,2), 0.0001 );
+      P_(3,3) = std::max( P_(3,3), 0.0005 );
+      P_(4,4) = std::max( P_(4,4), 0.0001 );
+
       DEBUG(9, std::cout << __LINE__ << " Radar update for UKF " << FID << std::endl );
       UKF_DEBUG( 8, std::cout << __LINE__ << " x_ before prediction " << vec2str( x_ ) << std::endl );
       Prediction( delta_t );

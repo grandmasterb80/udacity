@@ -47,7 +47,7 @@ struct Ray
 			// check if there is any collisions with cars
 			if(!collision && castDistance < maxDistance)
 			{
-				for(Car car : cars)
+				for(const Car& car : cars)
 				{
 					collision |= car.checkCollision(castPosition);
 					if(collision)
@@ -65,6 +65,49 @@ struct Ray
 			cloud->points.push_back(pcl::PointXYZ(castPosition.x+rx*sderr, castPosition.y+ry*sderr, castPosition.z+rz*sderr));
 		}
 			
+	}
+
+	void rayCastFast(const std::vector<Car>& cars, const double minDistance, const double maxDistance, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const Vect3 &groundNormal, const double sderr)
+	{
+		// reset ray
+		castPosition = origin;
+		castDistance = maxDistance;
+
+		bool collision = false;
+        int i = 0;
+        for(const Car &car : cars)
+        {
+            Vect3 hitPoint;
+            bool hit = car.checkRayCollision( origin, direction, castPosition, minDistance, castDistance);
+            collision |= hit;
+            if( hit && i==0 ) std::cout << "I hit myself at " << castDistance << "m,  range=[" << minDistance << ", " << maxDistance << "]" << std::endl;
+            i++;
+        }
+
+        {
+            double groundHitDistance;
+            double s_minus_p_dot_n = -origin.dot( groundNormal );
+            double d_dot_n = direction.dot( groundNormal );
+            if( fabs( d_dot_n ) > 0.01 ) // ==0 means ray is parallel to ground and would not hit unless the sensor lies directly in the ground, which can be neglected for our simulation
+            {
+                groundHitDistance = s_minus_p_dot_n / d_dot_n;
+                if( ( groundHitDistance >= minDistance ) && ( groundHitDistance <=maxDistance ) && ( !collision || collision && groundHitDistance < castDistance ) )
+                {
+                    castDistance = groundHitDistance;
+                    castPosition = origin + castDistance * direction;
+                    collision = true;
+                }
+            }
+        }
+
+		if( collision && ( castDistance >= minDistance ) && ( castDistance <= maxDistance ) )
+		{
+			// add noise based on standard deviation error
+			double rx = ((double) rand() / (RAND_MAX));
+			double ry = ((double) rand() / (RAND_MAX));
+			double rz = ((double) rand() / (RAND_MAX));
+			cloud->points.push_back(pcl::PointXYZ(castPosition.x+rx*sderr, castPosition.y+ry*sderr, castPosition.z+rz*sderr));
+		}
 	}
 
 };

@@ -4,6 +4,61 @@
 
 #include "render.h"
 
+
+
+Vect3 Vect3::operator+(const Vect3& vec)
+{
+    Vect3 result(x+vec.x,y+vec.y,z+vec.z);
+    return result;
+}
+
+Vect3 Vect3::operator-(const Vect3& vec)
+{
+    Vect3 result(x-vec.x,y-vec.y,z-vec.z);
+    return result;
+}
+
+Vect3 Vect3::operator*(const Vect3& vec)
+{
+    Vect3 result( y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x );
+    return result;
+}
+
+double Vect3::dot(const Vect3& vec)
+{
+    return x * vec.x + y * vec.y + z * vec.z;
+}
+
+Vect3 Vect3::operator*(const double a)
+{
+    Vect3 result( a * x, a * y, a * z);
+    return result;
+}
+
+Vect3 operator*(double a, const Vect3& vec)
+{
+    Vect3 result( a * vec.x, a * vec.y, a * vec.z);
+    return result;
+}
+
+Vect3 operator+(const Vect3& vec1, const Vect3& vec2)
+{
+    Vect3 result( vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z);
+    return result;
+}
+
+Vect3 operator-(const Vect3& vec1, const Vect3& vec2)
+{
+    Vect3 result( vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z);
+    return result;
+}
+
+Vect3 operator*(const Vect3& vec1, const Vect3& vec2)
+{
+    Vect3 result( vec1.x * vec2.x, vec1.y * vec2.y, vec1.z * vec2.z);
+    return result;
+}
+
 void renderHighway(double distancePos, pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
 

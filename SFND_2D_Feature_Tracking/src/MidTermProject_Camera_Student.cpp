@@ -16,6 +16,9 @@
 #include "dataStructures.h"
 #include "matching2D.hpp"
 
+// remove definition to run a pure benchmark
+#define VISUALIZATION_ENABLED
+
 using namespace std;
 
 void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoints, int &numMatchedKeypoints, double &time);
@@ -158,7 +161,11 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
     // misc
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
+#ifdef VISUALIZATION_ENABLED
+    bool bVis = true;            // visualize results
+#else
     bool bVis = false;            // visualize results
+#endif
 
     /* MAIN LOOP OVER ALL IMAGES */
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex++)
@@ -306,7 +313,9 @@ void runBenchmark(string &detectorType, string &descriptorType, int &numKeypoint
             numMatchedKeypoints += matches.size();
 
             // visualize matches between current and previous image
-            bVis = false;
+#ifdef VISUALIZATION_ENABLED
+            bVis = true;
+#endif
             
             if (bVis)
             {

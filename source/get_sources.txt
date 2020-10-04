@@ -1,5 +1,10 @@
 How to get the data for the tutorials
 
+Preliminaries: YOLO
+-------------------
+Call following script:
+  ../Autonomous_Vehicles_and_Computer_Vision/yolo/download.sh
+
 
 Udacity: sensor fusion course
 -----------------------------
@@ -7,55 +12,47 @@ Udacity: sensor fusion course
 SFND_Lidar_Obstacle_Detection:
 ------------------------------
 
+Following directories are required from the original github repo:
+ * SFND_Lidar_Obstacle_Detection/media
+ * SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+
+Required steps: clone following repository
 git clone https://github.com/udacity/SFND_Lidar_Obstacle_Detection.git
 
-Copy Media and PCD files into own copy of the repo
-    Source: SFND_Lidar_Obstacle_Detection/media
-    Source: SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
-
-Instructions:
-    mkdir -p ../SFND_Lidar_Obstacle_Detection/media
-    cp -ra SFND_Lidar_Obstacle_Detection/media ../SFND_Lidar_Obstacle_Detection/media
-
-    mkdir -p ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
-    cp -ra SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
-
-    # only for the very initial check-out; afterwards .gitignore will be checked in
-    echo "media" >> ../SFND_Lidar_Obstacle_Detection/.gitignore
-    echo "pcd" >> ../SFND_Lidar_Obstacle_Detection/src/sensors/data/.gitignore
-
+The links to the data are already in the repository. There is no need to apply
+any additional steps. Find below the links that were created for this particular
+sub-project:
+ * udacity/SFND_Lidar_Obstacle_Detection/media points to udacity/source/SFND_Lidar_Obstacle_Detection/media
+ * udacity/SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd points to udacity/source/SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
 
 
 OpenCV - Midterm Project:
 -------------------------
 
+Following directories are required from the original github repo:
+ * SFND_2D_Feature_Tracking/LICENSE
+ * SFND_2D_Feature_Tracking/README.md
+ * SFND_2D_Feature_Tracking/images
+
+Required steps: clone following repository
 git clone https://github.com/udacity/SFND_2D_Feature_Tracking.git
 
+The links to the data are already in the repository. There is no need to apply
+any additional steps. Find below the links that were created for this particular
+sub-project:
+
 Copy Media and PCD files into own copy of the repo
-    Source: SFND_2D_Feature_Tracking/LICENSE
-    Source: SFND_2D_Feature_Tracking/README.md
-    Source: SFND_2D_Feature_Tracking/images
-
-Instructions:
-    cp -a  SFND_2D_Feature_Tracking/LICENSE ../SFND_2D_Feature_Tracking/
-    cp -a  SFND_2D_Feature_Tracking/README.md ../SFND_2D_Feature_Tracking/
-    cp -ra SFND_2D_Feature_Tracking/images ../SFND_2D_Feature_Tracking/
-
-    # only for the very initial check-out; afterwards .gitignore will be checked in
-    echo "images" >> ../SFND_2D_Feature_Tracking/.gitignore
-    echo "LICENSE" >> ../SFND_2D_Feature_Tracking/.gitignore
-    echo "README.md" >> ../SFND_2D_Feature_Tracking/.gitignore
-
+SFND_2D_Feature_Tracking/LICENSE points to ../source/SFND_2D_Feature_Tracking/LICENSE
+SFND_2D_Feature_Tracking/README.md points to ../source/SFND_2D_Feature_Tracking/README.md
+SFND_2D_Feature_Tracking/images points to ../source/SFND_2D_Feature_Tracking/images
 
 
 OpenCV - Final Project:
 -----------------------
 
+Note: The final project requires YOLO. See instructions above.
+
 git clone --recursive https://github.com/udacity/SFND_3D_Object_Tracking.git
-
-Get YOLO DNN using the download script:
-../Autonomous_Vehicles_and_Computer_Vision/yolo/download.sh
-
 
 Copy Media and PCD files into own copy of the repo
     Source: SFND_3D_Object_Tracking/LICENSE
@@ -64,18 +61,9 @@ Copy Media and PCD files into own copy of the repo
     Source: SFND_3D_Object_Tracking/dat
 
 Instructions:
-    mkdir ../SFND_3D_Object_Tracking
-
-    # only for the very initial check-out; afterwards .gitignore will be checked in
-    echo "images" >> ../SFND_3D_Object_Tracking/.gitignore
-    echo "README.md" >> ../SFND_3D_Object_Tracking/.gitignore
-    echo "dat" >> ../SFND_3D_Object_Tracking/.gitignore
-    echo "build" >> ../SFND_3D_Object_Tracking/.gitignore
-
-    cp -ra SFND_3D_Object_Tracking/images     ../SFND_3D_Object_Tracking/
-    cp -a  SFND_3D_Object_Tracking/README.md  ../SFND_3D_Object_Tracking/
-    cp -ra SFND_3D_Object_Tracking/dat        ../SFND_3D_Object_Tracking/
-    rm -ra SFND_3D_Object_Tracking/dat/yolo
+    ln -s SFND_3D_Object_Tracking/images     ../SFND_3D_Object_Tracking/
+    ln -s SFND_3D_Object_Tracking/dat        ../SFND_3D_Object_Tracking/
+    ln -s SFND_3D_Object_Tracking/dat/yolo
     cd    SFND_3D_Object_Tracking/dat
     ln -s ../../Autonomous_Vehicles_and_Computer_Vision/yolo ./
 

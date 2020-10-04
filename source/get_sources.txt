@@ -1,0 +1,107 @@
+How to get the data for the tutorials
+
+
+Udacity: sensor fusion course
+-----------------------------
+
+SFND_Lidar_Obstacle_Detection:
+------------------------------
+
+git clone https://github.com/udacity/SFND_Lidar_Obstacle_Detection.git
+
+Copy Media and PCD files into own copy of the repo
+    Source: SFND_Lidar_Obstacle_Detection/media
+    Source: SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+
+Instructions:
+    mkdir -p ../SFND_Lidar_Obstacle_Detection/media
+    cp -ra SFND_Lidar_Obstacle_Detection/media ../SFND_Lidar_Obstacle_Detection/media
+
+    mkdir -p ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+    cp -ra SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd ../SFND_Lidar_Obstacle_Detection/src/sensors/data/pcd
+
+    # only for the very initial check-out; afterwards .gitignore will be checked in
+    echo "media" >> ../SFND_Lidar_Obstacle_Detection/.gitignore
+    echo "pcd" >> ../SFND_Lidar_Obstacle_Detection/src/sensors/data/.gitignore
+
+
+
+OpenCV - Midterm Project:
+-------------------------
+
+git clone https://github.com/udacity/SFND_2D_Feature_Tracking.git
+
+Copy Media and PCD files into own copy of the repo
+    Source: SFND_2D_Feature_Tracking/LICENSE
+    Source: SFND_2D_Feature_Tracking/README.md
+    Source: SFND_2D_Feature_Tracking/images
+
+Instructions:
+    cp -a  SFND_2D_Feature_Tracking/LICENSE ../SFND_2D_Feature_Tracking/
+    cp -a  SFND_2D_Feature_Tracking/README.md ../SFND_2D_Feature_Tracking/
+    cp -ra SFND_2D_Feature_Tracking/images ../SFND_2D_Feature_Tracking/
+
+    # only for the very initial check-out; afterwards .gitignore will be checked in
+    echo "images" >> ../SFND_2D_Feature_Tracking/.gitignore
+    echo "LICENSE" >> ../SFND_2D_Feature_Tracking/.gitignore
+    echo "README.md" >> ../SFND_2D_Feature_Tracking/.gitignore
+
+
+
+OpenCV - Final Project:
+-----------------------
+
+git clone --recursive https://github.com/udacity/SFND_3D_Object_Tracking.git
+
+Get YOLO DNN using the download script:
+../Autonomous_Vehicles_and_Computer_Vision/yolo/download.sh
+
+
+Copy Media and PCD files into own copy of the repo
+    Source: SFND_3D_Object_Tracking/LICENSE
+    Source: SFND_3D_Object_Tracking/README.md
+    Source: SFND_3D_Object_Tracking/images
+    Source: SFND_3D_Object_Tracking/dat
+
+Instructions:
+    mkdir ../SFND_3D_Object_Tracking
+
+    # only for the very initial check-out; afterwards .gitignore will be checked in
+    echo "images" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "README.md" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "dat" >> ../SFND_3D_Object_Tracking/.gitignore
+    echo "build" >> ../SFND_3D_Object_Tracking/.gitignore
+
+    cp -ra SFND_3D_Object_Tracking/images     ../SFND_3D_Object_Tracking/
+    cp -a  SFND_3D_Object_Tracking/README.md  ../SFND_3D_Object_Tracking/
+    cp -ra SFND_3D_Object_Tracking/dat        ../SFND_3D_Object_Tracking/
+    rm -ra SFND_3D_Object_Tracking/dat/yolo
+    cd    SFND_3D_Object_Tracking/dat
+    ln -s ../../Autonomous_Vehicles_and_Computer_Vision/yolo ./
+
+
+
+SFND_Unscented_Kalman_Filter
+----------------------------
+
+git clone https://github.com/udacity/SFND_Unscented_Kalman_Filter
+
+Copy Media and PCD files into own copy of the repo
+    Source: SFND_Unscented_Kalman_Filter/README.md
+    Source: SFND_Unscented_Kalman_Filter/media
+    Source: SFND_Unscented_Kalman_Filter/src/sensors/data
+    Source: SFND_Unscented_Kalman_Filter/src/Eigen
+
+Instructions:
+    mkdir -p ../SFND_Unscented_Kalman_Filter/src/sensors/data
+
+    # only for the very initial check-out; afterwards .gitignore will be checked in
+    echo "README.md" >> ../SFND_Unscented_Kalman_Filter/.gitignore
+    echo "media" >> ../SFND_Unscented_Kalman_Filter/.gitignore
+    echo "src/sensors/data" >> ../SFND_Unscented_Kalman_Filter/.gitignore
+    echo "src/Eigen" >> ../SFND_Unscented_Kalman_Filter/.gitignore
+
+    cp -a  SFND_Unscented_Kalman_Filter/README.md         ../SFND_Unscented_Kalman_Filter/
+    cp -ra SFND_Unscented_Kalman_Filter/media             ../SFND_Unscented_Kalman_Filter/
+    cp -ra SFND_Unscented_Kalman_Filter/src/sensors/data  ../SFND_Unscented_Kalman_Filter/src/sensors/
+    cp -ra SFND_Unscented_Kalman_Filter/src/Eigen         ../SFND_Unscented_Kalman_Filter/src/

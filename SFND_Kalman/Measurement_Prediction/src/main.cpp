@@ -2,6 +2,7 @@
 #include "ukf.h"
 
 using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 int main() {
 
@@ -10,9 +11,10 @@ int main() {
 
   /**
    * Programming assignment calls
-   */
-  MatrixXd Xsig_pred = MatrixXd(15, 5);
-  ukf.SigmaPointPrediction(&Xsig_pred);
+   */  
+  VectorXd z_out = VectorXd(3);
+  MatrixXd S_out = MatrixXd(3, 3);
+  ukf.PredictRadarMeasurement(&z_out, &S_out);
 
   return 0;
 }

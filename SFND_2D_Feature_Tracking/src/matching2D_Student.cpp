@@ -191,7 +191,8 @@ double descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &des
     }
     else if (descriptorType.compare("SIFT") == 0)
     {
-        extractor = cv::xfeatures2d::SIFT::create();
+//         extractor = cv::xfeatures2d::SIFT::create();
+        extractor = cv::SIFT::create();
     }
     else
     {
@@ -418,7 +419,7 @@ double detKeypointsAkaze(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, boo
 
 double detKeypointsSift(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
-    cv::Ptr<cv::FeatureDetector> detector = cv::xfeatures2d::SIFT::create();
+    cv::Ptr<cv::FeatureDetector> detector = cv::SIFT::create();
 
     double t = (double)cv::getTickCount();
     detector->detect(img, keypoints);
